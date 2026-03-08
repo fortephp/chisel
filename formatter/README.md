@@ -61,7 +61,7 @@ For example, if we had installed the `prettier-plugin-tailwindcss` plugin, we co
     "tailwindConfig": "path/to/tailwind.config.js",
     "plugins": [
         "prettier-plugin-blade",
-        "prettier-plugin-tailwindcs"
+        "prettier-plugin-tailwindcss"
     ],
     "overrides": [
         {
