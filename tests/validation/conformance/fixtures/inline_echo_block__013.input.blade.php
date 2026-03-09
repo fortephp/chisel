@@ -1,0 +1,7 @@
+<div>
+    {{ $foo->bar([
+        "foo" => $foo,
+        "bar" => $bar,
+        "baz" => $baz,
+    ]) }}
+</div>

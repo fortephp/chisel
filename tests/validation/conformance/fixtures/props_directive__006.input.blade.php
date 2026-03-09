@@ -1,0 +1,4 @@
+@props([
+    'foo' => [],
+    'foobarbaz' => false,
+])

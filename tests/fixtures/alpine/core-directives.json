@@ -1,0 +1,48 @@
+{
+  "directives": [
+    "bind",
+    "cloak",
+    "data",
+    "effect",
+    "for",
+    "html",
+    "id",
+    "if",
+    "ignore",
+    "init",
+    "model",
+    "modelable",
+    "on",
+    "ref",
+    "show",
+    "teleport",
+    "text",
+    "transition"
+  ],
+  "modifiersByDirective": {
+    "ignore": ["self"],
+    "model": [
+      "parent",
+      "change",
+      "lazy",
+      "blur",
+      "enter",
+      "fill",
+      "unintrusive",
+      "number",
+      "boolean",
+      "trim"
+    ],
+    "show": ["important", "immediate"],
+    "teleport": ["prepend", "append"],
+    "transition": [
+      "in",
+      "out",
+      "opacity",
+      "scale",
+      "delay",
+      "origin",
+      "duration"
+    ]
+  }
+}

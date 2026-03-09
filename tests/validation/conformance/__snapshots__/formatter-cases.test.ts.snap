@@ -1,0 +1,3749 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`validation/conformance/formatter-cases > formats basic_nodes__001 1`] = `
+"{{ $title }}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats basic_nodes__002 1`] = `
+"{{{ $title }}}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats basic_nodes__003 1`] = `
+"{!! $title !!}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats basic_nodes__004 1`] = `
+"{{-- Comment. --}}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats basic_nodes__005 1`] = `
+"{{--
+                Block Comment. --}}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats basic_nodes__006 1`] = `
+"{{--
+ Block Comment.
+ with many lines and with <stuff></stuff> --}}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats basic_nodes__007 1`] = `
+"<div>
+  {{--
+ Block Comment.
+ with many lines and with <stuff></stuff> --}}
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats basic_nodes__008 1`] = `
+"@if ($someCondition)
+  {{-- format-ignore-start --}}
+  <x-slot:the_slot>
+    {{-- format-ignore-end --}}
+@endif
+
+<!-- More content here. -->
+
+@if ($someCondition)
+  {{-- format-ignore-start --}}
+  </x-slot>
+  {{-- format-ignore-end --}}
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats basic_nodes__009 1`] = `
+"<div {{-- A comment! --}}>
+  <p>Hello, world!</p>
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats basic_nodes__010 1`] = `
+"<div
+  class="my-4"
+  @unless (config(
+      'filament-media-library.settings.show-upload-box-by-default',
+    ))
+    x-foo
+    x-show="showUploadBox"
+    x-collapse
+    x-cloak
+  @endunless
+>
+  <p>Hello, world!</p>
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats can__001 1`] = `
+"{{-- foo.blade.php --}}
+
+@props (['model'])
+
+@can ('update', $model)
+  update
+@else
+  any
+@endcan
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__001 1`] = `
+"<x-icon @class ([$icon, 'pe-2']) />
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__002 1`] = `
+"<x-icon @class ([$icon, 'pe-2'])>
+  <div>
+    <p>test</p>
+  </div>
+</x-icon>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__003 1`] = `
+"<x-slot:name param="value" />
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__004 1`] = `
+"<x:slot:name param="value" />
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__005 1`] = `
+"<x:slot:name param="value">
+  <p>Content</p>
+</x:slot:name>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__006 1`] = `
+"<x:slot:name />
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__007 1`] = `
+"<x-inputs.button class="something" />
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__008 1`] = `
+"<x-alert type="error" :message="$message" />
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__009 1`] = `
+"<x-button ::class="{ danger: isDeleting }"> Submit </x-button>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__010 1`] = `
+"<button :class="{ danger: isDeleting }">Submit</button>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__011 1`] = `
+"<option
+  {{
+    $isSelected($value)
+      ? 'selected="selected"'
+      : ''
+  }}
+  value="{{ $value }}"
+>
+  {{ $label }}
+</option>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__012 1`] = `
+"<div {{ $attributes }}>
+  <!-- Component content -->
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__013 1`] = `
+"<div
+  {{
+    $attributes->merge(
+      ['class' => 'alert alert-' . $type],
+    )
+  }}
+>
+  {{ $message }}
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__014 1`] = `
+"<div
+  {{
+    $attributes->class(
+      ['p-4', 'bg-red' => $hasError],
+    )
+  }}
+>
+  {{ $message }}
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__015 1`] = `
+"<button
+  {{
+    $attributes
+      ->class(['p-4'])
+      ->merge(['type' => 'button'])
+  }}
+>
+  {{ $slot }}
+</button>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__016 1`] = `
+"<x-alert
+  attribute
+  param="{{ $title }}"
+  {{ $title }}
+  @directiveName
+  @directiveWithParams ('test')
+/>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__017 1`] = `
+"<x-alert @param ($value + $anotherValue) />
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__018 1`] = `
+"<x-alert @param ($value   $= + $anotherValue) />
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__019 1`] = `
+"<x-alert>
+  <x-slot:title>
+    Server Error
+  </x-slot:title>
+
+  <strong>Whoops!</strong> Something went wrong!
+</x-alert>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__020 1`] = `
+"<x-profile :$userId :$size></x-profile>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__021 1`] = `
+"<x-filament::avatar
+  :src="filament()->getTenantAvatarUrl($tenant)"
+  {{ $attributes }}
+/>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__022 1`] = `
+"<x-filament::avatar
+  :src="filament()->getTenantAvatarUrl($tenant)"
+  {{ $attributes }}
+/>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__023 1`] = `
+"<x-foo {{-- foo="" --}} />
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__024 1`] = `
+"<x-jet-dropdown-link
+  href="{{ route('logout') }}"
+  @click.prevent="$root.submit()"
+>
+  {{
+    __(
+      'Log Out',
+    )
+  }}
+</x-jet-dropdown-link>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__025 1`] = `
+"<x-slot name="title">
+  <p>Howdy, sir.</p>
+</x-slot>
+
+<x-slot:title>
+  {{
+    __(
+      'My Title',
+    )
+  }}
+  <x-slot:title>
+    {{
+      __(
+        'My Title',
+      )
+    }}
+  </x-slot:title>
+
+  <x-slot name="title">
+    <p>Howdy, sir.</p>
+  </x-slot>
+
+  <x-slot:title-two>
+    {{
+      __(
+        'My Title',
+      )
+    }}
+    <x-slot:title-three>
+      {{
+        __(
+          'My Title',
+        )
+      }}
+      <x-slot name="title">
+        <p>Howdy, sir.</p>
+      </x-slot>
+
+      <x-slot:title>
+        {{
+          __(
+            'My Title',
+          )
+        }}
+        <x-slot:title>
+          {{
+            __(
+              'My Title',
+            )
+          }}
+        </x-slot:title>
+
+        <x-slot name="title">
+          <p>Howdy, sir.</p>
+        </x-slot>
+
+        <x-slot:title-two>
+          {{
+            __(
+              'My Title',
+            )
+          }}
+          <x-slot:title-three>
+            {{
+              __(
+                'My Title',
+              )
+            }}
+          </x-slot:title-three>
+          <x-slot name="title">
+            <p>Howdy, sir.</p>
+          </x-slot>
+
+          <x-slot:title>
+            {{
+              __(
+                'My Title',
+              )
+            }}
+            <x-slot:title>
+              {{
+                __(
+                  'My Title',
+                )
+              }}
+            </x-slot:title>
+          </x-slot:title>
+
+          <x-slot:title>
+            {{
+              __(
+                'My Title',
+              )
+            }}
+            <x-slot name="title">
+              <p>Howdy, sir.</p>
+            </x-slot>
+
+            <x-slot:title>
+              {{
+                __(
+                  'My Title',
+                )
+              }}
+              <x-slot:title>
+                {{
+                  __(
+                    'My Title',
+                  )
+                }}
+              </x-slot:title>
+
+              <x-slot name="title">
+                <p>Howdy, sir.</p>
+              </x-slot>
+
+              <x-slot:title-two>
+                {{
+                  __(
+                    'My Title',
+                  )
+                }}
+                <x-slot:title-three>
+                  {{
+                    __(
+                      'My Title',
+                    )
+                  }}
+                </x-slot:title-three>
+                <x-slot name="title">
+                  <p>Howdy, sir.</p>
+                </x-slot>
+
+                <x-slot:title>
+                  {{
+                    __(
+                      'My Title',
+                    )
+                  }}
+                  <x-slot:title>
+                    {{
+                      __(
+                        'My Title',
+                      )
+                    }}
+                  </x-slot:title>
+                </x-slot:title>
+
+                <x-slot:title>
+                  {{
+                    __(
+                      'My Title',
+                    )
+                  }}
+                </x-slot:title>
+              </x-slot:title-two>
+
+              <x-slot:title-four>
+                {{
+                  __(
+                    'My Title',
+                  )
+                }}
+              </x-slot:title-four>
+            </x-slot:title>
+
+            <x-slot:title>
+              {{
+                __(
+                  'My Title',
+                )
+              }}
+            </x-slot:title>
+          </x-slot:title>
+        </x-slot:title-two>
+
+        <x-slot:title-four>
+          {{
+            __(
+              'My Title',
+            )
+          }}
+        </x-slot:title-four>
+      </x-slot:title>
+
+      <x-slot:title>
+        {{
+          __(
+            'My Title',
+          )
+        }}
+      </x-slot:title>
+    </x-slot:title-three>
+    <x-slot name="title">
+      <p>Howdy, sir.</p>
+    </x-slot>
+
+    <x-slot:title>
+      {{
+        __(
+          'My Title',
+        )
+      }}
+      <x-slot:title>
+        {{
+          __(
+            'My Title',
+          )
+        }}
+      </x-slot:title>
+    </x-slot:title>
+
+    <x-slot:title>
+      {{
+        __(
+          'My Title',
+        )
+      }}
+    </x-slot:title>
+  </x-slot:title-two>
+
+  <x-slot:title-four>
+    {{
+      __(
+        'My Title',
+      )
+    }}
+  </x-slot:title-four>
+</x-slot:title>
+
+<x-slot:title>
+  {{
+    __(
+      'My Title',
+    )
+  }}
+</x-slot:title>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__026 1`] = `
+"<object data="audi.wav">
+  <param name="autoplay" value="true" />
+</object>
+<param something="here" />
+<param />
+<param name="autoplay" value="true" />
+</Param>
+<audio controls>
+  <source src="1.ogg" type="audio/ogg" />
+  <source src="2.mp3" type="audio/mpeg" />
+  Your browser does not support the audio element.
+
+  <track src="1.vtt" kind="subtitles" srclang="en" label="1" />
+  <track src="2.vtt" kind="subtitles" srclang="no" label="2" />
+</audio>
+<p>Test<wbr />content</p>
+<wbr />
+<wbr />
+
+</Wbr>
+<track />
+The track.
+<track />
+</Track>
+
+<source src="something.wav" />
+<source />
+<object data="audi.wav">
+  <param name="autoplay" value="true" />
+</object>
+<param something="here" />
+<param />
+<param name="autoplay" value="true" />
+</Param>
+<audio controls>
+  <source src="1.ogg" type="audio/ogg" />
+  <source src="2.mp3" type="audio/mpeg" />
+  Your browser does not support the audio element.
+</audio>
+</Source>
+<hr />
+<hr />
+<hr repeat="2" />
+<hr />
+Hello!
+</Hr>
+<img src="" />
+<img src="" />
+<img type="something" />
+Hello, there!
+</Img>
+<input type="text" />
+<input type="text" />
+<input type="text" />
+<input type="text" />
+Placeholder text.
+</Input>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<Description>Hello!</Description>
+</Meta>
+<command type="checklist" label="Check List">Check List</command>
+<command something="here">
+  <map name="workmap">
+    <area
+      shape="rect"
+      coords="34,44,270,350"
+      alt="Computer"
+      href="computer.htm"
+    />
+    <area shape="rect" coords="290,172,333,250" alt="Phone" href="phone.htm" />
+    <area
+      shape="circle"
+      coords="337,300,44"
+      alt="Cup of coffee"
+      href="coffee.htm"
+    />
+  </map>
+  <embed type="image/jpg" src="pic.jpg" width="300" height="200" />
+  <area width="100" height="100" />
+  <embed src="something.svg" />
+
+  <command type="checklist" label="Check List">Check List</command>
+  <command something="here">
+    <map name="workmap">
+      <area
+        shape="rect"
+        coords="34,44,270,350"
+        alt="Computer"
+        href="computer.htm"
+      />
+      <area
+        shape="rect"
+        coords="290,172,333,250"
+        alt="Phone"
+        href="phone.htm"
+      />
+      <area
+        shape="circle"
+        coords="337,300,44"
+        alt="Cup of coffee"
+        href="coffee.htm"
+      />
+    </map>
+    <embed type="image/jpg" src="pic.jpg" width="300" height="200" />
+    <area width="100" height="100" />
+    <base href="https://www.w3schools.com/" target="_blank" />
+    <area width="100" height="100" />
+    <area width="100" height="100" />
+    Something.
+    </Area>
+  </command>
+  </Embed>
+
+  <map name="workmap">
+    <area
+      shape="rect"
+      coords="34,44,270,350"
+      alt="Computer"
+      href="computer.htm"
+    />
+    <area shape="rect" coords="290,172,333,250" alt="Phone" href="phone.htm" />
+    <area
+      shape="circle"
+      coords="337,300,44"
+      alt="Cup of coffee"
+      href="coffee.htm"
+    />
+  </map>
+
+  <area width="100" height="100" />
+
+  <base href="https://www.w3schools.com/" target="_blank" />
+  <area width="100" height="100" />
+  <area width="100" height="100" />
+  Something.
+  </Area>
+
+  <br />
+  <br />
+  <table>
+    <colgroup>
+      <col span="2" style="background-color: red" />
+      <col style="background-color: yellow" />
+    </colgroup>
+  </table>
+
+  <col span="12" />
+  <Row> </Row>
+  </Col>
+
+  <br repeat="2" />
+
+  <br repeat="3" />
+  <base href="https://www.w3schools.com/" target="_blank" />
+  <area width="100" height="100" />
+  <area width="100" height="100" />
+  Something.
+  </Area>
+  </Br>
+
+  <base width="100" height="100" />
+  Something.
+  </Base>
+
+  @if ($something)
+    <link rel="" />
+    <link
+      href="{{ route('profile.show') }}"
+      class="text-sm text-gray-600 underline hover:text-gray-900"
+    />
+    {{
+      __(
+        'Edit Profile',
+      )
+    }}
+    <base width="100" height="100" />
+    Something.
+    <map name="workmap">
+      <area
+        shape="rect"
+        coords="34,44,270,350"
+        alt="Computer"
+        href="computer.htm"
+      />
+      <area
+        shape="rect"
+        coords="290,172,333,250"
+        alt="Phone"
+        href="phone.htm"
+      />
+      <area
+        shape="circle"
+        coords="337,300,44"
+        alt="Cup of coffee"
+        href="coffee.htm"
+      />
+    </map>
+    <area width="100" height="100" />
+    <base href="https://www.w3schools.com/" target="_blank" />
+    <area width="100" height="100" />
+    Something.
+    </Area>
+    </Base>
+    </Link>
+
+  @endif
+
+  <base href="https://www.w3schools.com/" target="_blank" />
+  <link rel="" />
+  <link
+    href="{{ route('profile.show') }}"
+    class="text-sm text-gray-600 underline hover:text-gray-900"
+  />
+  {{
+    __(
+      'Edit Profile',
+    )
+  }} </Link>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__027 1`] = `
+"<x-checkbox
+  :checked="
+    $firstCondition ||
+    $secondCondition ||
+    $thirdCondition ||
+    $fourthCondition ||
+    $fifthCondition ||
+    $sixthCondition ||
+    $seventhCondition
+  "
+/>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__028 1`] = `
+"<div>
+  <x-checkbox
+    :checked="
+      $firstCondition ||
+    $secondCondition ||
+    $thirdCondition ||
+    $fourthCondition ||
+    $fifthCondition ||
+    $sixthCondition ||
+    $seventhCondition
+    "
+  />
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__029 1`] = `
+"<div>
+  <div>
+    <div>
+      <x-component :prop="array_filter(array_merge([[], []]))" />
+    </div>
+  </div>
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats component_tags__030 1`] = `
+"<x-hero @@click="navigaotr" one="two"> <p>Hello, world.</p></x-hero>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats conditional_element_directive_pair__001 1`] = `
+"<@pair Test @endpair class="something">
+  <div>
+    <p>SOme {{ $title }} text</p>
+    <p>
+      @pair
+        <p>Something</p>
+      @endpair
+    </p>
+  </div>
+</@pair>
+Test
+@endpair
+>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats conditional_element_directive_pair__002 1`] = `
+"<@directive>
+  <div>
+    @directive
+      <p>This should be {{ $paired }}</p>
+    @enddirective
+  </div>
+</@directive>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats conditional_element_echo__001 1`] = `
+"<{{ $element }} class="something">
+  <div><p>SOme {{ $element }} text</p></div>
+</{{ $element }}>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats conditional_element_echo__002 1`] = `
+"<{{ $element }} class="something">
+  <div>
+    <p>SOme {{ $element }} text</p>
+    <{{ $element }} class="something">
+      <div><p>SOme {{ $element }} text</p></div>
+    </{{ $element }}>
+  </div>
+</{{ $element }}>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats conditional_element_echo__003 1`] = `
+"<{{{ $element }}} class="something">
+  <div>
+    <p>SOme {{{ $element }}} text</p>
+    <{{{ $element }}} class="something">
+      <div><p>SOme {{{ $element }}} text</p></div>
+    </{{{ $element }}}>
+  </div>
+</{{{ $element }}}>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats conditional_element_echo__004 1`] = `
+"<{!! $element !!} class="something">
+  <div>
+    <p>SOme {!! $element !!} text</p>
+    <{!! $element !!} class="something">
+      <div><p>SOme {!! $element !!} text</p></div>
+    </{!! $element !!}>
+  </div>
+</{!! $element !!}>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats conditional_element_if__001 1`] = `
+"<@if ($something)here @endif class="something">
+  <div>
+    <p>SOme {{ $text }} text</p>
+    <@if ($something)here @endif class="something">
+      <div><p>SOme {{ $text }} text</p></div> </@if
+    >($something)here
+    @endif
+    >
+  </div> </@if
+>($something)here
+@endif
+>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats conditional_element_if__002 1`] = `
+"<@if ($something)here @endif class="something">
+  <div>
+    <p>SOme {{ $text }} text</p>
+    <@if ($something)here @endif class="something">
+      <div>
+        <p>SOme {{ $text }} text</p>
+
+        @if ($something) here @endif
+      </div> </@if
+    >($something)here
+    @endif
+    >
+  </div> </@if
+>($something)here
+@endif
+>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats conditional_element_unless__001 1`] = `
+"<@unless ($something)here @endunless class="something">
+  <div>
+    <p>SOme {{ $text }} text</p>
+    <@unless ($something)here @endunless class="something">
+      <div><p>SOme {{ $text }} text</p></div> </@unless
+    >($something)here
+    @endunless
+    >
+  </div> </@unless
+>($something)here
+@endunless
+>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__001 1`] = `
+"@directive ($test + $that - $another + $thing)
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__002 1`] = `
+"@directive ($test  ++++ $that-$another   + $thing)
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__003 1`] = `
+"@section ('messages')
+  <div class="alert success">
+    <p><strong>Success!</strong></p>
+    @foreach ($success->all('<p>:message</p>') as $msg)
+      {{ $msg }}
+    @endforeach
+  </div>
+@show
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__004 1`] = `
+"@Foreach ($filters as $item)
+  <li class="list-unstyled">
+    <a
+      href="{{ $item->link }}"
+      class="{{ $item->active ? 'fw-bold text-primary' : '' }}"
+    >
+      {{ $item->name }}
+    </a>
+  </li>
+@endforeach
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__005 1`] = `
+"@section ('messages')
+  <div class="alert success">
+    <p><strong>Success!</strong></p>
+    @foreach ($success->all('<p>:message</p>') as $msg)
+      {{ $msg }}
+    @endforeach
+  </div>
+@show
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__006 1`] = `
+"<div>
+  @directive ($test + $that - $another + $thing)
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__007 1`] = `
+"<div>@directive ($test + $that - $another + $thing)</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__008 1`] = `
+"<div>
+  @pair
+    dasdfsdf asdf
+  @endpair
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__009 1`] = `
+"<div>
+  @pair
+    <div>
+      @pair
+        <p>Test one.</p>
+        <div>
+          @pair
+            <div>
+              @pair
+                <p>Test two.</p>
+                <div>
+                  @pair
+                    <div>
+                      @pair
+                        <p>Test three.</p>
+                      @endpair
+                    </div>
+
+                  @endpair
+                </div>
+
+              @endpair
+            </div>
+
+          @endpair
+        </div>
+
+      @endpair
+    </div>
+
+  @endpair
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__010 1`] = `
+"@can ('create', App\\Models\\User::class)
+  {!! $something_here !!}
+@endcan
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__011 1`] = `
+"@class ([
+  'foo' => true,
+  'bar' => false,
+  'bar2' => false,
+])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__012 1`] = `
+"@class ([
+  'filament antialiased min-h-screen js-focus-visible',
+  'dark' => filament()->hasDarkModeForced(),
+])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__013 1`] = `
+"@class ([
+  'filament js-focus-visible min-h-screen antialiased',
+  'dark' => filament()->hasDarkModeForced(),
+])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__014 1`] = `
+"<div>
+  <span @class (['some classes'])> {{ $foo }} </span>
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__015 1`] = `
+"<div>
+  <span @class (['some classes'])> {{ $foo }} </span>
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__016 1`] = `
+"<div>
+  <span @class (['some classes'])> {{ $foo }} </span>
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__017 1`] = `
+"<x-foo @class (['foo', 'foo bar baz something long very very long']) />
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__018 1`] = `
+"@guest
+  <div></div>
+@endguest
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__019 1`] = `
+"@unless
+  <div></div>
+@endunless
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__020 1`] = `
+"@sectionMissing
+  <div></div>
+@endsectionMissing
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__021 1`] = `
+"@hasSection
+  <div></div>
+@endhasSection
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__022 1`] = `
+"@auth
+  <div></div>
+@endauth
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__023 1`] = `
+"@env
+  <div></div>
+@endenv
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__024 1`] = `
+"@isset
+  <div></div>
+@endisset
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__025 1`] = `
+"@cannot
+  <div></div>
+@endcannot
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__026 1`] = `
+"@canany
+  <div></div>
+@endcanany
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__027 1`] = `
+"@hasSection
+  <div></div>
+@endhasSection
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__028 1`] = `
+"@production
+  <div></div>
+@endproduction
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__029 1`] = `
+"@class ([
+  'foo',
+  match ($color) {
+    'blue' => 'text-blue-500',
+    'green' => 'text-green-500',
+  },
+])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__030 1`] = `
+"@once
+  <li>
+    <button type="button" wire:loading.attr="disabled">
+      <x-component::name
+        class="w-4 h-4 text-primary-500"
+        wire:loading.delay
+        wire:target="{{ one }} {{ two }}"
+      />
+    </button>
+  </li>
+@endonce
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__031 1`] = `
+"@if ($that)
+  <div @if ($somethingElse) this! @endif>Hello, world.</div>
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__032 1`] = `
+"@class ([
+  'foo' => !true,
+])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__033 1`] = `
+"@class ([
+  'text-sm font-medium leading-4',
+  'text-gray-700' => !$error,
+  'dark:text-gray-300' => !$error && config('forms.dark_mode'),
+  'text-danger-700' => $error,
+  'dark:text-danger-400' => $error && config('forms.dark_mode'),
+])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__034 1`] = `
+"@class ([
+  'grid auto-cols-fr grid-flow-col gap-2 text-sm',
+  'ms-8' => $active,
+])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__035 1`] = `
+"<div>
+  <div class="relative group max-w-md">
+    <span
+      @class ([
+        'absolute inset-y-0 left-0 flex items-center justify-center w-10 h-10 text-gray-500 pointer-events-none group-focus-within:text-primary-500',
+        'dark:text-gray-400' => config('filament.dark_mode'),
+      ])
+    ></span>
+  </div>
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__036 1`] = `
+"<div>
+  <div class="group relative max-w-md">
+    <span
+      @class ([
+        'group-focus-within:text-primary-500 pointer-events-none absolute inset-y-0 left-0 flex h-10 w-10 items-center justify-center text-gray-500',
+        'dark:text-gray-400' => config('filament.dark_mode'),
+      ])
+    ></span>
+  </div>
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__037 1`] = `
+"<div>
+  @some_directive
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__038 1`] = `
+"@props (['navigation'])
+
+<x-something
+  ><x-something
+    ><x-something
+      ><x-something
+        ><x-something
+          ><x-something
+            ><x-something>
+              @if ($loop->index)
+                &ensp;&ensp;
+              @endif</x-something></x-something></x-something></x-something></x-something></x-something
+></x-something>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__039 1`] = `
+"<img
+  @class ([
+    // This is valid a comment.
+    $coverUrl ? 'object-center' : 'object-left-top',
+  ])
+/>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__040 1`] = `
+"<img @class ([$coverUrl ? 'object-center' : 'object-left-top']) />
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__041 1`] = `
+"<img
+  @class ([
+    $coverUrl ? 'object-center' : 'object-left-top', //
+  ])
+/>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__042 1`] = `
+"<!doctype html>
+<html>
+  <head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style type="text/tailwindcss">
+      @layer components {
+        .btn {
+          @apply rounded-full leading-4;
+          color: white;
+        }
+      }
+    </style>
+    <style type="text/tailwindcss">
+      @layer components {
+        .btn {
+          @apply rounded-full leading-4;
+          color: white;
+        }
+      }
+    </style>
+    <style type="text/tailwindcss">
+      @layer components {
+        .btn {
+          @apply rounded-full leading-4;
+          color: white;
+        }
+      }
+    </style>
+    <style type="text/tailwindcss">
+      @layer components {
+        .btn {
+          @apply rounded-full leading-4;
+          color: white;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    Hello
+  </body>
+</html>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__043 1`] = `
+"<input type="text" class="my-class @error('form.title') has-error @enderror" />
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__044 1`] = `
+"@php ($bg = get_field('populated_bg_color') === 'gray' ? ' bg-gray-100 my-2 my-lg-5' : '')
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__045 1`] = `
+"<div
+  @reply-deleted-{{ $comment->getKey() }}.window="
+        doSomething()
+     "
+></div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__046 1`] = `
+"@foreach (collect()->where('foo', 'bar')->where('bar', 'foo') as $item)
+  <!-- -->
+@endforeach
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats directives__047 1`] = `
+"@forelse (collect($users)->one()->two()->take(3) as $user)
+  <li>{{ $user->name }}</li>
+@empty
+  <p>No users</p>
+@endforelse
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__001 1`] = `
+"{{ $test + $that }}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__002 1`] = `
+"{!! $test + $that !!}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__003 1`] = `
+"{{{ $test + $that }}}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__004 1`] = `
+"{{$test   $+++$that}}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__005 1`] = `
+"{!!$test   $+++$that!!}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__006 1`] = `
+"{{
+  str_pad(
+    $loop->index + 1,
+    2,
+    '0',
+    STR_PAD_LEFT,
+  )
+}}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__007 1`] = `
+"{{{$test   $+++$that}}}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__008 1`] = `
+"<a
+  href="#"
+  target="_blank"
+  {{
+    $attributes->merge(
+      [
+        'class' =>
+          'rounded transition focus-visible:outline-none focus-visible:ring focus-visible:ring-red-600',
+      ],
+    )
+  }}
+>
+  Some link
+</a>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__009 1`] = `
+"<p>test {{ $title }} test asdfasdf</p>
+
+<p>{{ $test }}</p>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__010 1`] = `
+"{{
+  $attributes->class(
+    [
+      'text-gray-900 border-gray-300 invalid:text-gray-400 block w-full h-9 py-1 transition duration-75 rounded-lg shadow-sm outline-none focus:border-primary-500 focus:ring-1 focus:ring-inset focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:border-primary-500',
+    ],
+  )
+}}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__011 1`] = `
+"<label
+  {{
+    $attributes
+      ->whereDoesntStartWith('wire:model')
+      ->class(['flex gap-3 text-sm'])
+  }}
+></label>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__012 1`] = `
+"<div>
+  {{
+    $foo->bar([
+      'foo' => $foo,
+      'bar' => $bar,
+      'baz' => $baz,
+    ])
+  }}
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__013 1`] = `
+"<div>
+  {{
+    $foo->bar([
+      'foo' => $foo,
+      'bar' => $bar,
+      'baz' => $baz,
+    ])
+  }}
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__014 1`] = `
+"<div
+  {{
+    $attributes->class(
+      [
+        'some classes',
+        match ($someCondition) {
+          true => 'more classes foo bar baz',
+          default => 'even more classes foo bar baz',
+        },
+      ],
+    )
+  }}
+></div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__015 1`] = `
+"<div
+  {{
+    $attributes->class(
+      [
+        'some classes',
+        match ($someCondition) {
+          true => 'more classes foo bar baz',
+          default => 'even more classes foo bar baz',
+        },
+      ],
+    )
+  }}
+></div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__016 1`] = `
+"<div
+  {{
+    $attributes->class(
+      [
+        'some classes',
+        match ($someCondition) {
+          true => 'more classes foo bar baz',
+          default => 'even more classes foo bar baz',
+        },
+      ],
+    )
+  }}
+  more
+  attributes
+  class="one two three"
+  something="else"
+></div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__017 1`] = `
+"<div
+  {{
+    $attributes->class(
+      [
+        'some classes',
+        match ($someCondition) {
+          true => 'more classes foo bar baz',
+          default => 'even more classes foo bar baz',
+        },
+      ],
+    )
+  }}
+  more
+  attributes
+  class="one two three"
+  something="else"
+></div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__018 1`] = `
+"<div
+  {{
+    match ($foo) {
+      'foo' => 'foo',
+      default => 'bar',
+    }
+  }}
+></div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__019 1`] = `
+"<form wire:submit.prevent="authenticate" class="grid gap-y-8">
+  {{ $this->form }}
+
+  {{ $this->authenticateAction }}
+</form>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__020 1`] = `
+"<div>{{ $foo }}{{ $bar }}</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__021 1`] = `
+"<div>
+  {{
+    $foo->bar([
+      'foo' => $foo,
+      'bar' => $bar,
+      'baz' => $baz,
+    ])
+  }}
+</div>
+<div
+  {{
+    $attributes->class(
+      [
+        'foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo oo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo f',
+        'bar',
+      ],
+    )
+  }}
+></div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__022 1`] = `
+"<div>
+  {{
+    $foo->bar([
+      'foo' => $foo,
+      'bar' => $bar,
+      'baz' => $baz,
+    ])
+  }}
+</div>
+<div
+  {{
+    $attributes->class(
+      [
+        'foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo oo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo f',
+        'bar',
+      ],
+    )
+  }}
+></div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__023 1`] = `
+"<div
+  {{
+    $attributes->merge(
+      $getExtraAttributes(),
+    )
+  }}
+  {{ that = 'this' }}
+  A
+  <?php echo $something; ?>
+  B
+  @php ($why->not->that)
+  C
+  @directive ($attributes->merge($getExtraAttributes()))
+  D
+  {{ $getExtraAlpineAttributeBag() }}
+></div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__024 1`] = `
+"{{
+    $attributes
+// @something here
+->class(['something']);
+}}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__025 1`] = `
+"{{
+    $attributes
+/* @something here */
+->class(['something']);
+}}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__026 1`] = `
+"{{{
+    $attributes
+// @something
+/* @something here */
+->class(['something']);
+}}}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__027 1`] = `
+"{!!
+    $attributes
+// @something
+/* @something here */
+->class(['something']);
+!!}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__028 1`] = `
+"<div data-attribute={{ someCodeHere() }}></div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__029 1`] = `
+"<div data-attribute={{ someCodeHere() }}></div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats echos__030 1`] = `
+"One {!!
+  __(
+    'I agree with the <a href="https://domain.com/privacy-policy">privacy policy</a>.',
+  )
+!!} Two
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats forelse__001 1`] = `
+"<div>
+  @foreach ($users as $id => $user)
+    <li>{{ $user->name }}</li>
+  @endforeach
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats forelse__002 1`] = `
+"<div>
+  @forelse ($users as $user)
+    <li>{{ $user->name }}</li>
+  @empty
+    <p>No users</p>
+  @endforelse
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats forelse__003 1`] = `
+"<div>
+  @forelse ($users as $user)
+    <li>{{ $user->name }}</li>
+  @empty
+    <p>No users</p>
+  @endforelse
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats forelse__004 1`] = `
+"<div>
+  @forelse ($users as $user)
+    <li>{{ $user->name }}</li>
+  @endforelse
+</div>
+
+@forelse ($users as $user)
+  <li>{{ $user->name }}</li>
+@endforelse
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats forelse__005 1`] = `
+"<div>
+  @forelse ($users as $user)
+    <li>{{ $user->name }}</li>
+  @empty
+    <p>No users</p>
+  @endforelse
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats forelse__006 1`] = `
+"<div>
+  @forelse ($users as       ++++$           $user)
+    <li>{{ $user->name }}</li>
+  @empty
+    <p>No users</p>
+  @endforelse
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats forelse__007 1`] = `
+"@forelse ($items as $item)
+  {{ $item }}
+@empty
+  No items
+@endforelse
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__001 1`] = `
+"@if ($true)
+
+@elseif ($anotherValue)
+@else
+
+@endif
+
+@if ($true)
+  Thing
+@elseif ($anotherValue)
+  More Things
+@else
+  Another Thing
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__002 1`] = `
+"@if ($true)
+  <span>Hello</span>
+@elseif ($anotherValue)
+  <div>
+    <p>Hello world</p>
+    <div>
+      @pair
+        Test
+      @endpair
+    </div>
+  </div>
+@else
+  <p>Test {{ $title }} test</p>
+
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__003 1`] = `
+"@if ($true)
+  <span>Hello</span>
+@elseif ($anotherValue)
+  <div>
+    <p>Hello world</p>
+    <div>
+      @pair
+        Test
+      @endpair
+    </div>
+  </div>
+@else
+  <p>Test {{ $title }} test</p>
+
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__004 1`] = `
+"@if ($true)
+  <p>Hello</p>
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__005 1`] = `
+"@if ($true)
+  Thing
+@elseif ($anotherValue)
+  More Things
+@else
+  @if ($true)
+    Thing
+  @elseif ($anotherValue)
+    More Things
+  @else
+    Another Thing
+  @endif
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__006 1`] = `
+"@if ($true)
+  Thing
+@elseif ($anotherValue)
+  More Things
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__007 1`] = `
+"@if ('foo')
+  {{ $actions }}
+@elseif ('bar')
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__008 1`] = `
+"<div>
+  @if (count(
+      $tenants = filament()->getUserTenants(filament()->auth()->user()),
+    ))
+  @endif
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__009 1`] = `
+"<div>
+  @if (count(
+      $tenants = filament()->getUserTenants(filament()->auth()->user()),
+    ))
+  @endif
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__010 1`] = `
+"<div>
+  @if (count(
+      $tenants = filament()->getUserTenants(filament()->auth()->user()),
+    ))
+  @endif
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__011 1`] = `
+"<div>
+  @if (count(
+      $tenants = filament()->getUserTenants(filament()->auth()->user()),
+    ))
+  @endif
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__012 1`] = `
+"@something ('test')
+  {{ $one }}
+@elsesomething ('something else?')
+  {{ $two }}
+@else
+  {{ $three }}
+@endsomething
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__013 1`] = `
+"@something ('test')
+  {{ $one }}
+@elsesomething ('something else?')
+  {{ $two }}
+@else
+  {{ $three }}
+@endsomething
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__014 1`] = `
+"@if (true)
+  {{ 'foo' }}
+  {{ 'bar' }}
+@else
+  {{ 'bar' }}
+  {{ 'baz' }}
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__015 1`] = `
+"@guest
+  <x-foo></x-foo>
+@else
+  <x-foo></x-foo>
+@endguest
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__016 1`] = `
+"@if (filament()->hasRegistration())
+  <x-slot name="subheading">
+    {{
+      __(
+        'filament::pages/auth/login.buttons.register.before',
+      )
+    }} {{ $this->registerAction }}
+  </x-slot>
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__017 1`] = `
+"@if (true)
+  {{ 'foo' }}
+  {{ 'bar' }}
+@else
+  {{ 'bar' }}
+  {{ 'baz' }}
+@endif
+
+@if (true)
+  {{ 'foo' }} {{ 'bar' }}
+@else
+  {{ 'bar' }} {{ 'baz' }}
+@endif
+
+@if (true)
+  {{ 'foo' }} {{ 'bar' }}
+@endif
+
+@if (true)
+  {{ 'foo' }} {{ 'bar' }}
+@else
+  A
+@endif
+
+@if (true)
+  A
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__018 1`] = `
+"@if (true)
+  {{ 'foo' }}
+  {{ 'bar' }}
+@else
+  {{ 'bar' }}
+  {{ 'baz' }}
+@endif
+
+@if (true)
+  {{ 'foo' }} {{ 'bar' }}
+@else
+  {{ 'bar' }} {{ 'baz' }}
+@endif
+
+@if (true)
+  {{ 'foo' }} {{ 'bar' }}
+@endif
+
+@if (true)
+  {{ 'foo' }} {{ 'bar' }}
+@else
+  A
+@endif
+
+@if (true)
+  A
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__019 1`] = `
+"<div>
+  @if ($data['nextInspection'])
+    <div class="text-gray inline-flex items-baseline text-base font-semibold">
+      @if ($data['nextInspection']->isToday())
+        Your inspection is today!
+      @else
+        <span class="mr-2 text-xs font-medium text-gray-700">
+          {{
+            $data[
+              'nextInspection'
+            ]->diffForhumans()
+          }}
+        </span>
+        <span class="text-base font-semibold text-gray-900">
+          {{
+            $data[
+              'nextInspection'
+            ]->format('d.m.Y')
+          }}
+        </span>
+      @endif
+    </div>
+  @endif
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__020 1`] = `
+"@hasSection ('sidebar')
+  <aside class="sidebar">
+    @yield ('sidebar')
+  </aside>
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats if_statements__021 1`] = `
+"@if ($domains->isNotEmpty() || $customDomains->isNotEmpty())
+  <option @if ($selectedDomain === $value) selected="selected" @endif>
+    {{ $label }}
+  </option>
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats ignore__001 1`] = `
+"{{-- format-ignore-start --}}
+
+<x:slot:name
+
+            param="value">
+   <p>Content</p>
+            </x:slot:name>
+
+<p>{{ $one }}: {{ $two }}</p>
+<p>
+{{ $one  }}:
+{{ $two }}
+</p>
+{{-- 
+                                                                            Just 
+                                                a comment --}}
+@if         ($true)
+            <span>Hello</span>
+            @elseif                     ($anotherValue)
+            <div>
+                <p>Hello world</p>
+                <div>
+                @pair
+                    Test
+                    @directive   ($test  + $that-$another   + $thing)
+            @endpair
+                </div>
+                </div>
+            @else
+            
+            <p>Test {{ $title}}     test
+                    </p>
+            
+            @endif
+
+@switch($i)
+            @case(1)
+                First case...
+                @break
+            @case(2)
+                Second case...
+                @break
+            @default
+
+
+
+                Default case...
+            @endswitch
+
+@unless($true)
+
+            @endunless
+
+@directive   ($test  + $that-$another   + $thing)
+@unless($true) 
+                Hello @endunless
+
+@unless($true)
+                                    <p>World
+                                    
+                                    </p>
+            
+            
+                                    <x-icon 
+                                    @class([$icon, 'pe-2'])
+                                                >
+                        <div>
+                        <p>test</p>
+                        </div>
+                                            </x-icon>
+            
+            
+                                    
+            @endunless
+
+<div>
+            @forelse ($users as $user)
+                <li>{{ $user->name }}</li>
+                                                                    @endforelse
+                                                                </div>
+
+@forelse ($users as $user)
+                                                                    <li>{{ $user->name }}</li>
+                                                                @endforelse
+<?php
+
+                                                                $kernel = $app->                make(Illuminate\\Contracts\\Console\\Kernel::class);
+                                                                
+                                                                $status =           $kernel->
+                                                                
+                                                                                        handle(
+                                                                                                    $input = new Symfony\\Component\\Console\\Input\\ArgvInput,
+                                                                                                    new Symfony\\Component\\Console\\Output\\ConsoleOutput
+                                                                );
+                                                                
+                                                                ?>
+{{-- format-ignore-end --}}
+
+<x:slot:name param="value">
+  <p>Content</p>
+</x:slot:name>
+
+<p>{{ $one }}: {{ $two }}</p>
+<p>{{ $one  }}: {{ $two }}</p>
+{{-- 
+                                                                            Just 
+                                                a comment --}}
+@if         ($true)
+  <span>Hello</span>
+@elseif                     ($anotherValue)
+  <div>
+    <p>Hello world</p>
+    <div>
+      @pair
+        Test
+        @directive   ($test  + $that-$another   + $thing)
+      @endpair
+    </div>
+  </div>
+@else
+  <p>Test {{ $title}} test</p>
+
+@endif
+
+@switch($i)
+  @case(1)
+    First case...
+    @break
+  @case(2)
+    Second case...
+    @break
+  @default
+    Default case...
+
+@endswitch
+
+@unless($true)
+
+@endunless
+
+@directive   ($test  + $that-$another   + $thing)
+@unless($true)
+  Hello
+@endunless
+
+@unless($true)
+  <p>World</p>
+  <x-icon @class([$icon, 'pe-2'])>
+    <div>
+      <p>test</p>
+    </div>
+  </x-icon>
+
+@endunless
+
+<div>
+  @forelse ($users as $user)
+    <li>{{ $user->name }}</li>
+  @endforelse
+</div>
+
+@forelse ($users as $user)
+  <li>{{ $user->name }}</li>
+@endforelse
+<?php
+
+                                                                $kernel = $app->                make(Illuminate\\Contracts\\Console\\Kernel::class);
+                                                                
+                                                                $status =           $kernel->
+                                                                
+                                                                                        handle(
+                                                                                                    $input = new Symfony\\Component\\Console\\Input\\ArgvInput,
+                                                                                                    new Symfony\\Component\\Console\\Output\\ConsoleOutput
+                                                                );
+                                                                
+                                                                ?>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats ignore__002 1`] = `
+"{{-- format-ignore-start --}}
+
+<x:slot:name
+
+            param="value">
+   <p>Content</p>
+            </x:slot:name>
+
+<p>{{ $one }}: {{ $two }}</p>
+<p>
+{{ $one  }}:
+{{ $two }}
+</p>
+{{-- 
+                                                                            Just 
+                                                a comment --}}
+@if         ($true)
+            <span>Hello</span>
+            @elseif                     ($anotherValue)
+            <div>
+                <p>Hello world</p>
+                <div>
+                @pair
+                    Test
+                    @directive   ($test  + $that-$another   + $thing)
+            @endpair
+                </div>
+                </div>
+            @else
+            
+            <p>Test {{ $title}}     test
+                    </p>
+            
+            @endif
+
+@switch($i)
+            @case(1)
+                First case...
+                @break
+            @case(2)
+                Second case...
+                @break
+            @default
+
+
+
+                Default case...
+            @endswitch
+
+@unless($true)
+
+            @endunless
+
+@directive   ($test  + $that-$another   + $thing)
+@unless($true) 
+                Hello @endunless
+
+@unless($true)
+                                    <p>World
+                                    
+                                    </p>
+            
+            
+                                    <x-icon 
+                                    @class([$icon, 'pe-2'])
+                                                >
+                        <div>
+                        <p>test</p>
+                        </div>
+                                            </x-icon>
+            
+            
+                                    
+            @endunless
+
+<div>
+            @forelse ($users as $user)
+                <li>{{ $user->name }}</li>
+                                                                    @endforelse
+                                                                </div>
+
+@forelse ($users as $user)
+                                                                    <li>{{ $user->name }}</li>
+                                                                @endforelse
+<?php
+
+                                                                $kernel = $app->                make(Illuminate\\Contracts\\Console\\Kernel::class);
+                                                                
+                                                                $status =           $kernel->
+                                                                
+                                                                                        handle(
+                                                                                                    $input = new Symfony\\Component\\Console\\Input\\ArgvInput,
+                                                                                                    new Symfony\\Component\\Console\\Output\\ConsoleOutput
+                                                                );
+                                                                
+                                                                ?>
+{{-- format-ignore-end --}}
+
+<x-slot:name param="value">
+  <p>Content</p>
+</x-slot:name>
+
+<p>{{ $one }}: {{ $two }}</p>
+<p>{{ $one }}: {{ $two }}</p>
+{{--
+    Just
+    a comment
+--}}
+@if ($true)
+  <span>Hello</span>
+@elseif ($anotherValue)
+  <div>
+    <p>Hello world</p>
+    <div>
+      @pair
+        Test
+        @directive($test + $that - $another + $thing)
+      @endpair
+    </div>
+  </div>
+@else
+  <p>Test {{ $title }} test</p>
+@endif
+
+@switch($i)
+  @case(1)
+    First case...
+    @break
+  @case(2)
+    Second case...
+    @break
+  @default
+    Default case...
+@endswitch
+
+@unless ($true)
+
+@endunless
+
+@directive($test + $that - $another + $thing)
+@unless ($true)
+  Hello
+@endunless
+
+@unless ($true)
+  <p>World</p>
+  <x-icon @class([$icon, "pe-2"])>
+    <div>
+      <p>test</p>
+    </div>
+  </x-icon>
+@endunless
+
+<div>
+  @forelse ($users as $user)
+    <li>{{ $user->name }}</li>
+  @endforelse
+</div>
+
+@forelse ($users as $user)
+  <li>{{ $user->name }}</li>
+@endforelse
+
+<?php
+
+$kernel = $app->make(Illuminate\\Contracts\\Console\\Kernel::class);
+
+$status = $kernel->handle(
+    $input = new Symfony\\Component\\Console\\Input\\ArgvInput(),
+    new Symfony\\Component\\Console\\Output\\ConsoleOutput(),
+);
+
+?>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats ignore__003 1`] = `
+"@if (true)
+  {{-- format-ignore-start --}}
+  <div></div>
+  {{-- format-ignore-end --}}
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats include__001 1`] = `
+"@include ('shared.errors')
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats include__002 1`] = `
+"@include ('view.name', ['status' => 'complete'])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats include__003 1`] = `
+"@includeWhen ($boolean, 'view.name', ['status' => 'complete'])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats include__004 1`] = `
+"@includeUnless ($boolean, 'view.name', ['status' => 'complete'])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats include__005 1`] = `
+"@each ('view.name', $jobs, 'job')
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats include__006 1`] = `
+"@section ('title', 'Page Title')
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats include__007 1`] = `
+"@extends ('layouts.app', ['view' => 'data'])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats include__008 1`] = `
+"@include ('lorem.ipsum.dolor',
+  [
+    'sit' => 'amet',
+    'consectetur' => 'adipiscing',
+    'elit' => 'sed',
+    'do' => 'eiusmod',
+  ])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats include__009 1`] = `
+"@include ('lorem.ipsum.dolor',
+  [
+    'sit' => 'amet',
+    'consectetur' => 'adipiscing',
+    'elit' => 'sed',
+    'do' => 'eiusmod',
+  ])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats include__010 1`] = `
+"<div>
+  <div>
+    <div>
+      <div>
+        @include ('lorem.ipsum.dolor',
+          [
+            'sit' => 'amet',
+            'consectetur' => 'adipiscing',
+            'elit' => 'sed',
+            'do' => 'eiusmod',
+          ])
+      </div>
+    </div>
+  </div>
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats include__011 1`] = `
+"@include (['a.b', ['c' => 'd']])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats inline_php__001 1`] = `
+"<html>
+  <?php
+
+  $kernel = $app->make(Illuminate\\Contracts\\Console\\Kernel::class);
+
+  $status = $kernel->handle(
+    $input = new Symfony\\Component\\Console\\Input\\ArgvInput(),
+    new Symfony\\Component\\Console\\Output\\ConsoleOutput(),
+  );
+
+  ?>
+</html>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats inline_php__002 1`] = `
+"<<?= $element ?>>
+<?= $inline ?>
+<p>Text <?= $inline ?> here.</p>
+</<?= $element; ?>>
+
+<<?php echo $element; ?>>
+<?php echo $inline; ?>
+<p>Text <?php echo $inline; ?> here.</p>
+</<?php echo $element; ?>>
+
+<h1><?php echo $that + $another - $something + $thing; ?></h1>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats inline_php__003 1`] = `
+"<<?php echo $element; ?>>
+<?php echo $inline----  $$$$$; ?>
+<p>Text <?php echo $inline; ?> here.</p>
+</<?php echo $element; ?>>
+
+<<?= echo $element; ?>>
+<?= echo $inline  ; ?>
+<p>Text <?= echo $inline             ; ?> here.</p>
+</<?= echo $element; ?>>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats js_attributes__001 1`] = `
+"<button x-on:click="console.log('I\\'m an escaped quote')">Text</button>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats js_attributes__002 1`] = `
+"<div>
+  <div>
+    <div
+      @click="
+        if ($wire.loginRequired) {
+          return;
+        }
+        isLiked = !isLiked;
+        showUsers = false;
+      "
+      wire:click="handle('{{ $key }}', '{{ $value["model"] }}')"
+      @if ($authMode)
+        @mouseover="
+              if(
+                  !$wire.loginRequired &&
+                  $wire.reactions['{{ $key }}']['count'] > 0 &&
+                   !showUsers
+               ) {
+                      showUsers = true;
+                      $wire.lastReactedUser('{{ $key }}')
+                  }
+              "
+      @endif
+      class="flex cursor-pointer items-center"
+      title="like"
+    ></div>
+  </div>
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats json_args__001 1`] = `
+"@someDirectiveName ({
+    "name": "John Doe",
+                    "age": 33,
+
+
+
+    "address": "Anytown, USA",
+        "skills": [
+            "one",
+                    "two", "three"
+        ]
+    })
+
+<div>
+  @someDirectiveName ({
+    "name": "John Doe",
+                    "age": 33,
+
+
+
+    "address": "Anytown, USA",
+        "skills": [
+            "one",
+                    "two", "three"
+        ]
+    })
+</div>
+
+<div>
+  <div>
+    @someDirectiveName ({
+    "name": "John Doe",
+                    "age": 33,
+
+
+
+    "address": "Anytown, USA",
+        "skills": [
+            "one",
+                    "two", "three"
+        ]
+    })
+  </div>
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats json_params__001 1`] = `
+"@varSet ({
+                "logo":
+
+                "logo",
+                "width":             78,
+                "height":
+                         22
+            })
+
+@varSet ($test + $thing + $another - ($that + $something))
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats json_params__002 1`] = `
+"@varSet ({
+"logo":
+
+"logo",
+"width":     :::::        78,
+"height":
+22
+})
+
+@varSet ($test + $thing + $another - ($that + $something))
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats literals__001 1`] = `
+"just some text
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats literals__002 1`] = `
+"<p>Some HTML</p>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats operators__001 1`] = `
+"{{ !$foo }}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats operators__002 1`] = `
+"{{ !$foo }}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats operators__003 1`] = `
+"{{ !$foo }}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats operators__004 1`] = `
+"{{{ !$foo }}}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats operators__005 1`] = `
+"{!! !$foo !!}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats operators__006 1`] = `
+"@if (!$something)
+  Do the thing.
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats operators__007 1`] = `
+"@if ($foo !== 'bar')
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats php_blocks__001 1`] = `
+"<main class="index">
+  <div>
+    {{--
+ Block Comment.
+ with many lines and with <stuff></stuff> --}}
+  </div>
+
+  <div>
+    @php
+      $data = [
+        [
+          'href' => '#',
+          'title' => 'The Title',
+        ],
+      ];
+    @endphp
+  </div>
+  @php
+    $data = [
+      [
+        'href' => '#',
+        'title' => 'The Title',
+      ],
+    ];
+  @endphp
+</main>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats php_blocks__002 1`] = `
+"@php
+  $foo = 'foo';
+
+  $bar = 'bar';
+@endphp
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats php_blocks__003 1`] = `
+"@php
+  /**
+   * @deprecated Override \`logo.blade.php\` instead.
+   */
+@endphp
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats php_blocks__004 1`] = `
+"@if (true)
+  @if (false)
+    @if ('something')
+      @php
+        $foo = 'foo';
+      @endphp
+    @endif
+  @endif
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats php_blocks__005 1`] = `
+"@php
+  fn() => true;
+@endphp
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats php_blocks__006 1`] = `
+"<?php
+fn() => true;
+?>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats php_blocks__007 1`] = `
+"@php
+  $buttonClasses = \\Illuminate\\Support\\Arr::toCssClasses([
+    'filament-tabs-item flex items-center h-8 px-5 font-medium rounded-lg outline-none focus:ring-2 focus:ring-primary-500 focus:ring-inset',
+    'hover:text-gray-800 focus:text-primary-600' => !$active,
+    'dark:text-gray-400 dark:hover:text-gray-300 dark:focus:text-primary-400' =>
+      !$active && config('filament.dark_mode'),
+    'text-primary-600 shadow bg-white' => $active,
+  ]);
+@endphp
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats php_blocks__008 1`] = `
+"@php
+  $buttonClasses = \\Illuminate\\Support\\Arr::toCssClasses([
+    'filament-tabs-item flex items-center h-8 px-5 font-medium rounded-lg outline-none focus:ring-2 focus:ring-primary-500 focus:ring-inset',
+    'hover:text-gray-800 focus:text-primary-600' => !$active,
+    'dark:text-gray-400 dark:hover:text-gray-300 dark:focus:text-primary-400' =>
+      !$active && config('filament.dark_mode'),
+    'text-primary-600 shadow bg-white' => $active,
+  ]);
+@endphp
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats php_blocks__009 1`] = `
+"@php
+  $size = match ($size) {
+    'xs' => 'h-5 w-5 md:h-4 md:w-4',
+    'sm' => 'h-6 w-6 md:h-5 md:w-5',
+    'md' => 'h-7 w-7 md:h-6 md:w-6',
+    'lg' => 'h-8 w-8 md:h-7 md:w-7',
+    'xl' => 'h-9 w-9 md:h-8 md:w-8',
+    default => $size,
+  };
+@endphp
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats php_blocks__010 1`] = `
+"@php
+  $isUserProfileOwner = auth()->user()?->is($user);
+@endphp
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats props_directive__001 1`] = `
+"@props (['hello', 'world'])
+
+<div>
+  <div>
+    @props ([
+      'hello',
+      'world',
+      'test' => [
+        1,
+        2,
+        3,
+        4,
+        5,
+        'more' => ['hello', 'world', 'test' => [1, 2, 3, 4, 5]],
+      ],
+    ])
+  </div>
+</div>
+
+<div>
+  <p>Hello {{ $world }}!</p>
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats props_directive__002 1`] = `
+"<x-icon :class="Arr::toCssClasses(['...'])" />
+
+@props (['icon'],)
+
+<div>
+  <x-icon @class ([$icon, 'pe-2']) />
+  {{ $slot }}
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats props_directive__003 1`] = `
+"@props ([
+  'foo' => true,
+  'bar' => false,
+  'bar2' => false,
+])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats props_directive__004 1`] = `
+"@props (['heading', 'footer'])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats props_directive__005 1`] = `
+"@props ([
+  'foo' => [],
+])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats props_directive__006 1`] = `
+"@props ([
+  'foo' => [],
+  'foobarbaz' => false,
+])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats props_directive__007 1`] = `
+"@props ([
+  'foobarbaz' => true,
+  'bar',
+  'baz' => true,
+])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats props_directive__008 1`] = `
+"@props ([
+  'foobarbaz' => true,
+  'bar',
+  'baz' => true,
+])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats props_directive__009 1`] = `
+"@props ([
+  'actions' => [],
+  'url',
+])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats props_directive__010 1`] = `
+"@props ([
+  'actions' => [],
+  'url',
+])
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats recovery__001 1`] = `
+"<div>
+  @someDirectiveName (array(
+
+    "skills" => [
+        "thr'
+    ]
+))
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats recovery__002 1`] = `
+"<div>
+  <div>
+    @someDirectiveName (array(
+    "name" => "John Doe",
+        "age" => 33,
+            "address" => "Anytown, USA",
+                "skills" => [
+                    "one",
+                    "two",
+                    "three",
+                ]
+)
+
+  </div>
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats script_structures__001 1`] = `
+"<html>
+  @directive ($test)
+
+  @enddirective
+
+  <style>
+    .thing {
+      background-color:
+        @foreach ($something as $somethingElse)
+          {{ $thing }}
+        @endforeach
+        ;
+    }
+  </style>
+
+  <style></style>
+  <body>
+    @if ($true)
+      <style>
+        .thing {
+          background-color:
+            @foreach ($something as $somethingElse)
+              {{ $thing }}
+            @endforeach
+            ;
+        }
+      </style>
+
+    @endif
+
+    <script>
+      var app = '@if ($something) something @else something-else @endif'.trim();
+
+      if (something) {
+        // Do something.
+      } else {
+        // Do something else.
+      }
+    </script>
+
+    <script></script>
+  </body>
+</html>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats speculative_conditions__001 1`] = `
+"@disk ('local')
+  <div>
+    @disk ('local')
+      @disk ('local')
+        <!-- The application is using the local disk... -->
+      @elsedisk ('s3')
+        <!-- The application is using the s3 disk... -->
+      @else
+        <!-- The application is using some other disk... -->
+      @enddisk
+    @elsedisk ('s3')
+      <!-- The application is using the s3 disk... -->
+    @else
+      <!-- The application is using some other disk... -->
+    @enddisk
+  </div>
+@elsedisk ('s3')
+  <!-- The application is using the s3 disk... -->
+@else
+  <!-- The application is using some other disk... -->
+@enddisk
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats speculative_unless__001 1`] = `
+"@unlessdisk ('local1')
+<!-- The application is not using the local disk1... -->
+@unlessdisk ('local2')
+<!-- The application is not using the local disk2... -->
+@unlessdisk ('local3')
+<!-- The application is not using the local disk3... -->
+@unlessdisk ('local4')
+<div>
+  <p>Hello {{ $world }}</p>
+</div>
+@enddisk
+@enddisk
+@enddisk
+@enddisk
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats style_script__001 1`] = `
+"<html>
+  <style>
+    .thing {
+      background-color: {{ $color }};
+    }
+  </style>
+  {{ $color }}
+  <style>
+    .thing {
+      background-color: {{
+      $color +
+        $something +
+        $otherThing
+    }};
+    }
+  </style>
+  <body>
+    <script>
+      var test = @js ('something');
+    </script>
+    @js ('something')
+    <script>
+      var test = @js ('something');
+    </script>
+  </body>
+</html>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats style_script__002 1`] = `
+"<style>
+  :root {
+    --foo: red;
+
+    @if (true)
+    --bar: blue;
+    @endif
+  }
+</style>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats style_script__003 1`] = `
+"<style>
+  :root {
+    --foo: red;
+
+    @if (true)
+    --bar: blue;
+    @endif
+  }
+</style>
+
+<div>
+  <style>
+    :root {
+      --foo: red;
+
+      @if (true)
+      --bar: blue;
+      @endif
+    }
+  </style>
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats style_script__004 1`] = `
+"<style>
+  :root {
+    --foo: red;
+
+    @if (true)
+    --bar: blue;
+    @endif
+  }
+</style>
+
+<div>
+  <style>
+    :root {
+      --foo: red;
+
+      @if (true)
+      --bar: blue;
+      @endif
+    }
+  </style>
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats style_structures__001 1`] = `
+"<html>
+  <head>
+    @directive ($test)
+
+    @enddirective
+
+    <style>
+      .thing {
+        background-color:
+          @foreach ($something as $somethingElse)
+            {{ $thing }}
+          @endforeach
+          ;
+      }
+    </style>
+  </head>
+</html>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats style_structures__002 1`] = `
+"<html>
+  <body>
+    @if ($true)
+      <style>
+        .thing {
+          background-color:
+            @foreach ($something as $somethingElse)
+              {{ $thing }}
+            @endforeach
+            ;
+        }
+      </style>
+
+    @endif
+
+    <script></script>
+  </body>
+</html>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats switch__001 1`] = `
+"@switch ($i)
+  @case (1)
+    First case...
+    @break
+  @case (2)
+    Second case...
+    @break
+  @default
+    Default case...
+
+@endswitch
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats switch__002 1`] = `
+"@switch ($i)
+  {{-- Leading node test. --}}
+  <p>Test {{ $title }}</p>
+  @case (1)
+    First case...
+    @break
+  @case (2)
+    Second case...
+    @break
+  @default
+    Default case...
+
+@endswitch
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats switch__003 1`] = `
+"@switch ($i)
+  {{-- Leading node test. --}}
+  <p>Test {{ $title }}</p>
+  @case (1)
+    <p>First case...</p>
+    @break
+  @case (2)
+    <p>Second case...</p>
+    @break
+  @default
+    <p>Default case...</p>
+
+@endswitch
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats switch__004 1`] = `
+"@switch ($i)
+  @case (1)
+    <p>First case...</p>
+  @case (2)
+    <p>Second case...</p>
+  @default
+    <p>Default case...</p>
+
+@endswitch
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats switch__005 1`] = `
+"@switch ($i)
+  @case (1)
+    <p>First case...</p>
+  @case (2)
+    <p>Second case...</p>
+@endswitch
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats switch__006 1`] = `
+"@switch ($i)
+  <div>
+    <p>Just testing</p>
+  </div>
+@endswitch
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats switch__007 1`] = `
+"@switch ($i)
+  @default
+    <p>Default case...</p>
+@endswitch
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats switch__008 1`] = `
+"@switch ($i)
+  {{-- Leading node test. --}}
+  <p>Test {{ $title }}</p>
+  @case (1)
+    <p>First case...</p>
+    @break
+  @case (2)
+    <p>Second case...</p>
+    @break
+  @default
+    <p>Default case...</p>
+
+@endswitch
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats switch__009 1`] = `
+"<div
+  @switch (true)
+    @case ($condition)
+      title="thing"
+      @break
+  @endswitch
+></div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats switch__010 1`] = `
+"<figure class="torrent-card__figure">
+  <img
+    class="torrent-card__image"
+    @switch (true)
+      @case ($torrent->category->movie_meta || $torrent->category->tv_meta)
+        src="{{ isset($meta->poster) ? tmdb_image('poster_mid', $meta->poster) : 'https://via.placeholder.com/160x240' }}"
+        @break
+      @case ($torrent->category->game_meta && isset($torrent->meta) && $meta->cover->image_id && $meta->name)
+        src="https://images.igdb.com/igdb/image/upload/t_cover_big/{{ $torrent->meta->cover->image_id }}.jpg"
+        @break
+      @case ($torrent->category->music_meta)
+        src="https://via.placeholder.com/160x240"
+        @break
+      @case ($torrent->category->no_meta && file_exists(public_path().'/files/img/torrent-cover_'.$torrent->id.'.jpg'))
+        src="{{ url('files/img/torrent-cover_'.$torrent->id.'.jpg') }}"
+        @break
+    @endswitch
+    alt="{{ __('torrent.poster') }}"
+  />
+</figure>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats syntax_reflow__001 1`] = `
+"{{ (fn() => 'foo') }}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats syntax_reflow__002 1`] = `
+"{{ (fn() => 'foo') }}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats syntax_reflow__003 1`] = `
+"{{ (fn() => 'foo') }}
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats templates__001 1`] = `
+"<!doctype html>
+<html lang="{{ app()->getLocale() }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>@yield ('title', 'Default Title')</title>
+
+    <!-- Styles -->
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet" />
+  </head>
+  <body>
+    <header>
+      @include ('partials.nav')
+    </header>
+
+    <main>@yield ('content')</main>
+
+    <footer>
+      @include ('partials.footer')
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{{ asset('js/app.js') }}"></script>
+  </body>
+</html>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats templates__002 1`] = `
+"@extends ('layouts.master')
+
+@section ('title', 'About Us')
+
+@section ('content')
+  <h1>About Us</h1>
+  <p>
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis convallis
+    mauris mauris, id volutpat diam feugiat nec.
+  </p>
+  @include ('partials.team')
+@endsection
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats templates__003 1`] = `
+"@extends ('layouts.master')
+
+@section ('title', 'User List')
+
+@section ('content')
+  <h1>User List</h1>
+  @if ($users->isEmpty())
+    <p>No users found.</p>
+  @else
+    <ul>
+      @foreach ($users as $user)
+        <li>{{ $user->name }} - {{ $user->email }}</li>
+      @endforeach
+    </ul>
+  @endif
+@endsection
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats templates__004 1`] = `
+"@extends ('layouts.master')
+
+@section ('title', 'Contact Us')
+
+@section ('content')
+  <h1>Contact Us</h1>
+  <form method="POST" action="{{ route('contact.submit') }}">
+    @csrf
+
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name" />
+
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" />
+
+    <label for="message">Message</label>
+    <textarea id="message" name="message"></textarea>
+
+    <button type="submit">Send</button>
+  </form>
+@endsection
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats templates__005 1`] = `
+"@extends ('layouts.master')
+
+@section ('title', 'Product Categories')
+
+@section ('content')
+  <h1>Product Categories</h1>
+  @foreach ($categories as $category)
+    <h2>{{ $category->name }}</h2>
+    @if ($category->products->isEmpty())
+      <p>No products in this category.</p>
+    @else
+      <ul>
+        @foreach ($category->products as $product)
+          <li>{{ $product->name }} - \${{ $product->price }}</li>
+        @endforeach
+      </ul>
+    @endif
+  @endforeach
+@endsection
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats templates__006 1`] = `
+"@extends ('layouts.master')
+
+@section ('title', 'Dashboard')
+
+@section ('content')
+  <h1>Dashboard</h1>
+  @if (Auth::check())
+    <p>Welcome back, {{ Auth::user()->name }}!</p>
+    @if (Auth::user()->isAdmin())
+      <p>You have <a href="">admin</a> privileges.</p>
+    @else
+      <p>You are a regular user.</p>
+    @endif
+  @else
+    <p>Please <a href="{{ route('login') }}">log in</a> to continue.</p>
+  @endif
+@endsection
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats templates__007 1`] = `
+"@extends ('layouts.master')
+
+@section ('title', 'Dashboard')
+
+@section ('content')
+  <h1>Dashboard</h1>
+  @if (Auth::check())
+    @if (Auth::user()->isAdmin())
+    @else
+    @endif
+  @else
+  @endif
+@endsection
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats templates__008 1`] = `
+"@extends ('layouts.master')
+
+@section ('title', 'Notification')
+
+@section ('content')
+  <h1>Notification</h1>
+  @switch ($notification->type)
+    @case ('message')
+      <p>You have a new message from {{ $notification->from }}.</p>
+      @break
+    @case ('alert')
+      <p>Alert: {{ $notification->message }}</p>
+      @break
+    @case ('reminder')
+      <p>Reminder: {{ $notification->message }}</p>
+      @break
+    @default
+      <p>You have a new notification.</p>
+  @endswitch
+@endsection
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats templates__009 1`] = `
+"someone@example.com
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats templates__010 1`] = `
+"someone@example.com
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats templates__011 1`] = `
+"<a> test@example.com </a>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats templates__012 1`] = `
+"<a>test@example.com</a>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats templates__013 1`] = `
+"<span> {{ 'foo' }}: </span>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats templates__014 1`] = `
+"<span>{{ 'foo' }}:</span>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats templates__015 1`] = `
+"<div>
+  <div>
+    <div>
+      <x-something::component-name.here
+        :action="$hintAction"
+        :color="$hintColor"
+        :icon="$hintIcon"
+      >
+        {{
+          filled($hint)
+            ? ($hint instanceof \\Illuminate\\Support\\HtmlString
+              ? $hint
+              : \\Illuminate\\Support\\Str::of($hint)
+                ->markdown()
+                ->sanitizeHtml()
+                ->toHtmlString())
+            : null
+        }}
+      </x-something::component-name.here>
+    </div>
+  </div>
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats templates__016 1`] = `
+"@if (true)
+  test@example.com
+@endif
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats templates__017 1`] = `
+"<x-filament::grid
+  :x-on:form-validation-error.window="
+    $isRoot
+    ? 'if ($event.detail.livewireId !== ' .
+      Js::from($this->getId()) .
+      ') {
+            return
+        }
+
+        $nextTick(() => {
+            error = $el.querySelector(\\'[data-validation-error]\\')
+
+            if (! error) {
+                return
+            }
+
+            elementToExpand = error
+
+            while (elementToExpand) {
+                elementToExpand.dispatchEvent(new CustomEvent(\\'expand\\'))
+
+                elementToExpand = elementToExpand.parentNode
+            }
+
+            setTimeout(
+                () =>
+                    error.closest(\\'[data-field-wrapper]\\').scrollIntoView({
+                        behavior: \\'smooth\\',
+                        block: \\'start\\',
+                        inline: \\'start\\',
+                    }),
+                200,
+            )
+        })'
+    : null
+  "
+>
+  {{-- --}}
+</x-filament::grid>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats templates__018 1`] = `
+"@section ('content')
+  <x-tw::page-header
+    :breadcrumbs="[
+        [
+          'title' => 'Shortener',
+        ],
+    ]"
+  />
+@endsection
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats unless__001 1`] = `
+"@unless ($true)
+
+@endunless
+
+@unless ($true)
+  Hello
+@endunless
+
+@unless ($true)
+  <p>World</p>
+
+@endunless
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats unless__002 1`] = `
+"@unless ($something)
+  @unless ($somethingTwo)
+    @unless ($somethingThree)
+      @unless ($somethingFour)
+        <div>
+          <p>I am just some {{ $text }}</p>
+        </div>
+      @endunless
+    @endunless
+  @endunless
+@endunless
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats verbatim__001 1`] = `
+"<div>
+  @verbatim
+
+
+    <div class="container">
+        Hello, {{ name }}.
+    </div>
+
+    
+@endverbatim
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats verbatim__002 1`] = `
+"<div>
+  @verbatim
+
+
+    <div class="container">
+        Hello, {{
+                     name        }}.
+    </div>
+
+
+@endverbatim
+</div>
+"
+`;
+
+exports[`validation/conformance/formatter-cases > formats verbatim__003 1`] = `
+"@if (true)
+  @if (false)
+    @if ('something')
+      @verbatim
+            some content.
+    @endverbatim
+    @endif
+  @endif
+@endif
+"
+`;

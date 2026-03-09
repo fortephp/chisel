@@ -1,0 +1,3 @@
+<x-pulse cols="16">
+    ...
+</x-pulse>

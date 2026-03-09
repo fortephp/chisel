@@ -1,0 +1,3 @@
+@cannot
+<div></div>
+@endcannot

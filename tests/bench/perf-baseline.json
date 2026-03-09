@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "updatedAt": "2026-03-01T22:04:49.501Z",
+  "notes": "Median milliseconds over 12 measured runs after 3 warmups.",
+  "cases": {
+    "large-filament-default": {
+      "bladeMedianMs": 112.802,
+      "htmlMedianMs": null
+    },
+    "medium-filament-default": {
+      "bladeMedianMs": 11.469,
+      "htmlMedianMs": null
+    },
+    "interpolation-php-safe": {
+      "bladeMedianMs": 12.702,
+      "htmlMedianMs": null
+    },
+    "tailwind-class-and-classname": {
+      "bladeMedianMs": 13.916,
+      "htmlMedianMs": 16.634
+    },
+    "synthetic-html-baseline": {
+      "bladeMedianMs": 18.959,
+      "htmlMedianMs": 24.987
+    }
+  }
+}

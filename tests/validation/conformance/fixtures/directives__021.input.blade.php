@@ -1,0 +1,3 @@
+@hasSection
+<div></div>
+@endhasSection

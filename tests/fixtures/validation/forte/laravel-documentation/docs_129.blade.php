@@ -1,0 +1,5 @@
+<head>
+    ...
+
+    @paddleJS
+</head>

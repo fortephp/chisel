@@ -1,0 +1,1 @@
+<x-alert attribute param="{{ $title }}" {{ $title }} @directiveName @directiveWithParams('test') />

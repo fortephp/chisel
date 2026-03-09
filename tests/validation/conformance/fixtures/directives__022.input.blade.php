@@ -1,0 +1,3 @@
+@auth
+<div></div>
+@endauth

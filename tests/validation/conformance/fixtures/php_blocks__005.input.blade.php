@@ -1,0 +1,3 @@
+@php
+    fn () => true;
+@endphp

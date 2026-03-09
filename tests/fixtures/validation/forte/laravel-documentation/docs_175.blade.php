@@ -1,0 +1,3 @@
+<div {!! when($condition, 'wire:poll="calculate"') !!}>
+    ...
+</div>

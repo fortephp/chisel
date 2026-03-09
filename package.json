@@ -1,47 +1,85 @@
 {
-    "name": "stillat-blade-parser",
-    "displayName": "Blade Template Parser",
-    "repository": "stillat/blade-parser-typescript",
-    "description": "Parses Laravel Blade template files, and provides static analysis features.",
-    "author": "John Koster",
-    "license": "MIT",
-    "version": "2.0.1",
-    "type": "module",
-    "engines": { 
-        "node": "*"
-    },
-    "scripts": {
-        "compile": "tsc -b",
-        "watch": "tsc -b -w",
-        "test:core": "npm run compile && mocha ./out/test/!(*pint*).test.js -- -u tdd",
-        "test:core_pint": "npm run compile && mocha ./out/test/*pint*.test.js -- -u tdd",
-        "test:parser": "npm run compile && mocha ./out/test/**/*.test.js -- -u tdd --slow 10000 --timeout 20000 --parallel",
-        "bundle:prettier": "npm run compile && npm run esbuild:prettier",
-        "esbuild:prettier": "esbuild ./src/formatting/prettier/plugin.ts --bundle --minify --outfile=./formatter/plugin.js --format=esm --platform=node --external:prettier --banner:js=\"import {createRequire} from 'module';const require=createRequire(import.meta.url);\""
-    },
-    "devDependencies": {
-        "@types/camelize": "^1.0.0",
-        "@types/mocha": "^8.2.3",
-        "@types/node": "^12.20.55",
-        "@types/sha1": "^1.1.5",
-        "@types/uuid": "^8.3.0",
-        "esbuild": "^0.14.14",
-        "eslint": "^8.56.0",
-        "mocha": "^10.0.0",
-        "typescript": "^4.4.2",
-        "prettier-plugin-tailwindcss": "^0.5.0",
-        "@prettier/plugin-php": "^0.22",
-        "@stedi/prettier-plugin-jsonata": "^2",
-        "@types/esprima": "^4.0.3",
-        "@types/prettier": "^3",
-        "camelize": "^1.0.0",
-        "esprima": "^4.0.1",
-        "jsonata": "1.8.6",
-        "php-parser": "3.1.4",
-        "prettier": "^3"
-    },
-    "dependencies": {
-        "sha1": "^1.1.1",
-        "uuid": "^9"
+  "name": "prettier-plugin-blade",
+  "version": "3.0.0",
+  "description": "Prettier plugin for Laravel Blade templates",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "format": "oxfmt src",
+    "format:check": "oxfmt --check src",
+    "format:all": "oxfmt src tests",
+    "format:all:check": "oxfmt --check src tests",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint src --deny-warnings",
+    "lint:all": "oxlint src tests --vitest-plugin -A no-shadow -A no-array-sort -A no-array-reverse -A consistent-function-scoping -A preserve-caught-error",
+    "check": "npm run typecheck && npm run lint && npm run test",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "@prettier/plugin-php": "^0.24.0",
+    "prettier": "^3.0.0",
+    "prettier-plugin-tailwindcss": "^0.7.0"
+  },
+  "peerDependenciesMeta": {
+    "@prettier/plugin-php": {
+      "optional": true
+    },
+    "prettier-plugin-tailwindcss": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@prettier/plugin-php": "^0.24.0",
+    "@types/node": "^22.0.0",
+    "oxfmt": "^0.36.0",
+    "oxlint": "^1.51.0",
+    "prettier": "^3.5.0",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "tsup": "^8.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "keywords": [
+    "prettier",
+    "plugin",
+    "blade",
+    "laravel",
+    "formatter"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@prettier/html-tags": "^2.2.0",
+    "@prettier/parse-srcset": "^3.1.0",
+    "html-element-attributes": "^3.5.0"
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fortephp/chisel.git"
+  },
+  "author": "John Koster",
+  "bugs": {
+    "url": "https://github.com/fortephp/chisel/issues"
+  },
+  "homepage": "https://github.com/fortephp/chisel#readme"
 }

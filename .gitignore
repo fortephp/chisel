@@ -1,5 +1,4 @@
-out
-node_modules
-_test/_temp/**/*.php
-_test/_temp/**/*.json
-_test/_cache/*.json
+node_modules/
+dist/
+*.tsbuildinfo
+.DS_Store

@@ -1,0 +1,1950 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`validation/laravel-documentation-fixtures > formats docs_0.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@can ('update', $post)
+  <!-- The current user can update the post... -->
+@elsecan ('create', App\\Models\\Post::class)
+  <!-- The current user can create new posts... -->
+@else
+  <!-- ... -->
+@endcan
+
+@cannot ('update', $post)
+  <!-- The current user cannot update the post... -->
+@elsecannot ('create', App\\Models\\Post::class)
+  <!-- The current user cannot create new posts... -->
+@endcannot
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_1.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@if (Auth::user()->can('update', $post))
+  <!-- The current user can update the post... -->
+@endif
+
+@unless (Auth::user()->can('update', $post))
+  <!-- The current user cannot update the post... -->
+@endunless
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_2.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@canany (['update', 'view', 'delete'], $post)
+  <!-- The current user can update, view, or delete the post... -->
+@elsecanany (['create'], \\App\\Models\\Post::class)
+  <!-- The current user can create a post... -->
+@endcanany
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_3.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@can ('create', App\\Models\\Post::class)
+  <!-- The current user can create posts... -->
+@endcan
+
+@cannot ('create', App\\Models\\Post::class)
+  <!-- The current user can't create posts... -->
+@endcannot
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_4.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@if ($user->subscribed())
+  <p>You are subscribed.</p>
+@endif
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_5.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@if ($user->subscribedToProduct('pro_basic'))
+  <p>You are subscribed to our Basic product.</p>
+@endif
+
+@if ($user->subscribedToPrice('price_basic_monthly'))
+  <p>You are subscribed to our monthly Basic plan.</p>
+@endif
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_6.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<a href="{{ route('billing') }}"> Billing </a>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_7.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<table>
+  @foreach ($invoices as $invoice)
+    <tr>
+      <td>{{ $invoice->date()->toFormattedDateString() }}</td>
+      <td>{{ $invoice->total() }}</td>
+      <td><a href="/user/invoice/{{ $invoice->id }}">Download</a></td>
+    </tr>
+  @endforeach
+</table>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_8.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"Hello, {{ $name }}.
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_9.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"The current UNIX timestamp is {{ time() }}.
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_10.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"Hello, {!! $name !!}.
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_11.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<h1>Laravel</h1>
+
+Hello,@{{ name }}.
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_12.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"{{-- Blade template --}}@@if()
+
+<!-- HTML output -->
+@if ()
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_13.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<script>
+  var app ={{ Illuminate\\Support\\Js::from($array) }}
+</script>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_14.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<script>
+  var app ={{ Js::from($array) }}
+</script>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_15.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@verbatim
+    <div class="container">
+        Hello, {{ name }}.
+    </div>
+@endverbatim
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_16.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@if (count($records) === 1)
+  I have one record!
+@elseif (count($records) > 1)
+  I have multiple records!
+@else
+  I don't have any records!
+@endif
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_17.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@unless (Auth::check())
+  You are not signed in.
+@endunless
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_18.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@isset ($records)
+  // $records is defined and is not null...
+@endisset
+
+@empty ($records)
+  // $records is "empty"...
+@endempty
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_19.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@auth
+  // The user is authenticated...
+@endauth
+
+@guest
+  // The user is not authenticated...
+@endguest
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_20.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@auth ('admin')
+  // The user is authenticated...
+@endauth
+
+@guest ('admin')
+  // The user is not authenticated...
+@endguest
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_21.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@production
+  // Production specific content...
+@endproduction
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_22.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@env ('staging')
+  // The application is running in "staging"...
+@endenv
+
+@env (['staging', 'production'])
+  // The application is running in "staging" or "production"...
+@endenv
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_23.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@hasSection ('navigation')
+  <div class="pull-right">
+    @yield ('navigation')
+  </div>
+  <div class="clearfix"></div>
+@endif
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_24.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@sectionMissing ('navigation')
+  <div class="pull-right">
+    @include ('default-navigation')
+  </div>
+@endif
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_25.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@session ('status')
+  <div class="p-4 bg-green-100">{{ $value }}</div>
+@endsession
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_26.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@context ('canonical')
+  <link href="{{ $value }}" rel="canonical" />
+@endcontext
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_27.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@switch ($i)
+  @case (1)
+    First case...
+    @break
+  @case (2)
+    Second case...
+    @break
+  @default
+    Default case...
+@endswitch
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_28.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@for ($i = 0; $i < 10; $i++)
+  The current value is {{ $i }}
+@endfor
+
+@foreach ($users as $user)
+  <p>This is user {{ $user->id }}</p>
+@endforeach
+
+@forelse ($users as $user)
+  <li>{{ $user->name }}</li>
+@empty
+  <p>No users</p>
+@endforelse
+
+@while (true)
+  <p>I'm looping forever.</p>
+@endwhile
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_29.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@foreach ($users as $user)
+  @if ($user->type == 1)
+    @continue
+  @endif
+  <li>{{ $user->name }}</li>
+  @if ($user->number == 5)
+    @break
+  @endif
+@endforeach
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_30.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@foreach ($users as $user)
+  @continue ($user->type == 1)
+  <li>{{ $user->name }}</li>
+  @break ($user->number == 5)
+@endforeach
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_31.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@foreach ($users as $user)
+  @if ($loop->first)
+    This is the first iteration.
+  @endif
+  @if ($loop->last)
+    This is the last iteration.
+  @endif
+  <p>This is user {{ $user->id }}</p>
+@endforeach
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_32.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@foreach ($users as $user)
+  @foreach ($user->posts as $post)
+    @if ($loop->parent->first)
+      This is the first iteration of the parent loop.
+    @endif
+  @endforeach
+@endforeach
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_33.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@php
+    $isActive = false;
+    $hasError = true;
+@endphp
+
+<span
+  @class ([
+    'p-4',
+    'font-bold' => $isActive,
+    'text-gray-500' => ! $isActive,
+    'bg-red' => $hasError,
+])
+></span>
+
+<span class="p-4 text-gray-500 bg-red"></span>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_34.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@php
+    $isActive = true;
+@endphp
+
+<span
+  @style ([
+    'background-color: red',
+    'font-weight: bold' => $isActive,
+])
+></span>
+
+<span style="background-color: red; font-weight: bold"></span>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_35.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<input
+  type="checkbox"
+  name="active"
+  value="active"
+  @checked (old('active', $user->active))
+/>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_36.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<select name="version">
+  @foreach ($product->versions as $version)
+    <option value="{{ $version }}" @selected (old('version') == $version)>
+      {{ $version }}
+    </option>
+  @endforeach
+</select>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_37.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<button type="submit" @disabled ($errors->isNotEmpty())>Submit</button>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_38.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<input
+  type="email"
+  name="email"
+  value="email@laravel.com"
+  @readonly ($user->isNotAdmin())
+/>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_39.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<input type="text" name="title" value="title" @required ($user->isAdmin()) />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_40.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<div>
+  @include ('shared.errors')
+
+  <form>
+    <!-- Form Contents -->
+  </form>
+</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_41.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@include ('view.name', ['status' => 'complete'])
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_42.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@includeIf ('view.name', ['status' => 'complete'])
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_43.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@includeWhen ($boolean, 'view.name', ['status' => 'complete'])
+
+@includeUnless ($boolean, 'view.name', ['status' => 'complete'])
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_44.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@includeFirst (['custom.admin', 'admin'], ['status' => 'complete'])
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_45.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@each ('view.name', $jobs, 'job')
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_46.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@each ('view.name', $jobs, 'job', 'view.empty')
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_47.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@once
+  @push ('scripts')
+    <script>
+      // Your custom JavaScript...
+    </script>
+  @endpush
+@endonce
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_48.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@pushOnce ('scripts')
+  <script>
+    // Your custom JavaScript...
+  </script>
+@endPushOnce
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_49.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@php
+    $counter = 1;
+@endphp
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_50.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@use ('App\\Models\\Flight')
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_51.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@use ('App\\Models\\Flight', 'FlightModel')
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_52.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@use ('App\\Models\\{Flight, Airport}')
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_53.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@use (function App\\Helpers\\format_currency)
+@use (const App\\Constants\\MAX_ATTEMPTS)
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_54.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@use (function App\\Helpers\\format_currency, 'formatMoney')
+@use (const App\\Constants\\MAX_ATTEMPTS, 'MAX_TRIES')
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_55.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@use (function App\\Helpers\\{format_currency, format_date})
+@use (const App\\Constants\\{MAX_ATTEMPTS, DEFAULT_TIMEOUT})
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_56.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"{{-- This comment will not be present in the rendered HTML --}}
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_57.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-package-alert />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_58.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-nightshade::calendar />
+<x-nightshade::color-picker />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_59.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-alert />
+
+<x-user-profile />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_60.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-inputs.button />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_61.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-card>
+  <x-card.header>...</x-card.header>
+  <x-card.body>...</x-card.body>
+</x-card>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_62.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-alert type="error" :message="$message" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_63.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<div class="alert alert-{{ $type }}">{{ $message }}</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_64.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-alert alert-type="danger" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_65.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"{{-- Short attribute syntax... --}}
+<x-profile :$userId :$name />
+
+{{-- Is equivalent to... --}}
+<x-profile :user-id="$userId" :name="$name" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_66.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-button ::class="{ danger: isDeleting }"> Submit </x-button>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_67.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<button :class="{ danger: isDeleting }">Submit</button>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_68.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<option {{ $isSelected($value) ? 'selected' : '' }} value="{{ $value }}">
+  {{ $label }}
+</option>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_69.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-alert type="error" :message="$message" class="mt-4" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_70.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<div {{ $attributes }}>
+  <!-- Component content -->
+</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_71.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<div {{ $attributes->merge(['class' => 'alert alert-'.$type]) }}>
+  {{ $message }}
+</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_72.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-alert type="error" :message="$message" class="mb-4" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_73.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<div class="alert alert-error mb-4">
+  <!-- Contents of the $message variable -->
+</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_74.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<div {{ $attributes->class(['p-4', 'bg-red' => $hasError]) }}>
+  {{ $message }}
+</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_75.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<button {{ $attributes->class(['p-4'])->merge(['type' => 'button']) }}>
+  {{ $slot }}
+</button>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_76.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<button {{ $attributes->merge(['type' => 'button']) }}> {{ $slot }}</button>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_77.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-button type="submit"> Submit </x-button>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_78.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<button type="submit">Submit</button>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_79.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<div
+  {{ $attributes->merge(['data-controller' => $attributes->prepends('profile-controller')]) }}
+>
+  {{ $slot }}
+</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_80.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"{{ $attributes->filter(fn (string $value, string $key) => $key == 'foo') }}
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_81.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"{{ $attributes->whereStartsWith('wire:model') }}
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_82.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"{{ $attributes->whereDoesntStartWith('wire:model') }}
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_83.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"{{ $attributes->whereStartsWith('wire:model')->first() }}
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_84.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@if ($attributes->has('class'))
+  <div>Class attribute is present</div>
+@endif
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_85.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@if ($attributes->has(['name', 'class']))
+  <div>All of the attributes are present</div>
+@endif
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_86.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@if ($attributes->hasAny(['href', ':href', 'v-bind:href']))
+  <div>One of the attributes is present</div>
+@endif
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_87.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"{{ $attributes->get('class') }}
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_88.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"{{ $attributes->only(['class']) }}
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_89.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"{{ $attributes->except(['class']) }}
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_90.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!-- /resources/views/components/alert.blade.php -->
+
+<div class="alert alert-danger">{{ $slot }}</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_91.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-alert> <strong>Whoops!</strong> Something went wrong! </x-alert>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_92.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!-- /resources/views/components/alert.blade.php -->
+
+<span class="alert-title">{{ $title }}</span>
+
+<div class="alert alert-danger">{{ $slot }}</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_93.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<span class="alert-title">{{ $title }}</span>
+
+<div class="alert alert-danger">
+  @if ($slot->isEmpty())
+    This is default content if the slot is empty.
+  @else
+    {{ $slot }}
+  @endif
+</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_94.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@if ($slot->hasActualContent())
+  The scope has non-comment content.
+@endif
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_95.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-alert>
+  <x-slot:title>
+    {{ $component->formatAlert('Server Error') }}
+  </x-slot:title>
+
+  <strong>Whoops!</strong> Something went wrong!
+</x-alert>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_96.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@props ([
+    'heading',
+    'footer',
+])
+
+<div {{ $attributes->class(['border']) }}>
+  <h1 {{ $heading->attributes->class(['text-lg']) }}> {{ $heading }}</h1>
+
+  {{ $slot }}
+
+  <footer {{ $footer->attributes->class(['text-gray-700']) }}>
+    {{ $footer }}
+  </footer>
+</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_97.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"// $componentName = "secondary-button";
+
+<x-dynamic-component :component="$componentName" class="mt-4" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_98.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-package-alert />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_99.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-nightshade::calendar />
+<x-nightshade::color-picker />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_100.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-alert />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_101.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-inputs.button />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_102.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-accordion>
+  <x-accordion.item> ... </x-accordion.item>
+</x-accordion>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_103.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!-- /resources/views/components/alert.blade.php -->
+
+@props (['type' => 'info', 'message'])
+
+<div {{ $attributes->merge(['class' => 'alert alert-'.$type]) }}>
+  {{ $message }}
+</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_104.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-alert type="error" :message="$message" class="mb-4" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_105.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-menu color="purple">
+  <x-menu.item>...</x-menu.item>
+  <x-menu.item>...</x-menu.item>
+</x-menu>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_106.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!-- /resources/views/components/menu/index.blade.php -->
+
+@props (['color' => 'gray'])
+
+<ul {{ $attributes->merge(['class' => 'bg-'.$color.'-200']) }}>
+  {{ $slot }}
+</ul>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_107.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!-- /resources/views/components/menu/item.blade.php -->
+
+@aware (['color' => 'gray'])
+
+<li {{ $attributes->merge(['class' => 'text-'.$color.'-800']) }}>
+  {{ $slot }}
+</li>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_108.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-panel />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_109.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-dashboard::panel />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_110.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!-- resources/views/components/layout.blade.php -->
+
+<html>
+  <head>
+    <title>{{ $title ?? 'Todo Manager' }}</title>
+  </head>
+  <body>
+    <h1>Todos</h1>
+    <hr />
+    {{ $slot }}
+  </body>
+</html>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_111.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!-- resources/views/tasks.blade.php -->
+
+<x-layout>
+  @foreach ($tasks as $task)
+    <div>{{ $task }}</div>
+  @endforeach
+</x-layout>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_112.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!-- resources/views/tasks.blade.php -->
+
+<x-layout>
+  <x-slot:title>
+    Custom Title
+  </x-slot:title>
+
+  @foreach ($tasks as $task)
+    <div>{{ $task }}</div>
+  @endforeach
+</x-layout>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_113.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!-- resources/views/layouts/app.blade.php -->
+
+<html>
+  <head>
+    <title>
+      App Name -
+      @yield ('title')
+    </title>
+  </head>
+  <body>
+    @section ('sidebar')
+      This is the master sidebar.
+    @show
+
+    <div class="container">
+      @yield ('content')
+    </div>
+  </body>
+</html>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_114.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!-- resources/views/child.blade.php -->
+
+@extends ('layouts.app')
+
+@section ('title', 'Page Title')
+
+@section ('sidebar')
+  @@parent
+  <p>This is appended to the master sidebar.</p>
+@endsection
+
+@section ('content')
+  <p>This is my body content.</p>
+@endsection
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_115.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@yield ('content', 'Default content')
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_116.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<form method="POST" action="/profile">
+  @csrf
+
+  ...
+</form>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_117.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<form action="/foo/bar" method="POST">
+  @method ('PUT')
+
+  ...
+</form>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_118.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!-- /resources/views/post/create.blade.php -->
+
+<label for="title">Post Title</label>
+
+<input id="title" type="text" class="@error('title') is-invalid @enderror" />
+
+@error ('title')
+  <div class="alert alert-danger">{{ $message }}</div>
+@enderror
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_119.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!-- /resources/views/auth.blade.php -->
+
+<label for="email">Email address</label>
+
+<input
+  id="email"
+  type="email"
+  class="@error('email') is-invalid @else is-valid @enderror"
+/>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_120.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!-- /resources/views/auth.blade.php -->
+
+<label for="email">Email address</label>
+
+<input
+  id="email"
+  type="email"
+  class="@error('email', 'login') is-invalid @enderror"
+/>
+
+@error ('email', 'login')
+  <div class="alert alert-danger">{{ $message }}</div>
+@enderror
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_121.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@push ('scripts')
+  <script src="/example.js"></script>
+@endpush
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_122.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@pushIf ($shouldPush, 'scripts')
+  <script src="/example.js"></script>
+@endPushIf
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_123.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<head>
+  <!-- Head Contents -->
+
+  @stack ('scripts')
+</head>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_124.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@push ('scripts')
+  This will be second...
+@endpush
+
+// Later...
+
+@prepend ('scripts')
+  This will be first...
+@endprepend
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_125.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@inject ('metrics', 'App\\Services\\MetricsService')
+
+<div>Monthly Revenue: {{ $metrics->monthlyRevenue() }}.</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_126.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@fragment ('user-list')
+  <ul>
+    @foreach ($users as $user)
+      <li>{{ $user->name }}</li>
+    @endforeach
+  </ul>
+@endfragment
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_127.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"Cost: {{ $money }}
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_128.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@disk ('local')
+  <!-- The application is using the local disk... -->
+@elsedisk ('s3')
+  <!-- The application is using the s3 disk... -->
+@else
+  <!-- The application is using some other disk... -->
+@enddisk
+
+@unlessdisk ('local')
+<!-- The application is not using the local disk... -->
+@enddisk
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_129.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<head>
+  ...
+
+  @paddleJS
+</head>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_130.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@if ($user->subscribed())
+  <p>You are subscribed.</p>
+@endif
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_131.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@if ($user->subscribedToProduct('pro_basic'))
+  <p>You are subscribed to our Basic product.</p>
+@endif
+
+@if ($user->subscribedToPrice('price_basic_monthly'))
+  <p>You are subscribed to our monthly Basic plan.</p>
+@endif
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_132.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<?php
+$items = $checkout->getItems();
+$customer = $checkout->getCustomer();
+$custom = $checkout->getCustomData();
+?>
+
+<a
+  href="#!"
+  class="paddle_button"
+  data-items='{!! json_encode($items) !!}'
+  @if ($customer) data-customer-id='{{ $customer->paddle_id }}' @endif
+  @if ($custom) data-custom-data='{{ json_encode($custom) }}' @endif
+  @if ($returnUrl = $checkout->getReturnUrl()) data-success-url='{{ $returnUrl }}' @endif
+>
+  Buy Product
+</a>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_133.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-paddle-checkout :checkout="$checkout" class="w-full" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_134.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-paddle-checkout :checkout="$checkout" class="w-full" height="500" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_135.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<?php
+$options = $checkout->options();
+
+$options['settings']['frameTarget'] = 'paddle-checkout';
+$options['settings']['frameInitialHeight'] = 366;
+?>
+
+<div
+  class="paddle-checkout"
+  x-data="{}"
+  x-init="
+    Paddle.Checkout.open(@json($options));
+"
+></div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_136.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<ul>
+  @foreach ($prices as $price)
+    <li>{{ $price->product['name'] }} - {{ $price->total() }}</li>
+  @endforeach
+</ul>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_137.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<ul>
+  @foreach ($prices as $price)
+    <li>
+      {{ $price->product['name'] }} - {{ $price->subtotal() }} (+ {{ $price->tax() }} tax)
+    </li>
+  @endforeach
+</ul>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_138.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<ul>
+  @foreach ($prices as $price)
+    <li>{{ $price->product['name'] }} - {{ $price->total() }}</li>
+  @endforeach
+</ul>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_139.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-paddle-button :checkout="$checkout" class="px-8 py-4">
+  Subscribe
+</x-paddle-button>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_140.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-paddle-button :checkout="$checkout" class="px-8 py-4"> Buy </x-paddle-button>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_141.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"Next payment: {{ $nextPayment->amount() }} due on {{ $nextPayment->date()->format('d/m/Y') }}
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_142.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@foreach ($products->chunk(3) as $chunk)
+  <div class="row">
+    @foreach ($chunk as $product)
+      <div class="col-xs-4">{{ $product->name }}</div>
+    @endforeach
+  </div>
+@endforeach
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_143.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<form action="https://your-application.com/user/email" method="POST">
+  <input type="email" value="malicious-email@example.com" />
+</form>
+
+<script>
+  document.forms[0].submit();
+</script>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_144.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<form method="POST" action="/profile">
+  @csrf
+
+  <!-- Equivalent to... -->
+  <input type="hidden" name="_token" value="{{ csrf_token() }}" />
+</form>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_145.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<meta name="csrf-token" content="{{ csrf_token() }}" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_146.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@servers (['web' => ['user@192.168.1.1'], 'workers' => ['user@192.168.1.2']])
+
+@task ('restart-queues', ['on' => 'workers'])
+  cd /home/user/example.com php artisan queue:restart
+@endtask
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_147.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@servers (['localhost' => '127.0.0.1'])
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_148.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@import ('vendor/package/Envoy.blade.php')
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_149.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@servers (['web-1' => '192.168.1.1', 'web-2' => '192.168.1.2'])
+
+@task ('deploy', ['on' => ['web-1', 'web-2']])
+  cd /home/user/example.com
+    git pull origin {{ $branch }}
+  php artisan migrate --force
+@endtask
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_150.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@servers (['web-1' => '192.168.1.1', 'web-2' => '192.168.1.2'])
+
+@task ('deploy', ['on' => ['web-1', 'web-2'], 'parallel' => true])
+  cd /home/user/example.com
+    git pull origin {{ $branch }}
+  php artisan migrate --force
+@endtask
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_151.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@include ('vendor/autoload.php')
+
+@task ('restart-queues')
+  # ...
+@endtask
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_152.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@servers (['web' => ['user@192.168.1.1']])
+
+@task ('deploy', ['on' => 'web'])
+  cd /home/user/example.com
+  @if ($branch)
+    git pull origin {{ $branch }}
+  @endif
+  php artisan migrate --force
+@endtask
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_153.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@servers (['web' => ['user@192.168.1.1']])
+
+@story ('deploy')
+  update-code install-dependencies
+@endstory
+
+@task ('update-code')
+  cd /home/user/example.com git pull origin master
+@endtask
+
+@task ('install-dependencies')
+  cd /home/user/example.com composer install
+@endtask
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_154.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@before
+  if ($task === 'deploy') { // ... }
+@endbefore
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_155.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@after
+  if ($task === 'deploy') { // ... }
+@endafter
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_156.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@error
+  if ($task === 'deploy') { // ... }
+@enderror
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_157.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@success
+  // ...
+@endsuccess
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_158.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@finished
+  if ($exitCode > 0) { // There were errors in one of the tasks... }
+@endfinished
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_159.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@task ('deploy', ['on' => 'web', 'confirm' => true])
+  cd /home/user/example.com
+    git pull origin {{ $branch }}
+  php artisan migrate
+@endtask
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_160.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@finished
+  @slack ('webhook-url', '#bots')
+@endfinished
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_161.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@finished
+  @slack ('webhook-url', '#bots', 'Hello, Slack.')
+@endfinished
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_162.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@finished
+  @discord ('discord-webhook-url')
+@endfinished
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_163.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@finished
+  @telegram ('bot-id','chat-id')
+@endfinished
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_164.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@finished
+  @microsoftTeams ('webhook-url')
+@endfinished
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_165.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<h2>{{ $exception->getMessage() }}</h2>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_166.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@if (session('status'))
+  <div class="mb-4 font-medium text-sm text-green-600">
+    {{ session('status') }}
+  </div>
+@endif
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_167.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@if (session('status') == 'verification-link-sent')
+  <div class="mb-4 font-medium text-sm text-green-600">
+    A new email verification link has been emailed to you!
+  </div>
+@endif
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_168.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<div>
+  <?php foreach ($users as $user): ?>
+    Hello,
+    <?php echo $user->name; ?>
+    <br />
+  <?php endforeach; ?>
+</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_169.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<div>
+  @foreach ($users as $user)
+    Hello, {{ $user->name }}
+    <br />
+  @endforeach
+</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_170.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<div>
+  <button wire:click="increment">+</button>
+  <h1>{{ $count }}</h1>
+</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_171.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"{{ csrf_field() }}
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_172.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@for ($i = 0; $i < 10; $i++)
+  <dl>
+    <dt>Name</dt>
+    <dd>{{ fake()->name() }}</dd>
+
+    <dt>Email</dt>
+    <dd>{{ fake()->unique()->safeEmail() }}</dd>
+  </dl>
+@endfor
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_173.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<form method="POST">{{ method_field('DELETE') }}</form>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_174.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"{{ old('name', $user->name) }}
+
+// Is equivalent to...
+
+{{ old('name', $user) }}
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_175.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<div {!! when($condition, 'wire:poll="calculate"') !!}> ...</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_176.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"{{ __('messages.welcome') }}
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_177.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<div>Price: {{ $order->price }}</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_178.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<div>Price: {{ $orderPrice }}</div>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_179.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<body>
+  Here is an image:
+
+  <img src="{{ $message->embed($pathToImage) }}" />
+</body>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_180.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<body>
+  Here is an image from raw data:
+
+  <img src="{{ $message->embedData($data, 'example-image.jpg') }}" />
+</body>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_181.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-mail::message>
+  # Order Shipped Your order has been shipped!
+
+  <x-mail::button :url="$url"> View Order </x-mail::button>
+
+  Thanks,<br />
+  {{ config('app.name') }}
+</x-mail::message>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_182.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-mail::button :url="$url" color="success"> View Order </x-mail::button>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_183.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-mail::panel> This is the panel content. </x-mail::panel>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_184.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-mail::table>
+  | Laravel | Table | Example | | ------------- | :-----------: | ------------:
+  | | Col 2 is | Centered | $10 | | Col 3 is | Right-Aligned | $20 |
+</x-mail::table>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_185.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-mail::message>
+  # Invoice Paid Your invoice has been paid!
+
+  <x-mail::button :url="$url"> View Invoice </x-mail::button>
+
+  Thanks,<br />
+  {{ config('app.name') }}
+</x-mail::message>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_186.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-mail::button :url="$url" color="green"> View Invoice </x-mail::button>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_187.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-mail::panel> This is the panel content. </x-mail::panel>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_188.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-mail::table>
+  | Laravel | Table | Example | | ------------- | :-----------: | ------------:
+  | | Col 2 is | Centered | $10 | | Col 3 is | Right-Aligned | $20 |
+</x-mail::table>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_189.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-package-alert />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_190.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-nightshade::calendar />
+<x-nightshade::color-picker />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_191.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-courier::alert />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_192.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<div class="container">
+  @foreach ($users as $user)
+    {{ $user->name }}
+  @endforeach
+</div>
+
+{{ $users->links() }}
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_193.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"{{ $users->onEachSide(5)->links() }}
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_194.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"{{ $paginator->links('view.name') }}
+
+<!-- Passing additional data to the view... --> {{ $paginator->links('view.name', ['foo' => 'bar']) }}
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_195.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@feature ('site-redesign')
+  <!-- 'site-redesign' is active -->
+@else
+  <!-- 'site-redesign' is inactive -->
+@endfeature
+
+@featureany (['site-redesign', 'beta'])
+  <!-- 'site-redesign' or \`beta\` is active -->
+@endfeatureany
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_196.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@feature ('purchase-button', 'blue-sapphire')
+  <!-- 'blue-sapphire' is active -->
+@elsefeature ('purchase-button', 'seafoam-green')
+  <!-- 'seafoam-green' is active -->
+@elsefeature ('purchase-button', 'tart-orange')
+  <!-- 'tart-orange' is active -->
+@endfeature
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_197.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-pulse full-width> ... </x-pulse>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_198.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-pulse cols="16"> ... </x-pulse>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_199.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<livewire:pulse.usage cols="4" rows="2" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_200.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<livewire:pulse.slow-queries expand />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_201.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<livewire:pulse.servers ignore-after="3 hours" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_202.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<livewire:pulse.usage type="requests" />
+<livewire:pulse.usage type="slow_requests" />
+<livewire:pulse.usage type="jobs" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_203.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<livewire:pulse.slow-queries without-highlighting />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_204.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-pulse::card :cols="$cols" :rows="$rows" :class="$class" wire:poll.5s="">
+  <x-pulse::card-header name="Top Sellers">
+    <x-slot:icon>
+      ...
+    </x-slot:icon>
+  </x-pulse::card-header>
+
+  <x-pulse::scroll :expand="$expand"> ... </x-pulse::scroll>
+</x-pulse::card>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_205.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-pulse>
+  ...
+
+  <livewire:pulse.top-sellers cols="4" />
+</x-pulse>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_206.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-pulse>
+  @vite ('resources/css/pulse/top-sellers.css')
+
+  ...
+</x-pulse>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_207.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-pulse::card id="top-sellers" :cols="$cols" :rows="$rows" class="$class">
+  ...
+</x-pulse::card>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_208.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@foreach ($topSellers as $seller)
+  {{ $seller->key }}
+  {{ $seller->sum }}
+  {{ $seller->count }}
+@endforeach
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_209.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-pulse::user-card :user="{{ $seller->user }}" :stats="{{ $seller->sum }}" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_210.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@if (session('status'))
+  <div class="alert alert-success">{{ session('status') }}</div>
+@endif
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_211.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<input type="text" name="username" value="{{ old('username') }}" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_212.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@if (session('status'))
+  <div class="alert alert-success">{{ session('status') }}</div>
+@endif
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_213.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-pulse>
+  <livewire:reverb.connections cols="full" />
+  <livewire:reverb.messages cols="full" />
+  ...
+</x-pulse>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_214.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<form method="POST" action="/profile">
+  @csrf
+  ...
+</form>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_215.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<form action="/example" method="POST">
+  <input type="hidden" name="_method" value="PUT" />
+  <input type="hidden" name="_token" value="{{ csrf_token() }}" />
+</form>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_216.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<form action="/example" method="POST">
+  @method ('PUT')
+  @csrf
+</form>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_217.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-layouts.app.header>
+  <x:main container> {{ $slot }} </x:main>
+</x-layouts.app.header>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_218.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<x-layouts.auth.split> {{ $slot }} </x-layouts.auth.split>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_219.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!-- /resources/views/post/create.blade.php -->
+
+<h1>Create Post</h1>
+
+@if ($errors->any())
+  <div class="alert alert-danger">
+    <ul>
+      @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+      @endforeach
+    </ul>
+  </div>
+@endif
+
+<!-- Create Post Form -->
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_220.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!-- /resources/views/post/create.blade.php -->
+
+<label for="title">Post Title</label>
+
+<input
+  id="title"
+  type="text"
+  name="title"
+  class="@error('title') is-invalid @enderror"
+/>
+
+@error ('title')
+  <div class="alert alert-danger">{{ $message }}</div>
+@enderror
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_221.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<input ... class="@error('title', 'post') is-invalid @enderror" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_222.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<input type="text" name="title" value="{{ old('title') }}" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_223.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"{{ $errors->login->first('email') }}
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_224.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!-- View stored in resources/views/greeting.blade.php -->
+
+<html>
+  <body>
+    <h1>Hello, {{ $name }}</h1>
+  </body>
+</html>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_225.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!doctype html>
+<head>
+  {{-- ... --}}
+
+  @vite (['resources/css/app.css', 'resources/js/app.js'])
+</head>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_226.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!doctype html>
+<head>
+  {{-- ... --}}
+
+  @vite ('resources/js/app.js')
+</head>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_227.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!doctype html>
+<head>
+  {{-- Given build path is relative to public path. --}}
+
+  @vite ('resources/js/app.js', 'vendor/courier/build')
+</head>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_228.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@use ('Illuminate\\Support\\Facades\\Vite')
+
+<!doctype html>
+<head>
+  {{-- ... --}}
+
+  <style>
+    {!! Vite::content('resources/css/app.css') !!}
+  </style>
+  <script>
+    {!! Vite::content('resources/js/app.js') !!}
+  </script>
+</head>
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_229.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@viteReactRefresh
+@vite ('resources/js/app.jsx')
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_230.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<img src="{{ Vite::asset('resources/images/logo.png') }}" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_231.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<img src="{{ Vite::image('logo.png') }}" alt="Laravel Logo" />
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_232.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"@routes (nonce: Vite::cspNonce())
+"
+`;
+
+exports[`validation/laravel-documentation-fixtures > formats docs_233.blade.php (snapshot + idempotent + no-loss) 1`] = `
+"<!doctype html>
+<head>
+  {{-- ... --}}
+
+  {{
+        Vite::useHotFile(storage_path('vite.hot')) // Customize the "hot" file...
+            ->useBuildDirectory('bundle') // Customize the build directory...
+            ->useManifestFilename('assets.json') // Customize the manifest filename...
+            ->withEntryPoints(['resources/js/app.js']) // Specify the entry points...
+            ->createAssetPathsUsing(function (string $path, ?bool $secure) { // Customize the backend path generation for built assets...
+                return "https://cdn.example.com/{$path}";
+            })
+    }}
+</head>
+"
+`;

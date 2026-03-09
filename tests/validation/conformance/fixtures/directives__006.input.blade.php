@@ -1,0 +1,3 @@
+<div>
+            @directive   ($test  + $that-$another   + $thing)
+                </div>

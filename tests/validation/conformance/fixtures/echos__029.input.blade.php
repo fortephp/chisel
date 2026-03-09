@@ -1,0 +1,1 @@
+<div data-attribute={{ someCodeHere() }} ></div>

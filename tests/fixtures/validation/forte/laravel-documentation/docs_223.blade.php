@@ -1,0 +1,1 @@
+{{ $errors->login->first('email') }}

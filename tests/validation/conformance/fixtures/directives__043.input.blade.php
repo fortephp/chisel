@@ -1,0 +1,1 @@
+<input type="text" class="my-class @error('form.title') has-error @enderror" />
