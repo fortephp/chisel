@@ -1,0 +1,1 @@
+@routes(nonce: Vite::cspNonce())

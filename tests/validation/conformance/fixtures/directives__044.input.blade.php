@@ -1,0 +1,1 @@
+@php(($bg = get_field('populated_bg_color') === 'gray' ? ' bg-gray-100 my-2 my-lg-5' : ''))

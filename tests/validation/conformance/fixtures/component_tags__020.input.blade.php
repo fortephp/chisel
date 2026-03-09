@@ -1,0 +1,1 @@
+<x-profile :$userId :$size></x-profile>

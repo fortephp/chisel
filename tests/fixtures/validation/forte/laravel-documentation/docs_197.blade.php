@@ -1,0 +1,3 @@
+<x-pulse full-width>
+    ...
+</x-pulse>

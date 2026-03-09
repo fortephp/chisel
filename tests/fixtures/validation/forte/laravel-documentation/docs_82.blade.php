@@ -1,0 +1,1 @@
+{{ $attributes->whereDoesntStartWith('wire:model') }}

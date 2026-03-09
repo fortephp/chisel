@@ -1,0 +1,9 @@
+@push('scripts')
+    This will be second...
+@endpush
+
+// Later...
+
+@prepend('scripts')
+    This will be first...
+@endprepend

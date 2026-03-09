@@ -1,0 +1,3 @@
+@props([
+    'heading','footer',
+])

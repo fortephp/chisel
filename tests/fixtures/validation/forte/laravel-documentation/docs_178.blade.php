@@ -1,0 +1,3 @@
+<div>
+    Price: {{ $orderPrice }}
+</div>

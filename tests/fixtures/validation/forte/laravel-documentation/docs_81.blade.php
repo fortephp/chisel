@@ -1,0 +1,1 @@
+{{ $attributes->whereStartsWith('wire:model') }}

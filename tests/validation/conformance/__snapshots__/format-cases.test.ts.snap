@@ -1,0 +1,218 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__001 1`] = `
+"{{ $test + $that }}
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__002 1`] = `
+"{!! $test + $that !!}
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__003 1`] = `
+"{{{ $test + $that }}}
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__004 1`] = `
+"{{ $test   $+++$that }}
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__005 1`] = `
+"{!! $test   $+++$that !!}
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__006 1`] = `
+"{{
+  str_pad(
+    $loop->index + 1,
+    2,
+    '0',
+    STR_PAD_LEFT,
+  )
+}}
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__007 1`] = `
+"{{{ $test   $+++$that }}}
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__008 1`] = `
+"<a
+  href="#"
+  target="_blank"
+  {{
+    $attributes->merge(
+      [
+        'class' =>
+          'rounded transition focus-visible:outline-none focus-visible:ring focus-visible:ring-red-600',
+      ],
+    )
+  }}
+>
+  Some link
+</a>
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__009 1`] = `
+"<p>test {{ $title }} test asdfasdf</p>
+
+<p>{{ $test }}</p>
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__010 1`] = `
+"{{
+  $attributes->class(
+    [
+      'text-gray-900 border-gray-300 invalid:text-gray-400 block w-full h-9 py-1 transition duration-75 rounded-lg shadow-sm outline-none focus:border-primary-500 focus:ring-1 focus:ring-inset focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:border-primary-500',
+    ],
+  )
+}}
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__011 1`] = `
+"<label
+  {{
+    $attributes
+      ->whereDoesntStartWith('wire:model')
+      ->class(['flex gap-3 text-sm'])
+  }}
+></label>
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__012 1`] = `
+"<div>
+  {{
+    $foo->bar([
+      'foo' => $foo,
+      'bar' => $bar,
+      'baz' => $baz,
+    ])
+  }}
+</div>
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__013 1`] = `
+"<div>
+  {{
+    $foo->bar([
+      'foo' => $foo,
+      'bar' => $bar,
+      'baz' => $baz,
+    ])
+  }}
+</div>
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__014 1`] = `
+"<div
+  {{
+    $attributes->class(
+      [
+        'some classes',
+        match ($someCondition) {
+          true => 'more classes foo bar baz',
+          default => 'even more classes foo bar baz',
+        },
+      ],
+    )
+  }}
+></div>
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__015 1`] = `
+"<div
+  {{
+    $attributes->class(
+      [
+        'some classes',
+        match ($someCondition) {
+          true => 'more classes foo bar baz',
+          default => 'even more classes foo bar baz',
+        },
+      ],
+    )
+  }}
+></div>
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__016 1`] = `
+"<div
+  {{
+    $attributes->class(
+      [
+        'some classes',
+        match ($someCondition) {
+          true => 'more classes foo bar baz',
+          default => 'even more classes foo bar baz',
+        },
+      ],
+    )
+  }}
+  more
+  attributes
+  class="one two three"
+  something="else"
+></div>
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__017 1`] = `
+"<div
+  {{
+    $attributes->class(
+      [
+        'some classes',
+        match ($someCondition) {
+          true => 'more classes foo bar baz',
+          default => 'even more classes foo bar baz',
+        },
+      ],
+    )
+  }}
+  more
+  attributes
+  class="one two three"
+  something="else"
+></div>
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__018 1`] = `
+"<div
+  {{
+    match ($foo) {
+      'foo' => 'foo',
+      default => 'bar',
+    }
+  }}
+></div>
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__019 1`] = `
+"<form wire:submit.prevent="authenticate" class="grid gap-y-8">
+  {{ $this->form }}
+
+  {{ $this->authenticateAction }}
+</form>
+"
+`;
+
+exports[`validation/conformance/format-cases > formats inline_echo_block__020 1`] = `
+"<div>{{ $foo }}{{ $bar }}</div>
+"
+`;

@@ -1,0 +1,2509 @@
+[
+  {
+    "id": "basic_nodes__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_basic_nodes.test.ts",
+    "line": 10,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "basic_nodes__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "basic_nodes__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_basic_nodes.test.ts",
+    "line": 17,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "basic_nodes__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "basic_nodes__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_basic_nodes.test.ts",
+    "line": 24,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "basic_nodes__003.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "basic_nodes__004",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_basic_nodes.test.ts",
+    "line": 31,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "basic_nodes__004.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "basic_nodes__005",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_basic_nodes.test.ts",
+    "line": 38,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "basic_nodes__005.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "basic_nodes__006",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_basic_nodes.test.ts",
+    "line": 48,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "basic_nodes__006.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "basic_nodes__007",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_basic_nodes.test.ts",
+    "line": 61,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "basic_nodes__007.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "basic_nodes__008",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_basic_nodes.test.ts",
+    "line": 97,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "basic_nodes__008.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "basic_nodes__009",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_basic_nodes.test.ts",
+    "line": 113,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "basic_nodes__009.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "basic_nodes__010",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_basic_nodes.test.ts",
+    "line": 140,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "basic_nodes__010.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "can__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_can.test.ts",
+    "line": 28,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "can__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 16,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 33,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__003.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__004",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 42,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__004.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__005",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 51,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__005.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__006",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 64,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__006.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__007",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 71,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__007.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__008",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 79,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__008.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__009",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 89,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__009.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__010",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 101,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__010.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__011",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 110,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__011.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__012",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 125,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__012.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__013",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 136,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__013.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__014",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 150,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__014.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__015",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 161,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__015.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__016",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 172,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__016.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__017",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 185,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__017.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__018",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 193,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__018.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__019",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 201,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__019.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__020",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 219,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__020.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__021",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 234,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__021.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__022",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 235,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__022.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__023",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 242,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__023.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__024",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 259,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__024.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__025",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 529,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__025.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__026",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 923,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__026.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__027",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 969,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__027.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__028",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 1005,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__028.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__029",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 1044,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__029.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "component_tags__030",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_component_tags.test.ts",
+    "line": 1063,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "component_tags__030.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "conditional_element_directive_pair__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_conditional_element_directive_pair.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "conditional_element_directive_pair__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "conditional_element_directive_pair__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_conditional_element_directive_pair.test.ts",
+    "line": 29,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "conditional_element_directive_pair__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "conditional_element_echo__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_conditional_element_echo.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "conditional_element_echo__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "conditional_element_echo__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_conditional_element_echo.test.ts",
+    "line": 19,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "conditional_element_echo__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "conditional_element_echo__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_conditional_element_echo.test.ts",
+    "line": 40,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "conditional_element_echo__003.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "conditional_element_echo__004",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_conditional_element_echo.test.ts",
+    "line": 61,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "conditional_element_echo__004.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "conditional_element_if__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_conditional_element_if.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "conditional_element_if__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "conditional_element_if__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_conditional_element_if.test.ts",
+    "line": 28,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "conditional_element_if__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "conditional_element_unless__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_conditional_element_unless.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "conditional_element_unless__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 10,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 17,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 24,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__003.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__004",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 61,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__004.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__005",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 66,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__005.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__006",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 89,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__006.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__007",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 100,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__007.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__008",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 107,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__008.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__009",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 124,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__009.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__010",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 206,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__010.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__011",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 221,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__011.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__012",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 234,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__012.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__013",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 235,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__013.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__014",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 254,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__014.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__015",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 255,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__015.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__016",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 265,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__016.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__017",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 282,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__017.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__018",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 293,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__018.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__019",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 304,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__019.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__020",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 315,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__020.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__021",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 326,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__021.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__022",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 337,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__022.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__023",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 348,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__023.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__024",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 359,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__024.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__025",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 370,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__025.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__026",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 381,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__026.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__027",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 392,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__027.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__028",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 403,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__028.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__029",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 423,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__029.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__030",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 456,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__030.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__031",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 470,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__031.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__032",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 483,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__032.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__033",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 502,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__033.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__034",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 516,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__034.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__035",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 544,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__035.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__036",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 545,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__036.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__037",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 569,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__037.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__038",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 607,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__038.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__039",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 627,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__039.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__040",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 647,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__040.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__041",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 661,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__041.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__042",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 749,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__042.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__043",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 764,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__043.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__044",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 774,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__044.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__045",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 803,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__045.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__046",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 816,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__046.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "directives__047",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_directives.test.ts",
+    "line": 833,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "directives__047.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 10,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 17,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 24,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__003.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__004",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 31,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__004.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__005",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 38,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__005.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__006",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 46,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__006.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__007",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 51,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__007.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__008",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 71,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__008.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__009",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 76,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__009.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__010",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 91,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__010.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__011",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 112,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__011.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__012",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 135,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__012.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__013",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 136,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__013.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__014",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 160,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__014.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__015",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 161,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__015.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__016",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 190,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__016.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__017",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 191,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__017.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__018",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 211,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__018.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__019",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 226,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__019.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__020",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 235,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__020.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__021",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 276,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__021.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__022",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 277,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__022.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__023",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 316,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__023.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__024",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 359,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__024.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__025",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 375,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__025.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__026",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 393,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__026.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__027",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 411,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__027.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__028",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 418,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__028.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__029",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 424,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__029.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "echos__030",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_echos.test.ts",
+    "line": 448,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "echos__030.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "forelse__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_forelse.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "forelse__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "forelse__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_forelse.test.ts",
+    "line": 22,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "forelse__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "forelse__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_forelse.test.ts",
+    "line": 41,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "forelse__003.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "forelse__004",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_forelse.test.ts",
+    "line": 54,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "forelse__004.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "forelse__005",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_forelse.test.ts",
+    "line": 80,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "forelse__005.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "forelse__006",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_forelse.test.ts",
+    "line": 99,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "forelse__006.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "forelse__007",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_forelse.test.ts",
+    "line": 127,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "forelse__007.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 39,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 77,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__003.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__004",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 114,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__004.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__005",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 126,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__005.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__006",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 157,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__006.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__007",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 179,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__007.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__008",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 193,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__008.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__009",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 194,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__009.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__010",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 214,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__010.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__011",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 215,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__011.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__012",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 233,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__012.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__013",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 234,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__013.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__014",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 253,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__014.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__015",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 270,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__015.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__016",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 287,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__016.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__017",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 350,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__017.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__018",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 351,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__018.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__019",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 392,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__019.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__020",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 418,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__020.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "if_statements__021",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_if_statements.test.ts",
+    "line": 431,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "if_statements__021.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "ignore__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_ignore.test.ts",
+    "line": 380,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "ignore__001.input.blade.php",
+    "options": {
+      "bladePhpFormatting": "off",
+      "bladeDirectiveArgSpacing": "preserve",
+      "singleQuote": false
+    }
+  },
+  {
+    "id": "ignore__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_ignore.test.ts",
+    "line": 381,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "ignore__002.input.blade.php",
+    "options": {
+      "bladePhpFormatting": "off",
+      "bladeDirectiveArgSpacing": "preserve",
+      "singleQuote": false
+    }
+  },
+  {
+    "id": "ignore__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_ignore.test.ts",
+    "line": 398,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "ignore__003.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "include__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_include.test.ts",
+    "line": 10,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "include__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "include__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_include.test.ts",
+    "line": 18,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "include__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "include__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_include.test.ts",
+    "line": 26,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "include__003.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "include__004",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_include.test.ts",
+    "line": 31,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "include__004.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "include__005",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_include.test.ts",
+    "line": 38,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "include__005.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "include__006",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_include.test.ts",
+    "line": 45,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "include__006.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "include__007",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_include.test.ts",
+    "line": 52,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "include__007.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "include__008",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_include.test.ts",
+    "line": 61,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "include__008.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "include__009",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_include.test.ts",
+    "line": 69,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "include__009.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "include__010",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_include.test.ts",
+    "line": 108,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "include__010.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "include__011",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_include.test.ts",
+    "line": 129,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "include__011.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "inline_echo_block__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 20,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__001.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 27,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__002.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 34,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__003.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__004",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 41,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__004.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__005",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 48,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__005.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__006",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 56,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__006.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__007",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 61,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__007.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__008",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 81,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__008.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__009",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 86,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__009.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__010",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 101,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__010.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__011",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 120,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__011.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__012",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 141,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__012.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__013",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 142,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__013.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__014",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 164,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__014.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__015",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 165,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__015.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__016",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 192,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__016.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__017",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 193,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__017.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__018",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 211,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__018.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__019",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 226,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__019.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_echo_block__020",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\format_inline_echo_block.test.ts",
+    "line": 235,
+    "functionName": "formatBladeStringInlineEcho",
+    "group": "format",
+    "inputFile": "inline_echo_block__020.input.blade.php",
+    "options": {
+      "bladeEchoSpacing": "space"
+    }
+  },
+  {
+    "id": "inline_php__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_inline_php.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "inline_php__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "inline_php__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_inline_php.test.ts",
+    "line": 39,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "inline_php__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "inline_php__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_inline_php.test.ts",
+    "line": 69,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "inline_php__003.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "js_attributes__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_js_attributes.test.ts",
+    "line": 186,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "js_attributes__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "js_attributes__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_js_attributes.test.ts",
+    "line": 237,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "js_attributes__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "json_args__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_json_args.test.ts",
+    "line": 88,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "json_args__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "json_params__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_json_params.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "json_params__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "json_params__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_json_params.test.ts",
+    "line": 33,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "json_params__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "literals__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_literals.test.ts",
+    "line": 6,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "literals__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "literals__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_literals.test.ts",
+    "line": 10,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "literals__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "operators__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_operators.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "operators__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "operators__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_operators.test.ts",
+    "line": 12,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "operators__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "operators__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_operators.test.ts",
+    "line": 17,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "operators__003.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "operators__004",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_operators.test.ts",
+    "line": 22,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "operators__004.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "operators__005",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_operators.test.ts",
+    "line": 27,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "operators__005.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "operators__006",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_operators.test.ts",
+    "line": 42,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "operators__006.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "operators__007",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_operators.test.ts",
+    "line": 51,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "operators__007.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "php_blocks__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_php_blocks.test.ts",
+    "line": 8,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "php_blocks__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "php_blocks__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_php_blocks.test.ts",
+    "line": 78,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "php_blocks__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "php_blocks__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_php_blocks.test.ts",
+    "line": 93,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "php_blocks__003.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "php_blocks__004",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_php_blocks.test.ts",
+    "line": 118,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "php_blocks__004.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "php_blocks__005",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_php_blocks.test.ts",
+    "line": 129,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "php_blocks__005.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "php_blocks__006",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_php_blocks.test.ts",
+    "line": 140,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "php_blocks__006.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "php_blocks__007",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_php_blocks.test.ts",
+    "line": 164,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "php_blocks__007.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "php_blocks__008",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_php_blocks.test.ts",
+    "line": 165,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "php_blocks__008.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "php_blocks__009",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_php_blocks.test.ts",
+    "line": 177,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "php_blocks__009.input.blade.php",
+    "options": {
+      "formatDirectivePhpParameters": false
+    }
+  },
+  {
+    "id": "php_blocks__010",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_php_blocks.test.ts",
+    "line": 204,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "php_blocks__010.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "props_directive__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_props_directive.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "props_directive__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "props_directive__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_props_directive.test.ts",
+    "line": 59,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "props_directive__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "props_directive__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_props_directive.test.ts",
+    "line": 114,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "props_directive__003.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "props_directive__004",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_props_directive.test.ts",
+    "line": 126,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "props_directive__004.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "props_directive__005",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_props_directive.test.ts",
+    "line": 137,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "props_directive__005.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "props_directive__006",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_props_directive.test.ts",
+    "line": 150,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "props_directive__006.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "props_directive__007",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_props_directive.test.ts",
+    "line": 165,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "props_directive__007.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "props_directive__008",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_props_directive.test.ts",
+    "line": 166,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "props_directive__008.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "props_directive__009",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_props_directive.test.ts",
+    "line": 179,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "props_directive__009.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "props_directive__010",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_props_directive.test.ts",
+    "line": 180,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "props_directive__010.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "recovery__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_recovery.test.ts",
+    "line": 26,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "recovery__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "recovery__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_recovery.test.ts",
+    "line": 53,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "recovery__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "script_structures__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_script_structures.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "script_structures__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "speculative_conditions__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_speculative_conditions.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "speculative_conditions__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "speculative_unless__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_speculative_unless.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "speculative_unless__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "style_script__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_style_script.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "style_script__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "style_script__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_style_script.test.ts",
+    "line": 86,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "style_script__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "style_script__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_style_script.test.ts",
+    "line": 142,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "style_script__003.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "style_script__004",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_style_script.test.ts",
+    "line": 143,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "style_script__004.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "style_structures__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_style_structures.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "style_structures__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "style_structures__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_style_structures.test.ts",
+    "line": 42,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "style_structures__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "switch__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_switch.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "switch__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "switch__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_switch.test.ts",
+    "line": 38,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "switch__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "switch__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_switch.test.ts",
+    "line": 76,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "switch__003.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "switch__004",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_switch.test.ts",
+    "line": 114,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "switch__004.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "switch__005",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_switch.test.ts",
+    "line": 138,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "switch__005.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "switch__006",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_switch.test.ts",
+    "line": 157,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "switch__006.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "switch__007",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_switch.test.ts",
+    "line": 174,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "switch__007.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "switch__008",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_switch.test.ts",
+    "line": 189,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "switch__008.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "switch__009",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_switch.test.ts",
+    "line": 238,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "switch__009.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "switch__010",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_switch.test.ts",
+    "line": 294,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "switch__010.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "syntax_reflow__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_syntax_reflow.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "syntax_reflow__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "syntax_reflow__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_syntax_reflow.test.ts",
+    "line": 8,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "syntax_reflow__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "syntax_reflow__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_syntax_reflow.test.ts",
+    "line": 9,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "syntax_reflow__003.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "templates__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_templates.test.ts",
+    "line": 61,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "templates__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "templates__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_templates.test.ts",
+    "line": 91,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "templates__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "templates__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_templates.test.ts",
+    "line": 130,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "templates__003.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "templates__004",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_templates.test.ts",
+    "line": 179,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "templates__004.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "templates__005",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_templates.test.ts",
+    "line": 226,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "templates__005.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "templates__006",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_templates.test.ts",
+    "line": 278,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "templates__006.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "templates__007",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_templates.test.ts",
+    "line": 312,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "templates__007.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "templates__008",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_templates.test.ts",
+    "line": 365,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "templates__008.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "templates__009",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_templates.test.ts",
+    "line": 370,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "templates__009.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "templates__010",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_templates.test.ts",
+    "line": 384,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "templates__010.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "templates__011",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_templates.test.ts",
+    "line": 393,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "templates__011.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "templates__012",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_templates.test.ts",
+    "line": 394,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "templates__012.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "templates__013",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_templates.test.ts",
+    "line": 403,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "templates__013.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "templates__014",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_templates.test.ts",
+    "line": 404,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "templates__014.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "templates__015",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_templates.test.ts",
+    "line": 425,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "templates__015.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "templates__016",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_templates.test.ts",
+    "line": 439,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "templates__016.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "templates__017",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_templates.test.ts",
+    "line": 517,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "templates__017.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "templates__018",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_templates.test.ts",
+    "line": 542,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "templates__018.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "unless__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_unless.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "unless__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "unless__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_unless.test.ts",
+    "line": 43,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "unless__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "verbatim__001",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_verbatim.test.ts",
+    "line": 7,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "verbatim__001.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "verbatim__002",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_verbatim.test.ts",
+    "line": 30,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "verbatim__002.input.blade.php",
+    "options": {}
+  },
+  {
+    "id": "verbatim__003",
+    "sourceFile": "C:\\apachewsl\\blade-parser-ts\\src\\test\\formatter_verbatim.test.ts",
+    "line": 75,
+    "functionName": "formatBladeString",
+    "group": "formatter",
+    "inputFile": "verbatim__003.input.blade.php",
+    "options": {}
+  }
+]

@@ -1,0 +1,3 @@
+<x-pulse::card id="top-sellers" :cols="$cols" :rows="$rows" class="$class">
+    ...
+</x-pulse::card>

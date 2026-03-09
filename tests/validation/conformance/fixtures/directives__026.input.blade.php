@@ -1,0 +1,3 @@
+@canany
+<div></div>
+@endcanany

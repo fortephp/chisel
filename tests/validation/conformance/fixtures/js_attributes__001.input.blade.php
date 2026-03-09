@@ -1,0 +1,1 @@
+<button x-on:click="console.log('I\'m an escaped quote')">Text</button>
