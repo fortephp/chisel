@@ -1,10 +1,4 @@
-export interface BladeSyntaxPlugin {
-  name: string;
-  lexerDirectives: readonly string[];
-  treeDirectives: readonly unknown[];
-  verbatimStartDirectives: readonly string[];
-  verbatimEndDirectives: readonly string[];
-}
+import type { BladeSyntaxPlugin } from "./types.js";
 
 const STATAMIC_VERBATIM_START_DIRECTIVES = ["antlers"] as const;
 const STATAMIC_VERBATIM_END_DIRECTIVES = ["endantlers"] as const;

@@ -2,7 +2,6 @@ import { TokenType, type Token } from "../lexer/types.js";
 import {
   NodeKind,
   StructureRole,
-  ArgumentRequirement,
   NONE,
   createFlatNode,
   type FlatNode,
@@ -1697,11 +1696,6 @@ export class TreeBuilder {
       return;
     }
 
-    if (this.isConditionRelatedDirective(directiveName)) {
-      this.processConditionDirective(directiveName, startPos, tokenCount, null);
-      return;
-    }
-
     if (this.directives.isConditionalPair(directiveName)) {
       const argsContent =
         argsInfo.argsTokenIndex >= 0
@@ -1711,6 +1705,11 @@ export class TreeBuilder {
             )
           : null;
       this.processConditionalPairingDirective(directiveName, startPos, tokenCount, argsContent);
+      return;
+    }
+
+    if (this.isConditionRelatedDirective(directiveName)) {
+      this.processConditionDirective(directiveName, startPos, tokenCount, null);
       return;
     }
 
@@ -1724,12 +1723,12 @@ export class TreeBuilder {
       return;
     }
 
+    if (directiveName === "php" && argsInfo.hasArgs) {
+      this.createStandaloneDirective(directiveName, startPos, tokenCount, null);
+      return;
+    }
+
     if (this.directives.isPaired(directiveName)) {
-      const directiveMeta = this.directives.getDirective(directiveName);
-      if (argsInfo.hasArgs && directiveMeta?.args === ArgumentRequirement.NotAllowed) {
-        this.createStandaloneDirective(directiveName, startPos, tokenCount, null);
-        return;
-      }
       this.openPairedDirective(directiveName, startPos, tokenCount);
       return;
     }
@@ -2178,7 +2177,11 @@ export class TreeBuilder {
     argsContent: string | null,
   ): void {
     if (this.shouldPairDirective(directiveName, startPos, tokenCount, argsContent)) {
-      this.openPairedDirective(directiveName, startPos, tokenCount);
+      if (this.directives.isCondition(directiveName)) {
+        this.openCondition(directiveName, startPos, tokenCount, argsContent);
+      } else {
+        this.openPairedDirective(directiveName, startPos, tokenCount);
+      }
     } else {
       this.createStandaloneDirective(directiveName, startPos, tokenCount, argsContent);
     }
@@ -2196,8 +2199,12 @@ export class TreeBuilder {
     switch (strategy) {
       case "lang_style":
         return this.shouldPairLangStyle(directiveName, startPos, tokenCount, argsContent);
+      case "no_arguments_block":
+        return this.shouldPairNoArgumentsBlock(directiveName, startPos, tokenCount, argsContent);
       case "section_style":
         return this.shouldPairSectionStyle(directiveName, startPos, tokenCount, argsContent);
+      case "single_argument_block":
+        return this.shouldPairSingleArgumentBlock(directiveName, startPos, tokenCount, argsContent);
       default:
         return false;
     }
@@ -2227,6 +2234,32 @@ export class TreeBuilder {
       const argCount = countArguments(unwrapParentheses(argsContent));
       if (argCount >= 2) return false;
     }
+    return this.hasMatchingTerminator(directiveName, startPos + tokenCount);
+  }
+
+  private shouldPairNoArgumentsBlock(
+    directiveName: string,
+    startPos: number,
+    tokenCount: number,
+    argsContent: string | null,
+  ): boolean {
+    if (getDirectiveArgumentCount(argsContent) !== 0) {
+      return false;
+    }
+
+    return this.hasMatchingTerminator(directiveName, startPos + tokenCount);
+  }
+
+  private shouldPairSingleArgumentBlock(
+    directiveName: string,
+    startPos: number,
+    tokenCount: number,
+    argsContent: string | null,
+  ): boolean {
+    if (getDirectiveArgumentCount(argsContent) !== 1) {
+      return false;
+    }
+
     return this.hasMatchingTerminator(directiveName, startPos + tokenCount);
   }
 
@@ -2286,4 +2319,9 @@ export function buildTree(
   directives?: Directives,
 ): BuildResult {
   return new TreeBuilder(tokens, source, directives).build();
+}
+
+function getDirectiveArgumentCount(argsContent: string | null): number {
+  if (argsContent === null) return 0;
+  return countArguments(unwrapParentheses(argsContent));
 }

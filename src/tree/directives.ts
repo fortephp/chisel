@@ -1,4 +1,5 @@
 import { TokenType, type Token } from "../lexer/types.js";
+import type { TreeDirectiveDefinition } from "./directive-definitions.js";
 import { StructureRole, ArgumentRequirement } from "./types.js";
 
 export interface DiscoveredDirective {
@@ -51,18 +52,18 @@ export class Directives {
   private switchBranchesCache = new Map<string, string[]>();
   private shared = false;
 
-  static withDefaults(extraDirectives: readonly unknown[] = []): Directives {
+  static withDefaults(extraDirectives: readonly TreeDirectiveDefinition[] = []): Directives {
     if (Directives.defaultTemplate === null) {
       const template = new Directives();
       // Load bundled directive definitions once.
       for (const json of BUNDLED_DIRECTIVES) {
-        template.loadJson(json);
+        template.loadDefinitions(json);
       }
       Directives.defaultTemplate = template;
     }
     const directives = Directives.defaultTemplate.forkShared();
     if (extraDirectives.length > 0) {
-      directives.loadJson([...extraDirectives]);
+      directives.loadDefinitions([...extraDirectives]);
     }
     return directives;
   }
@@ -205,11 +206,10 @@ export class Directives {
     }
   }
 
-  loadJson(data: unknown[]): void {
+  loadDefinitions(data: readonly TreeDirectiveDefinition[]): void {
     this.ensureMutable();
     for (const meta of data) {
-      if (!meta || typeof meta !== "object") continue;
-      const m = meta as Record<string, unknown>;
+      const m = meta;
 
       const argReq = this.parseArgumentRequirement(m.args);
       const namesRaw = typeof m.name === "string" ? m.name : "";
@@ -305,8 +305,22 @@ export class Directives {
     this.ensureMutable();
     this.invalidateCaches();
     const name = directive.name.toLowerCase();
+    const previous = this.directives.get(name) ?? null;
 
-    if (directive.role === StructureRole.Closing && directive.terminators.length === 0) {
+    if (previous?.isCondition && !directive.isCondition) {
+      this.conditions.delete(name);
+    }
+
+    const wasFinalTerminator =
+      previous?.role === StructureRole.Closing && previous.terminators.length === 0;
+    const isFinalTerminator =
+      directive.role === StructureRole.Closing && directive.terminators.length === 0;
+
+    if (wasFinalTerminator && !isFinalTerminator) {
+      this.finalTerminators.delete(name);
+    }
+
+    if (isFinalTerminator) {
       this.finalTerminators.set(name, true);
     }
 
@@ -462,7 +476,7 @@ export class Directives {
   }
 }
 
-const BUNDLED_DIRECTIVES: unknown[][] = [
+const BUNDLED_DIRECTIVES: readonly (readonly TreeDirectiveDefinition[])[] = [
   // conditions.json
   [
     {

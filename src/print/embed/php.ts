@@ -6,15 +6,21 @@ import { isEchoLike } from "../../node-predicates.js";
 import { TokenType } from "../../lexer/types.js";
 import {
   getDirectivePhpWrapperKinds,
-  type DirectivePhpWrapperContext,
   type DirectivePhpWrapperKind,
 } from "../../lexer/directives.js";
+import { resolveBladeSyntaxPlugins } from "../../plugins/runtime.js";
+import {
+  DIRECTIVE_PHP_FORMAT_ARGS_PLACEHOLDER,
+  type DirectivePhpFormatTemplate,
+  type DirectivePhpFormattingContext,
+  type DirectivePhpFormattingMode,
+} from "../../plugins/types.js";
 import { NodeKind } from "../../tree/types.js";
 import { fullText } from "../utils.js";
 import { getDirectiveArgSpacingMode, getEchoSpacingMode } from "../blade-options.js";
 import { resolvePhpPlugins } from "./php-plugin.js";
 
-type PhpFormattingMode = "off" | "safe" | "aggressive";
+type PhpFormattingMode = "off" | DirectivePhpFormattingMode;
 type PhpFormattingTarget = "directiveArgs" | "echo" | "phpBlock" | "phpTag";
 
 const MAX_PHP_FORMAT_CACHE_SIZE = 500;
@@ -525,36 +531,117 @@ function getDirectiveName(node: WrappedNode): string | null {
   return raw.slice(1).toLowerCase();
 }
 
-function getDirectiveWrapperContext(node: WrappedNode): DirectivePhpWrapperContext {
+function getDirectiveWrapperContext(
+  node: WrappedNode,
+  mode: DirectivePhpFormattingMode,
+): DirectivePhpFormattingContext {
   const trainedDirectives = node.buildResult.directives;
-  if (!trainedDirectives) return {};
+  if (!trainedDirectives) {
+    return { mode };
+  }
 
   return {
+    mode,
     hasDirective: (name: string) => trainedDirectives.isDirective(name),
     isConditionLikeDirective: (name: string) => trainedDirectives.isCondition(name),
   };
 }
 
-function wrapDirectiveArgs(args: string, kind: DirectivePhpWrapperKind): string {
-  const payload = `${DIRECTIVE_START_MARKER_COMMENT}${args}${DIRECTIVE_END_MARKER_COMMENT}`;
-
+function getCoreDirectivePhpFormatTemplate(
+  kind: DirectivePhpWrapperKind,
+): DirectivePhpFormatTemplate {
   switch (kind) {
     case "for":
-      return `<?php for (${payload}) {}`;
+      return {
+        key: "core:for",
+        template: `<?php for (${DIRECTIVE_PHP_FORMAT_ARGS_PLACEHOLDER}) {}`,
+      };
     case "foreach":
-      return `<?php foreach (${payload}) {}`;
+      return {
+        key: "core:foreach",
+        template: `<?php foreach (${DIRECTIVE_PHP_FORMAT_ARGS_PLACEHOLDER}) {}`,
+      };
     case "while":
-      return `<?php while (${payload}) {}`;
+      return {
+        key: "core:while",
+        template: `<?php while (${DIRECTIVE_PHP_FORMAT_ARGS_PLACEHOLDER}) {}`,
+      };
     case "switch":
-      return `<?php switch (${payload}) {}`;
+      return {
+        key: "core:switch",
+        template: `<?php switch (${DIRECTIVE_PHP_FORMAT_ARGS_PLACEHOLDER}) {}`,
+      };
     case "case":
-      return `<?php switch (true) { case (${payload}): break; }`;
+      return {
+        key: "core:case",
+        template: `<?php switch (true) { case (${DIRECTIVE_PHP_FORMAT_ARGS_PLACEHOLDER}): break; }`,
+      };
     case "if":
-      return `<?php if (${payload}) {}`;
+      return { key: "core:if", template: `<?php if (${DIRECTIVE_PHP_FORMAT_ARGS_PLACEHOLDER}) {}` };
     case "call":
     default:
-      return `<?php __b(${payload});`;
+      return {
+        key: "core:call",
+        template: `<?php __b(${DIRECTIVE_PHP_FORMAT_ARGS_PLACEHOLDER});`,
+      };
   }
+}
+
+function getCoreDirectivePhpFormatTemplates(
+  directiveName: string,
+  mode: DirectivePhpFormattingMode,
+  context: DirectivePhpFormattingContext,
+): DirectivePhpFormatTemplate[] {
+  return getDirectivePhpWrapperKinds(directiveName, mode, context).map(
+    getCoreDirectivePhpFormatTemplate,
+  );
+}
+
+function isDirectivePhpFormatTemplate(value: unknown): value is DirectivePhpFormatTemplate {
+  return (
+    !!value &&
+    typeof value === "object" &&
+    typeof (value as { key?: unknown }).key === "string" &&
+    typeof (value as { template?: unknown }).template === "string"
+  );
+}
+
+function getPluginDirectivePhpFormatTemplates(
+  directiveName: string,
+  context: DirectivePhpFormattingContext,
+  options: Options,
+): DirectivePhpFormatTemplate[] {
+  const plugins = resolveBladeSyntaxPlugins(options);
+  const out: DirectivePhpFormatTemplate[] = [];
+  const seen = new Set<string>();
+
+  for (const plugin of plugins) {
+    const templates = plugin.getDirectivePhpFormatTemplates?.(directiveName, context) ?? [];
+
+    for (const template of templates) {
+      if (!isDirectivePhpFormatTemplate(template)) continue;
+
+      const key = `${plugin.name}:${template.key}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push({
+        key,
+        template: template.template,
+      });
+    }
+  }
+
+  return out;
+}
+
+function wrapDirectiveArgsWithTemplate(args: string, template: string): string | null {
+  const parts = template.split(DIRECTIVE_PHP_FORMAT_ARGS_PLACEHOLDER);
+  if (parts.length !== 2) {
+    return null;
+  }
+
+  const payload = `${DIRECTIVE_START_MARKER_COMMENT}${args}${DIRECTIVE_END_MARKER_COMMENT}`;
+  return `${parts[0]}${payload}${parts[1]}`;
 }
 
 function wrapEchoExpression(expression: string): string {
@@ -721,14 +808,16 @@ export async function formatDirectiveNodeArgs(
   const originalHadTrailingComma = hasTrailingComma(argsInner.trimEnd());
 
   const directiveName = getDirectiveName(node) ?? "";
-  const wrapperKinds = getDirectivePhpWrapperKinds(
-    directiveName,
-    mode,
-    getDirectiveWrapperContext(node),
-  );
+  const directiveContext = getDirectiveWrapperContext(node, mode);
+  const templates = [
+    ...getPluginDirectivePhpFormatTemplates(directiveName, directiveContext, options),
+    ...getCoreDirectivePhpFormatTemplates(directiveName, mode, directiveContext),
+  ];
 
-  for (const wrapperKind of wrapperKinds) {
-    const wrapped = wrapDirectiveArgs(argsInner, wrapperKind);
+  for (const template of templates) {
+    const wrapped = wrapDirectiveArgsWithTemplate(argsInner, template.template);
+    if (!wrapped) continue;
+
     const formatted = await formatPhpSnippet(wrapped, options, mode);
     if (!formatted) continue;
 
@@ -752,7 +841,8 @@ export async function formatDirectiveNodeArgs(
       shouldPreferInlineDirectiveArgs(directiveName, collapsedInlinePayload, options)
         ? collapsedInlinePayload
         : payload;
-    const shouldPreserveWrappedMultilineArgs = hasWrappedMultilineArgs && wrapperKind !== "call";
+    const shouldPreserveWrappedMultilineArgs =
+      hasWrappedMultilineArgs && /[\r\n]/u.test(finalPayload);
     const formattedArgs = shouldPreserveWrappedMultilineArgs
       ? `(\n${indentMultilinePayload(
           normalizeWrappedDirectiveArgsPayload(dedentMultiline(finalPayload)),
