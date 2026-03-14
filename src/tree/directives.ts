@@ -1,5 +1,4 @@
 import { TokenType, type Token } from "../lexer/types.js";
-import type { TreeDirectiveDefinition } from "./directive-definitions.js";
 import { StructureRole, ArgumentRequirement } from "./types.js";
 
 export interface DiscoveredDirective {
@@ -45,25 +44,28 @@ function createDirective(
 export class Directives {
   private static defaultTemplate: Directives | null = null;
   private directives = new Map<string, DiscoveredDirective>();
-  private conditions = new Map<string, boolean>();
-  private finalTerminators = new Map<string, boolean>();
+  private conditions = new Set<string>();
+  private finalTerminators = new Set<string>();
+  private seenDirectives = new Set<string>();
+  private advisoryPairs = new Set<string>();
+  private advisoryConditions = new Set<string>();
   private conditionBranchesCache: string[] | null = null;
   private conditionTerminatorsCache: string[] | null = null;
   private switchBranchesCache = new Map<string, string[]>();
   private shared = false;
 
-  static withDefaults(extraDirectives: readonly TreeDirectiveDefinition[] = []): Directives {
+  static withDefaults(extraDirectives: readonly unknown[] = []): Directives {
     if (Directives.defaultTemplate === null) {
       const template = new Directives();
       // Load bundled directive definitions once.
       for (const json of BUNDLED_DIRECTIVES) {
-        template.loadDefinitions(json);
+        template.loadJson(json);
       }
       Directives.defaultTemplate = template;
     }
     const directives = Directives.defaultTemplate.forkShared();
     if (extraDirectives.length > 0) {
-      directives.loadDefinitions([...extraDirectives]);
+      directives.loadJson([...extraDirectives]);
     }
     return directives;
   }
@@ -168,6 +170,21 @@ export class Directives {
     return this.getDirective(name)?.pairingStrategy ?? null;
   }
 
+  /** @internal */
+  hasSeenDirective(name: string): boolean {
+    return this.seenDirectives.has(name.toLowerCase());
+  }
+
+  /** @internal */
+  hasAdvisoryPair(name: string): boolean {
+    return this.advisoryPairs.has(name.toLowerCase());
+  }
+
+  /** @internal */
+  hasAdvisoryCondition(name: string): boolean {
+    return this.advisoryConditions.has(name.toLowerCase());
+  }
+
   registerDirective(name: string): void {
     const lower = name.toLowerCase();
     if (this.directives.has(lower)) return;
@@ -178,38 +195,38 @@ export class Directives {
 
   /**
    * Discover custom paired directives from a token stream.
-   * Looks for patterns like @custom + @endcustom and @custom + @elsecustom.
    */
   train(tokens: readonly Token[], source: string): void {
+    this.ensureMutable();
     const found = new Map<string, boolean>();
 
     for (const token of tokens) {
       if (token.type !== TokenType.Directive) continue;
       let name = source.slice(token.start, token.end).toLowerCase();
       if (name.startsWith("@")) name = name.slice(1);
+      this.seenDirectives.add(name);
       found.set(name, true);
     }
 
     for (const directiveName of found.keys()) {
-      // Check for custom condition: @foo + @elsefoo
-      const elseName = "else" + directiveName;
-      if (found.has(elseName) && !this.isCondition(directiveName)) {
-        this.addConditionDirective(directiveName);
-      }
+      if (this.directives.has(directiveName)) continue;
 
-      // Check for custom pair: @endfoo
-      if (directiveName.startsWith("end") && directiveName.length > 3) {
-        const openingCandidate = directiveName.slice(3).toLowerCase();
-        if (this.directives.has(openingCandidate)) continue;
-        this.addPairedDirective(openingCandidate, directiveName);
+      const endName = "end" + directiveName;
+      const elseName = "else" + directiveName;
+      if (found.has(endName)) {
+        this.advisoryPairs.add(directiveName);
+      }
+      if (found.has(elseName)) {
+        this.advisoryConditions.add(directiveName);
       }
     }
   }
 
-  loadDefinitions(data: readonly TreeDirectiveDefinition[]): void {
+  loadJson(data: unknown[]): void {
     this.ensureMutable();
     for (const meta of data) {
-      const m = meta;
+      if (!meta || typeof meta !== "object") continue;
+      const m = meta as Record<string, unknown>;
 
       const argReq = this.parseArgumentRequirement(m.args);
       const namesRaw = typeof m.name === "string" ? m.name : "";
@@ -305,29 +322,15 @@ export class Directives {
     this.ensureMutable();
     this.invalidateCaches();
     const name = directive.name.toLowerCase();
-    const previous = this.directives.get(name) ?? null;
 
-    if (previous?.isCondition && !directive.isCondition) {
-      this.conditions.delete(name);
-    }
-
-    const wasFinalTerminator =
-      previous?.role === StructureRole.Closing && previous.terminators.length === 0;
-    const isFinalTerminator =
-      directive.role === StructureRole.Closing && directive.terminators.length === 0;
-
-    if (wasFinalTerminator && !isFinalTerminator) {
-      this.finalTerminators.delete(name);
-    }
-
-    if (isFinalTerminator) {
-      this.finalTerminators.set(name, true);
+    if (directive.role === StructureRole.Closing && directive.terminators.length === 0) {
+      this.finalTerminators.add(name);
     }
 
     this.directives.set(name, directive);
 
     if (directive.isCondition) {
-      this.conditions.set(name, true);
+      this.conditions.add(name);
     }
   }
 
@@ -358,7 +361,7 @@ export class Directives {
     const elseCond = "else" + condition;
     const endCond = "end" + condition;
 
-    this.conditions.set(condition, true);
+    this.conditions.add(condition);
 
     this.directives.set(
       condition,
@@ -450,6 +453,9 @@ export class Directives {
     copy.directives = this.directives;
     copy.conditions = this.conditions;
     copy.finalTerminators = this.finalTerminators;
+    copy.seenDirectives = this.seenDirectives;
+    copy.advisoryPairs = this.advisoryPairs;
+    copy.advisoryConditions = this.advisoryConditions;
     copy.conditionBranchesCache = this.conditionBranchesCache;
     copy.conditionTerminatorsCache = this.conditionTerminatorsCache;
     copy.switchBranchesCache = this.switchBranchesCache;
@@ -461,8 +467,11 @@ export class Directives {
     if (!this.shared) return;
 
     this.directives = new Map(this.directives);
-    this.conditions = new Map(this.conditions);
-    this.finalTerminators = new Map(this.finalTerminators);
+    this.conditions = new Set(this.conditions);
+    this.finalTerminators = new Set(this.finalTerminators);
+    this.seenDirectives = new Set(this.seenDirectives);
+    this.advisoryPairs = new Set(this.advisoryPairs);
+    this.advisoryConditions = new Set(this.advisoryConditions);
     this.conditionBranchesCache = this.conditionBranchesCache
       ? [...this.conditionBranchesCache]
       : null;
@@ -476,7 +485,7 @@ export class Directives {
   }
 }
 
-const BUNDLED_DIRECTIVES: readonly (readonly TreeDirectiveDefinition[])[] = [
+const BUNDLED_DIRECTIVES: unknown[][] = [
   // conditions.json
   [
     {

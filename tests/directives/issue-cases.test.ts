@@ -1,7 +1,81 @@
 import { describe, it, expect } from "vitest";
+import * as prettier from "prettier";
 import { formatEqual, format } from "../helpers.js";
 import * as phpPlugin from "@prettier/plugin-php";
 import bladePlugin from "../../src/index.js";
+import { bladeParser } from "../../src/parser.js";
+import { bladePrinter } from "../../src/printer.js";
+
+const SAGE_LIKE_PLUGIN = {
+  name: "sage-like",
+  lexerDirectives: [],
+  treeDirectives: [
+    { name: "hasfield", args: true, structure: { role: "open", terminators: "endfield" } },
+    { name: "endfield", args: false, structure: { role: "close" } },
+    { name: "fields", args: true, structure: { role: "open", terminators: "endfields" } },
+    { name: "endfields", args: false, structure: { role: "close" } },
+    { name: "hasoption", args: true, structure: { role: "open", terminators: "endoption" } },
+    { name: "endoption", args: false, structure: { role: "close" } },
+    { name: "hassub", args: true, structure: { role: "open", terminators: "endsub" } },
+    { name: "endsub", args: false, structure: { role: "close" } },
+  ],
+  verbatimStartDirectives: [],
+  verbatimEndDirectives: [],
+};
+
+class TestAstPath<T extends { children?: T[]; attrs?: T[] }> {
+  constructor(
+    readonly node: T,
+    readonly ancestors: T[],
+  ) {}
+
+  map<R>(callback: (path: TestAstPath<T>, index: number) => R, key = "children"): R[] {
+    return this.getChildren(key).map(
+      (child, index) => callback(new TestAstPath(child, [...this.ancestors, child]), index),
+    );
+  }
+
+  each(callback: (path: TestAstPath<T>, index: number) => void, key = "children"): void {
+    this.getChildren(key).forEach((child, index) => {
+      callback(new TestAstPath(child, [...this.ancestors, child]), index);
+    });
+  }
+
+  private getChildren(key: string): T[] {
+    const value = (this.node as Record<string, unknown>)[key];
+    return Array.isArray(value) ? (value as T[]) : [];
+  }
+}
+
+async function formatWithSyntaxPlugin(code: string, syntaxPlugin: typeof SAGE_LIKE_PLUGIN) {
+  const options: prettier.Options = {
+    parser: "blade",
+    tabWidth: 2,
+    useTabs: false,
+    printWidth: 80,
+    endOfLine: "lf",
+    htmlWhitespaceSensitivity: "css",
+    bladePhpFormatting: "off",
+    bladeSyntaxPlugins: [] as string[],
+    bladeKeepHeadAndBodyAtRoot: false,
+    bladeInlineIntentElements: ["svg", "svg:*"],
+    bladeDirectiveArgSpacing: "space",
+    bladeDirectiveBlockStyle: "preserve",
+    bladeBlankLinesAroundDirectives: "preserve",
+    bladeEchoSpacing: "preserve",
+  };
+
+  const ast = bladeParser.parse(code, {
+    ...options,
+    bladeSyntaxPlugins: [syntaxPlugin],
+  });
+  const preprocessed = bladePrinter.preprocess ? bladePrinter.preprocess(ast, options) : ast;
+  const printPath = (path: TestAstPath<typeof preprocessed>) =>
+    bladePrinter.print(path as never, options, printPath as never);
+  const doc = printPath(new TestAstPath(preprocessed, [preprocessed]));
+  const result = await prettier.doc.printer.printDocToString(doc, options);
+  return result.formatted;
+}
 
 describe("directives/issue-cases", () => {
   // Issue #126: @error inside class attribute — directive boundaries preserved
@@ -229,6 +303,95 @@ describe("directives/issue-cases", () => {
       '    <meta property="twitter:image" content="{{ $form->picture_url }}" />',
       "  @endif",
       "@endsection",
+      "",
+    ].join("\n");
+
+    await formatEqual(input, expected);
+  });
+
+  it("#131: does not duplicate @endfields when @endsub trains an unrelated inline @sub", async () => {
+    const input = [
+      "@hasfield('list')",
+      "  <ul>",
+      "    @fields('list')",
+      "      <li>@sub('item')</li>",
+      "    @endfields",
+      "  </ul>",
+      "@endfield",
+      "",
+      "@hasoption('facebook_url')",
+      '  Find us on <a href="@option(\'facebook_url\')" target="_blank">Facebook</a>',
+      "@endoption",
+      "",
+      "@hassub('icon')",
+      '  <i class="fas fa-@sub(\'icon\')"></i>',
+      "@endsub",
+      "",
+    ].join("\n");
+
+    const expected = [
+      "@hasfield ('list')",
+      "  <ul>",
+      "    @fields ('list')",
+      "      <li>@sub ('item')</li>",
+      "    @endfields",
+      "  </ul>",
+      "@endfield",
+      "",
+      "@hasoption ('facebook_url')",
+      "  Find us on",
+      '  <a href="@option(\'facebook_url\')" target="_blank">Facebook</a>',
+      "@endoption",
+      "",
+      "@hassub ('icon')",
+      '  <i class="fas fa-@sub(\'icon\')"></i>',
+      "@endsub",
+      "",
+    ].join("\n");
+
+    const output = await formatWithSyntaxPlugin(input, SAGE_LIKE_PLUGIN);
+    const secondPass = await formatWithSyntaxPlugin(output, SAGE_LIKE_PLUGIN);
+
+    expect(output).toBe(expected);
+    expect(secondPass).toBe(output);
+  });
+
+  it("#131: accept-all discovery without custom directives does not let @has* siblings corrupt @fields formatting", async () => {
+    const input = [
+      "@hasfield('list')",
+      "  <ul>",
+      "    @fields('list')",
+      "      <li>@sub('item')</li>",
+      "    @endfields",
+      "  </ul>",
+      "@endfield",
+      "",
+      "@hasoption('facebook_url')",
+      '  Find us on <a href="@option(\'facebook_url\')" target="_blank">Facebook</a>',
+      "@endoption",
+      "",
+      "@hassub('icon')",
+      '  <i class="fas fa-@sub(\'icon\')"></i>',
+      "@endsub",
+      "",
+    ].join("\n");
+
+    const expected = [
+      "@hasfield ('list')",
+      "<ul>",
+      "  @fields ('list')",
+      "    <li>@sub ('item')</li>",
+      "  @endfields",
+      "</ul>",
+      "@endfield",
+      "",
+      "@hasoption ('facebook_url')",
+      'Find us on <a href="@option(\'facebook_url\')" target="_blank">Facebook</a>',
+      "@endoption",
+      "",
+      "@hassub ('icon')",
+      '<i class="fas fa-@sub(\'icon\')"></i>',
+      "@endsub",
       "",
     ].join("\n");
 

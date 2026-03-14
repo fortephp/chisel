@@ -129,6 +129,9 @@ export interface DirectiveFrame {
   startDirectiveIdx: number;
   name: string;
   elementStackBase: number;
+  terminators: string[];
+  branches: string[];
+  openers: string[];
 }
 
 export interface ConditionFrame {
