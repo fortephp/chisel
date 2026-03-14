@@ -1080,7 +1080,7 @@ exports[`validation/laravel-documentation-fixtures > formats docs_128.blade.php 
 @enddisk
 
 @unlessdisk ('local')
-<!-- The application is not using the local disk... -->
+  <!-- The application is not using the local disk... -->
 @enddisk
 "
 `;

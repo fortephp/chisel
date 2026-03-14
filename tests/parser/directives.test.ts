@@ -169,17 +169,6 @@ describe("Custom directive training — condition pattern", () => {
     expect(renderDocument(r)).toBe(source);
   });
 
-  it("registers @disk as a condition after training", () => {
-    const source = "@disk('local') A @elsedisk B @enddisk";
-    const { tokens } = tokenize(source);
-    const directives = Directives.withDefaults();
-    directives.train(tokens, source);
-
-    expect(directives.isCondition("disk")).toBe(true);
-    expect(directives.getTerminators("disk")).toContain("enddisk");
-    expect(directives.getTerminators("disk")).toContain("elsedisk");
-  });
-
   it("trains multiple custom conditions simultaneously", () => {
     const source = "@disk('local') A @elsedisk B @enddisk @cache('key') C @elsecache D @endcache";
     const r = parseWithTraining(source);
@@ -233,21 +222,6 @@ describe("Custom directive training — pair pattern", () => {
     expect(getDirectiveName(r, directives[1])).toBe("endwidget");
 
     expect(renderDocument(r)).toBe(source);
-  });
-
-  it("registers pair from @endfoo even without @foo token in source", () => {
-    const source = "@endwidget";
-    const { tokens } = tokenize(source);
-    const directives = Directives.withDefaults();
-    directives.train(tokens, source);
-
-    // Training still registers the pair (since @widget is not already registered)
-    expect(directives.isPaired("widget")).toBe(true);
-
-    // But since there's no @widget opener, @endwidget is standalone
-    const r = buildTree(tokens, source, directives);
-    const blocks = findByKind(r, NodeKind.DirectiveBlock);
-    expect(blocks).toHaveLength(0);
   });
 
   it("does not overwrite built-in pairs during training", () => {
@@ -510,6 +484,7 @@ describe("Nested custom + built-in conditions", () => {
     expect(getDirectiveName(r, blockDirectives(r, innerBlocks[0])[0])).toBe("auth");
   });
 });
+
 describe("Training gap edge cases", () => {
   it("@disk with only built-in branches is NOT detected as condition", () => {
     // When only @disk + @elseif + @endif appear (no @elsedisk or @enddisk),
@@ -540,5 +515,309 @@ describe("Training gap edge cases", () => {
     expect(getDirectiveName(r, directives[0])).toBe("disk");
     expect(getDirectiveName(r, directives[1])).toBe("elseif");
     expect(getDirectiveName(r, directives[2])).toBe("endif");
+  });
+});
+
+describe("direcitive discovery", () => {
+  it("keeps unknown condition semantics out of the explicit registry", () => {
+    const source = "@disk('local') A @elsedisk B @enddisk";
+    const { tokens } = tokenize(source);
+    const directives = Directives.withDefaults();
+    directives.train(tokens, source);
+
+    expect(directives.isCondition("disk")).toBe(false);
+    expect(directives.isPaired("disk")).toBe(false);
+  });
+
+  it("keeps explicitly registered @disk condition semantics when training runs", () => {
+    const source = "@disk('local') A @elsedisk B @enddisk";
+    const { tokens } = tokenize(source);
+    const directives = Directives.withDefaults([
+      {
+        name: "disk",
+        args: true,
+        structure: { role: "open", condition: true, terminators: "elsedisk,enddisk" },
+      },
+      {
+        name: "elsedisk",
+        args: false,
+        structure: { role: "mixed", condition: true, terminators: "elsedisk,enddisk" },
+      },
+      { name: "enddisk", args: false, structure: { role: "close", condition: true } },
+    ]);
+    directives.train(tokens, source);
+
+    expect(directives.isCondition("disk")).toBe(true);
+    expect(directives.getTerminators("disk")).toContain("elsedisk");
+    expect(directives.getTerminators("disk")).toContain("enddisk");
+  });
+
+  it("discovers @disk/@elsedisk/@endif as a condition via training", () => {
+    const source = "@disk('local') Local storage @elsedisk Global storage @endif";
+    const r = parseWithTraining(source);
+
+    const blocks = findByKind(r, NodeKind.DirectiveBlock);
+    expect(blocks).toHaveLength(1);
+
+    const directives = blockDirectives(r, blocks[0]);
+    expect(directives).toHaveLength(3);
+    expect(getDirectiveName(r, directives[0])).toBe("disk");
+    expect(getDirectiveName(r, directives[1])).toBe("elsedisk");
+    expect(getDirectiveName(r, directives[2])).toBe("endif");
+    expect(renderDocument(r)).toBe(source);
+  });
+
+  it("keeps @endwidget standalone without inventing @widget", () => {
+    const source = "@endwidget";
+    const r = parseWithTraining(source);
+
+    expect(findByKind(r, NodeKind.DirectiveBlock)).toHaveLength(0);
+    expect(findByKind(r, NodeKind.Directive)).toHaveLength(1);
+    expect(getDirectiveName(r, findByKind(r, NodeKind.Directive)[0])).toBe("endwidget");
+  });
+
+  it("keeps explicitly registered @widget pair semantics when training runs", () => {
+    const source = "@endwidget";
+    const { tokens } = tokenize(source);
+    const directives = Directives.withDefaults([
+      { name: "widget", args: true, structure: { role: "open", terminators: "endwidget" } },
+      { name: "endwidget", args: false, structure: { role: "close" } },
+    ]);
+    directives.train(tokens, source);
+
+    expect(directives.isPaired("widget")).toBe(true);
+
+    const r = buildTree(tokens, source, directives);
+    expect(findByKind(r, NodeKind.DirectiveBlock)).toHaveLength(0);
+    expect(findByKind(r, NodeKind.Directive)).toHaveLength(1);
+    expect(getDirectiveName(r, findByKind(r, NodeKind.Directive)[0])).toBe("endwidget");
+  });
+
+  it("keeps @elsewidget standalone without inventing @widget", () => {
+    const source = "@elsewidget";
+    const r = parseWithTraining(source);
+
+    expect(findByKind(r, NodeKind.DirectiveBlock)).toHaveLength(0);
+    expect(findByKind(r, NodeKind.Directive)).toHaveLength(1);
+    expect(getDirectiveName(r, findByKind(r, NodeKind.Directive)[0])).toBe("elsewidget");
+  });
+
+  it("does not synthesize @sub from @endsub when that closer is already claimed by a registered @hassub", () => {
+    const source = "@fields('list') <li>@sub('item')</li> @endfields @hassub('icon') x @endsub";
+    const { tokens } = tokenize(source);
+    const directives = Directives.withDefaults([
+      { name: "fields", args: true, structure: { role: "open", terminators: "endfields" } },
+      { name: "endfields", args: false, structure: { role: "close" } },
+      { name: "hassub", args: true, structure: { role: "open", terminators: "endsub" } },
+      { name: "endsub", args: false, structure: { role: "close" } },
+    ]);
+
+    directives.train(tokens, source);
+
+    expect(directives.isPaired("sub")).toBe(false);
+
+    const r = buildTree(tokens, source, directives);
+    const blocks = findByKind(r, NodeKind.DirectiveBlock);
+    expect(blocks).toHaveLength(2);
+    expect(blockDirectives(r, blocks[0]).map((node) => getDirectiveName(r, node))).toEqual([
+      "fields",
+      "endfields",
+    ]);
+    expect(blockDirectives(r, blocks[1]).map((node) => getDirectiveName(r, node))).toEqual([
+      "hassub",
+      "endsub",
+    ]);
+  });
+
+  it("does not synthesize @sub, @option, or @field from @end* when only accept-all discovery sees matching @has* siblings", () => {
+    const source = [
+      "@hasfield('list')",
+      "  <ul>",
+      "    @fields('list')",
+      "      <li>@sub('item')</li>",
+      "    @endfields",
+      "  </ul>",
+      "@endfield",
+      "",
+      "@hasoption('facebook_url')",
+      '  Find us on <a href="@option(\'facebook_url\')" target="_blank">Facebook</a>',
+      "@endoption",
+      "",
+      "@hassub('icon')",
+      "  x",
+      "@endsub",
+    ].join("\n");
+
+    const { tokens } = tokenize(source);
+    const directives = Directives.withDefaults();
+    directives.train(tokens, source);
+
+    expect(directives.isPaired("fields")).toBe(false);
+    expect(directives.isPaired("field")).toBe(false);
+    expect(directives.isPaired("option")).toBe(false);
+    expect(directives.isPaired("sub")).toBe(false);
+
+    const r = buildTree(tokens, source, directives);
+    const blocks = findByKind(r, NodeKind.DirectiveBlock);
+    expect(blocks).toHaveLength(1);
+    expect(blockDirectives(r, blocks[0]).map((node) => getDirectiveName(r, node))).toEqual([
+      "fields",
+      "endfields",
+    ]);
+  });
+
+  it("does not invent nested exact-name blocks when a closer would cross the active element context", () => {
+    const source = [
+      "@isfield('list')",
+      "  <ul>",
+      "    <li>@field('item')</li>",
+      "  </ul>",
+      "@endfield",
+      "",
+      "@withoption('facebook_url')",
+      '  <a href="@option(\'facebook_url\')">Facebook</a>',
+      "@endoption",
+      "",
+      "@showsub('icon')",
+      '  <i class="fas fa-@sub(\'icon\')"></i>',
+      "@endsub",
+    ].join("\n");
+
+    expect(findByKind(parseWithTraining(source), NodeKind.DirectiveBlock)).toHaveLength(0);
+  });
+
+  it("does not let @elsesection overwrite registered @section semantics", () => {
+    const source = "@section('sidebar') Content @elsesection @endsection";
+    const r = parseWithTraining(source);
+    const blocks = findByKind(r, NodeKind.DirectiveBlock);
+
+    expect(blocks).toHaveLength(1);
+    expect(blockDirectives(r, blocks[0]).map((node) => getDirectiveName(r, node))).toEqual([
+      "section",
+      "endsection",
+    ]);
+
+    const strayElseSection = findByKind(r, NodeKind.Directive).filter(
+      (node) => getDirectiveName(r, node) === "elsesection",
+    );
+    expect(strayElseSection).toHaveLength(1);
+  });
+
+  it("@disk with @elseif branch and @enddisk closer when exact-name condition evidence exists", () => {
+    const r = parseWithHint(
+      "@disk @elsedisk @enddisk",
+      "@disk('local') Local storage @elseif($other) Other @enddisk",
+    );
+
+    const blocks = findByKind(r, NodeKind.DirectiveBlock);
+    expect(blocks).toHaveLength(1);
+
+    const directives = blockDirectives(r, blocks[0]);
+    expect(directives).toHaveLength(3);
+    expect(getDirectiveName(r, directives[0])).toBe("disk");
+    expect(getDirectiveName(r, directives[1])).toBe("elseif");
+    expect(getDirectiveName(r, directives[2])).toBe("enddisk");
+  });
+
+  it("@disk with @else branch and @enddisk closer when exact-name condition evidence exists", () => {
+    const r = parseWithHint(
+      "@disk @elsedisk @enddisk",
+      "@disk('s3') S3 storage @else Fallback @enddisk",
+    );
+
+    const blocks = findByKind(r, NodeKind.DirectiveBlock);
+    expect(blocks).toHaveLength(1);
+
+    const directives = blockDirectives(r, blocks[0]);
+    expect(directives).toHaveLength(3);
+    expect(getDirectiveName(r, directives[0])).toBe("disk");
+    expect(getDirectiveName(r, directives[1])).toBe("else");
+    expect(getDirectiveName(r, directives[2])).toBe("enddisk");
+  });
+
+  it("@disk with @elsedisk branch and @enddisk closer", () => {
+    const source = "@disk('local') Local @elsedisk Global @enddisk";
+    const r = parseWithTraining(source);
+
+    const blocks = findByKind(r, NodeKind.DirectiveBlock);
+    expect(blocks).toHaveLength(1);
+
+    const directives = blockDirectives(r, blocks[0]);
+    expect(directives).toHaveLength(3);
+    expect(getDirectiveName(r, directives[0])).toBe("disk");
+    expect(getDirectiveName(r, directives[1])).toBe("elsedisk");
+    expect(getDirectiveName(r, directives[2])).toBe("enddisk");
+  });
+
+  it("@disk with @endif closer when exact-name condition evidence exists", () => {
+    const r = parseWithHint("@disk @elsedisk", "@disk('local') Local @endif");
+
+    const blocks = findByKind(r, NodeKind.DirectiveBlock);
+    expect(blocks).toHaveLength(1);
+
+    const directives = blockDirectives(r, blocks[0]);
+    expect(directives).toHaveLength(2);
+    expect(getDirectiveName(r, directives[0])).toBe("disk");
+    expect(getDirectiveName(r, directives[1])).toBe("endif");
+  });
+
+  it("@disk does not accept generic condition closers without explicit registration", () => {
+    const source = "@disk('local') Local @elseif($other) Other @endif";
+    const r = parseWithTraining(source);
+
+    expect(findByKind(r, NodeKind.DirectiveBlock)).toHaveLength(0);
+  });
+
+  it("discovers @unlessrandomCondition with the shared @endrandomCondition closer", () => {
+    const source = [
+      "@randomCondition('one')",
+      "  A",
+      "@elseRandomCondition('two')",
+      "  B",
+      "@else",
+      "  C",
+      "@endrandomCondition",
+      "",
+      "@unlessrandomCondition('one')",
+      "  D",
+      "@endrandomCondition",
+    ].join("\n");
+
+    const r = parseWithTraining(source);
+    const blocks = findByKind(r, NodeKind.DirectiveBlock);
+    expect(blocks).toHaveLength(2);
+
+    const randomDirectives = blockDirectives(r, blocks[0]);
+    expect(randomDirectives.map((node) => getDirectiveName(r, node))).toEqual([
+      "randomcondition",
+      "elserandomcondition",
+      "else",
+      "endrandomcondition",
+    ]);
+
+    const unlessDirectives = blockDirectives(r, blocks[1]);
+    expect(unlessDirectives.map((node) => getDirectiveName(r, node))).toEqual([
+      "unlessrandomcondition",
+      "endrandomcondition",
+    ]);
+
+    const { tokens } = tokenize(source);
+    const directives = Directives.withDefaults();
+    directives.train(tokens, source);
+    expect(directives.isCondition("randomcondition")).toBe(false);
+    expect(directives.isCondition("unlessrandomcondition")).toBe(false);
+  });
+
+  it("discovers @unlessdisk with the shared @enddisk closer", () => {
+    const source = "@unlessdisk('local') Not local @enddisk";
+    const r = parseWithTraining(source);
+    const blocks = findByKind(r, NodeKind.DirectiveBlock);
+    expect(blocks).toHaveLength(1);
+
+    const directives = blockDirectives(r, blocks[0]);
+    expect(directives.map((node) => getDirectiveName(r, node))).toEqual([
+      "unlessdisk",
+      "enddisk",
+    ]);
   });
 });
