@@ -55,8 +55,9 @@ describe("directive registry php wrapper metadata", () => {
     trained.train(tokens, source);
 
     const context = {
-      hasDirective: (name: string) => trained.isDirective(name),
-      isConditionLikeDirective: (name: string) => trained.isCondition(name),
+      hasDirective: (name: string) => trained.isDirective(name) || trained.hasSeenDirective(name),
+      isConditionLikeDirective: (name: string) =>
+        trained.isCondition(name) || trained.hasAdvisoryCondition(name),
     };
 
     expect(getDirectivePhpWrapperKind("disk", context)).toBe("if");

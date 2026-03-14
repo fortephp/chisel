@@ -110,6 +110,17 @@ export class TreeBuilder {
   private tagNameStacks = new Map<string, number[]>();
 
   private directiveIndex: DirectiveTokenIndex | null = null;
+  private attributeRegionEnd: number | null = null;
+  private discoveredDirectiveFamilyCache = new Map<
+    string,
+    {
+      elseName: string;
+      endName: string;
+      openers: string[];
+      hasAdvisoryPair: boolean;
+      hasAdvisoryCondition: boolean;
+    } | null
+  >();
 
   private readonly maxElementDepth = 512;
   private readonly maxDirectiveDepth = 256;
@@ -1357,8 +1368,10 @@ export class TreeBuilder {
     this.openElements.push(elementIdx);
     const savedDirectives = this.openDirectives;
     const savedConditions = this.openConditions;
+    const savedAttributeRegionEnd = this.attributeRegionEnd;
     this.openDirectives = [];
     this.openConditions = [];
+    this.attributeRegionEnd = attrEnd;
 
     try {
       while (this.pos < attrEnd) {
@@ -1405,6 +1418,7 @@ export class TreeBuilder {
     } finally {
       this.openDirectives = savedDirectives;
       this.openConditions = savedConditions;
+      this.attributeRegionEnd = savedAttributeRegionEnd;
       this.openElements.pop();
     }
   }
@@ -1734,7 +1748,310 @@ export class TreeBuilder {
       return;
     }
 
+    if (this.tryOpenDiscoveredDirective(directiveName, startPos, tokenCount)) {
+      return;
+    }
+
     this.createStandaloneDirective(directiveName, startPos, tokenCount, null);
+  }
+
+  private tryOpenDiscoveredDirective(
+    directiveName: string,
+    startPos: number,
+    tokenCount: number,
+  ): boolean {
+    const family = this.resolveDiscoveredDirectiveFamily(directiveName);
+    if (family === null) {
+      return false;
+    }
+
+    const { hasAdvisoryCondition, elseName, endName, openers } = family;
+    const directiveIndex = this.getDirectiveIndex();
+    const directiveStart = startPos + tokenCount;
+    const searchEnd = this.getDiscoveredDirectiveSearchEnd(openers, directiveStart);
+
+    if (!hasAdvisoryCondition) {
+      if (!this.hasDirectiveInSearchRange(directiveIndex, endName, directiveStart, searchEnd)) {
+        return false;
+      }
+
+      const terminatorIdx = directiveIndex.findMatchingTerminatorForOpeners(
+        openers,
+        directiveStart,
+        [endName],
+        searchEnd,
+      );
+
+      if (terminatorIdx === null) {
+        return false;
+      }
+
+      this.openPairedDirective(directiveName, startPos, tokenCount, {
+        terminators: [endName],
+        branches: [],
+        openers,
+      });
+
+      return true;
+    }
+
+    const genericConditionTerminators = this.directives.getConditionTerminators();
+    const terminators = genericConditionTerminators.includes(endName)
+      ? genericConditionTerminators
+      : [endName, ...genericConditionTerminators];
+    const branches = [elseName, "else", "elseif"];
+    if (
+      !this.hasDirectiveInSearchRange(directiveIndex, endName, directiveStart, searchEnd) &&
+      !this.hasDirectiveInSearchRange(directiveIndex, elseName, directiveStart, searchEnd) &&
+      !genericConditionTerminators.some((name) =>
+        this.hasDirectiveInSearchRange(directiveIndex, name, directiveStart, searchEnd),
+      )
+    ) {
+      return false;
+    }
+
+    const analysis = directiveIndex.analyzeUnknownDirectiveFamily(
+      openers,
+      directiveStart,
+      terminators,
+      branches,
+      searchEnd,
+    );
+
+    if (analysis.terminatorIdx === null || analysis.terminatorName === null) {
+      return false;
+    }
+
+    const opensAsConditionLike =
+      hasAdvisoryCondition && (analysis.branchIdx !== null || analysis.terminatorName !== endName);
+
+    this.openPairedDirective(directiveName, startPos, tokenCount, {
+      terminators: opensAsConditionLike ? terminators : [endName],
+      branches: opensAsConditionLike ? branches : [],
+      openers,
+    });
+
+    return true;
+  }
+
+  private resolveDiscoveredDirectiveFamily(directiveName: string): {
+    elseName: string;
+    endName: string;
+    openers: string[];
+    hasAdvisoryPair: boolean;
+    hasAdvisoryCondition: boolean;
+  } | null {
+    directiveName = directiveName.toLowerCase();
+    if (this.discoveredDirectiveFamilyCache.has(directiveName)) {
+      return this.discoveredDirectiveFamilyCache.get(directiveName) ?? null;
+    }
+
+    if (this.directives.isDirective(directiveName)) {
+      this.discoveredDirectiveFamilyCache.set(directiveName, null);
+      return null;
+    }
+
+    let baseName = directiveName;
+    let unlessName = `unless${directiveName}`;
+    let isUnlessVariant = false;
+
+    if (directiveName.startsWith("unless") && directiveName.length > "unless".length) {
+      const candidateBase = directiveName.slice("unless".length);
+      if (candidateBase.length === 0 || this.directives.isDirective(candidateBase)) {
+        this.discoveredDirectiveFamilyCache.set(directiveName, null);
+        return null;
+      }
+
+      baseName = candidateBase;
+      unlessName = directiveName;
+      isUnlessVariant = true;
+    }
+
+    const elseName = `else${baseName}`;
+    const endName = `end${baseName}`;
+    const hasAdvisoryPair =
+      this.directives.hasAdvisoryPair(baseName) || this.directives.hasSeenDirective(endName);
+    const hasAdvisoryCondition =
+      this.directives.hasAdvisoryCondition(baseName) || this.directives.hasSeenDirective(elseName);
+
+    if (!hasAdvisoryPair && !hasAdvisoryCondition) {
+      this.discoveredDirectiveFamilyCache.set(directiveName, null);
+      return null;
+    }
+
+    const openers =
+      isUnlessVariant || this.directives.hasSeenDirective(unlessName)
+        ? [baseName, unlessName]
+        : [directiveName];
+
+    const family = { elseName, endName, openers, hasAdvisoryPair, hasAdvisoryCondition };
+    this.discoveredDirectiveFamilyCache.set(directiveName, family);
+    return family;
+  }
+
+  private hasDirectiveInSearchRange(
+    index: DirectiveTokenIndex,
+    directiveName: string,
+    minIdx: number,
+    maxIdxExclusive: number | null,
+  ): boolean {
+    return maxIdxExclusive === null
+      ? index.existsAfter(directiveName, minIdx)
+      : index.existsBetween(directiveName, minIdx, maxIdxExclusive);
+  }
+
+  private getDiscoveredDirectiveSearchEnd(openerNames: string[], startIdx: number): number | null {
+    let searchEnd = this.attributeRegionEnd;
+    searchEnd = this.takeEarlierBoundary(searchEnd, this.findOpenElementBoundary(startIdx));
+    searchEnd = this.takeEarlierBoundary(
+      searchEnd,
+      this.findOpenDirectiveBoundary(openerNames, startIdx),
+    );
+    searchEnd = this.takeEarlierBoundary(searchEnd, this.findOpenSwitchBoundary(startIdx));
+
+    return searchEnd;
+  }
+
+  private takeEarlierBoundary(current: number | null, candidate: number | null): number | null {
+    if (candidate === null) {
+      return current;
+    }
+    if (current === null || candidate < current) {
+      return candidate;
+    }
+    return current;
+  }
+
+  private findOpenElementBoundary(startIdx: number): number | null {
+    let containingTagName: string | null = null;
+
+    for (let i = this.openElements.length - 1; i >= 0; i--) {
+      const elementIdx = this.openElements[i];
+      if (this.nodes[elementIdx]?.kind !== NodeKind.Element) continue;
+      containingTagName = this.tagNames.get(elementIdx) ?? null;
+      if (containingTagName !== null) {
+        break;
+      }
+    }
+
+    if (containingTagName === null) {
+      return null;
+    }
+
+    let containingTagDepth = 0;
+    for (let i = startIdx; i < this.tokens.length; i++) {
+      if (this.tokens[i].type !== TokenType.LessThan) continue;
+      if (i + 2 >= this.tokens.length) continue;
+      if (this.tokens[i + 1].type === TokenType.Slash) {
+        if (this.tokens[i + 2].type !== TokenType.TagName) continue;
+
+        const closingTagName = this.source
+          .slice(this.tokens[i + 2].start, this.tokens[i + 2].end)
+          .toLowerCase();
+        if (closingTagName !== containingTagName) continue;
+
+        if (containingTagDepth === 0) {
+          return i;
+        }
+
+        containingTagDepth--;
+        continue;
+      }
+
+      if (this.tokens[i + 1].type !== TokenType.TagName) continue;
+      const openingTagName = this.source
+        .slice(this.tokens[i + 1].start, this.tokens[i + 1].end)
+        .toLowerCase();
+      if (openingTagName !== containingTagName) continue;
+
+      if (!this.isSelfClosingElementAt(i, this.tokens.length)) {
+        containingTagDepth++;
+      }
+    }
+
+    return null;
+  }
+
+  private isSelfClosingElementAt(startIdx: number, limitIdx: number): boolean {
+    for (let i = startIdx + 1; i < limitIdx; i++) {
+      const type = this.tokens[i].type;
+      if (type === TokenType.GreaterThan || type === TokenType.SyntheticClose) {
+        return this.tokens[i - 1]?.type === TokenType.Slash;
+      }
+      if (type === TokenType.LessThan) {
+        return false;
+      }
+    }
+
+    return false;
+  }
+
+  private findOpenDirectiveBoundary(openerNames: string[], startIdx: number): number | null {
+    if (this.openDirectives.length === 0) {
+      return null;
+    }
+
+    const index = this.getDirectiveIndex();
+    let boundary: number | null = null;
+
+    for (const frame of this.openDirectives) {
+      if (frame.terminators.length === 0 && frame.branches.length === 0) continue;
+      const initialNesting = this.directiveFamiliesIntersect(frame.openers, openerNames) ? 1 : 0;
+      const boundaryIdx =
+        frame.branches.length > 0
+          ? index.findMatchingBoundaryForOpeners(
+              frame.openers,
+              startIdx,
+              frame.terminators,
+              frame.branches,
+              null,
+              initialNesting,
+            )
+          : index.findMatchingTerminatorForOpeners(
+              frame.openers,
+              startIdx,
+              frame.terminators,
+              null,
+              initialNesting,
+            );
+      if (boundaryIdx !== null) {
+        boundary = this.takeEarlierBoundary(boundary, boundaryIdx);
+      }
+    }
+
+    return boundary;
+  }
+
+  private directiveFamiliesIntersect(left: string[], right: string[]): boolean {
+    if (left[0] === right[0]) {
+      return true;
+    }
+
+    const leftSecond = left[1];
+    const rightSecond = right[1];
+    return (
+      leftSecond === right[0] ||
+      rightSecond === left[0] ||
+      (leftSecond !== undefined && leftSecond === rightSecond)
+    );
+  }
+
+  private findOpenSwitchBoundary(startIdx: number): number | null {
+    if (this.openSwitches.length === 0) {
+      return null;
+    }
+
+    const index = this.getDirectiveIndex();
+    let boundary: number | null = null;
+    for (const frame of this.openSwitches) {
+      const boundaries = [...this.directives.getSwitchBranches(frame.name), "endswitch"];
+      const boundaryIdx = index.findMatchingTerminator(frame.name, startIdx, boundaries);
+      if (boundaryIdx !== null) {
+        boundary = this.takeEarlierBoundary(boundary, boundaryIdx);
+      }
+    }
+
+    return boundary;
   }
 
   private isClosingDirective(directiveName: string): boolean {
@@ -1742,14 +2059,7 @@ export class TreeBuilder {
 
     for (let i = this.openDirectives.length - 1; i >= 0; i--) {
       const frame = this.openDirectives[i];
-      const directive = this.directives.getDirective(frame.name);
-
-      if (directive !== null && directive.terminators.length > 0) {
-        if (directive.terminators.includes(directiveName)) return true;
-      }
-
-      const terminator = this.directives.getTerminator(frame.name);
-      if (terminator.toLowerCase() === directiveName) return true;
+      if (frame.terminators.includes(directiveName)) return true;
     }
 
     return false;
@@ -1760,16 +2070,18 @@ export class TreeBuilder {
 
     for (let i = this.openDirectives.length - 1; i >= 0; i--) {
       const frame = this.openDirectives[i];
-      const directive = this.directives.getDirective(frame.name);
-      if (directive !== null && directive.hasConditionLikeBranches) {
-        if (directive.conditionLikeBranches.includes(directiveName)) return true;
-      }
+      if (frame.branches.includes(directiveName)) return true;
     }
 
     return false;
   }
 
-  private openPairedDirective(directiveName: string, startPos: number, tokenCount: number): void {
+  private openPairedDirective(
+    directiveName: string,
+    startPos: number,
+    tokenCount: number,
+    frameMeta?: { terminators: string[]; branches: string[]; openers: string[] },
+  ): void {
     const blockIdx = this.addChild(
       createFlatNode(NodeKind.DirectiveBlock, 0, startPos, tokenCount),
     );
@@ -1783,11 +2095,18 @@ export class TreeBuilder {
     );
 
     this.checkDirectiveDepth();
+    const directive = this.directives.getDirective(directiveName);
+    const terminators = frameMeta?.terminators ?? directive?.terminators ?? [];
+    const branches = frameMeta?.branches ?? directive?.conditionLikeBranches ?? [];
+    const openers = frameMeta?.openers ?? [directiveName];
     this.openDirectives.push({
       blockIdx,
       startDirectiveIdx,
       name: directiveName,
       elementStackBase,
+      terminators,
+      branches,
+      openers,
     });
 
     this.checkElementDepth();
@@ -1810,12 +2129,9 @@ export class TreeBuilder {
     let matchedIdx = -1;
     for (let i = this.openDirectives.length - 1; i >= 0; i--) {
       const frame = this.openDirectives[i];
-      const directive = this.directives.getDirective(frame.name);
-      if (directive !== null && directive.hasConditionLikeBranches) {
-        if (directive.conditionLikeBranches.includes(directiveName)) {
-          matchedIdx = i;
-          break;
-        }
+      if (frame.branches.includes(directiveName)) {
+        matchedIdx = i;
+        break;
       }
     }
 
@@ -1847,16 +2163,7 @@ export class TreeBuilder {
 
     for (let i = this.openDirectives.length - 1; i >= 0; i--) {
       const frame = this.openDirectives[i];
-      const directive = this.directives.getDirective(frame.name);
-      if (directive === null) continue;
-
-      if (directive.terminators.length > 0 && directive.terminators.includes(directiveName)) {
-        matchedIdx = i;
-        break;
-      }
-
-      const terminator = this.directives.getTerminator(frame.name);
-      if (terminator.toLowerCase() === directiveName) {
+      if (frame.terminators.includes(directiveName)) {
         matchedIdx = i;
         break;
       }
@@ -1916,6 +2223,17 @@ export class TreeBuilder {
     tokenCount: number,
     argsContent: string | null,
   ): void {
+    if (
+      this.tryHandleConditionDirectiveWithOpenDirective(
+        directiveName,
+        startPos,
+        tokenCount,
+        argsContent,
+      )
+    ) {
+      return;
+    }
+
     const terminators = this.directives.getConditionTerminators();
     const isFinalTerminator = terminators.includes(directiveName);
 
@@ -1946,6 +2264,84 @@ export class TreeBuilder {
     }
 
     this.createStandaloneDirective(directiveName, startPos, tokenCount, argsContent);
+  }
+
+  private tryHandleConditionDirectiveWithOpenDirective(
+    directiveName: string,
+    startPos: number,
+    tokenCount: number,
+    argsContent: string | null,
+  ): boolean {
+    const directiveMatch = this.getMatchingOpenDirectiveFrame(directiveName);
+    if (directiveMatch === null) {
+      return false;
+    }
+
+    const conditionMatch = this.getMatchingOpenConditionFrame(directiveName);
+    if (
+      conditionMatch !== null &&
+      this.getConditionFrameTokenStart(conditionMatch.frame) >=
+        this.getDirectiveFrameTokenStart(directiveMatch.frame)
+    ) {
+      return false;
+    }
+
+    if (directiveMatch.kind === "branch") {
+      this.openDirectiveBranch(directiveName, startPos, tokenCount, argsContent);
+      return true;
+    }
+
+    this.closeDirective(directiveName, startPos, tokenCount, argsContent);
+    return true;
+  }
+
+  private getMatchingOpenDirectiveFrame(
+    directiveName: string,
+  ): { frame: DirectiveFrame; kind: "branch" | "close" } | null {
+    if (this.openDirectives.length === 0) {
+      return null;
+    }
+
+    for (let i = this.openDirectives.length - 1; i >= 0; i--) {
+      const frame = this.openDirectives[i];
+      if (frame.branches.includes(directiveName)) {
+        return { frame, kind: "branch" };
+      }
+      if (frame.terminators.includes(directiveName)) {
+        return { frame, kind: "close" };
+      }
+    }
+
+    return null;
+  }
+
+  private getMatchingOpenConditionFrame(
+    directiveName: string,
+  ): { frame: ConditionFrame; kind: "branch" | "close" } | null {
+    if (this.openConditions.length === 0) {
+      return null;
+    }
+
+    const frame = this.openConditions[this.openConditions.length - 1];
+    const terminators = this.directives.getConditionTerminators();
+    if (terminators.includes(directiveName)) {
+      return { frame, kind: "close" };
+    }
+
+    const branches = this.directives.getBranches(frame.name);
+    if (branches.includes(directiveName)) {
+      return { frame, kind: "branch" };
+    }
+
+    return null;
+  }
+
+  private getDirectiveFrameTokenStart(frame: DirectiveFrame): number {
+    return this.nodes[frame.startDirectiveIdx]?.tokenStart ?? -1;
+  }
+
+  private getConditionFrameTokenStart(frame: ConditionFrame): number {
+    return this.nodes[frame.currentBranchIdx]?.tokenStart ?? -1;
   }
 
   private openCondition(

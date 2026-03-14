@@ -530,8 +530,10 @@ function getDirectiveWrapperContext(node: WrappedNode): DirectivePhpWrapperConte
   if (!trainedDirectives) return {};
 
   return {
-    hasDirective: (name: string) => trainedDirectives.isDirective(name),
-    isConditionLikeDirective: (name: string) => trainedDirectives.isCondition(name),
+    hasDirective: (name: string) =>
+      trainedDirectives.isDirective(name) || trainedDirectives.hasSeenDirective(name),
+    isConditionLikeDirective: (name: string) =>
+      trainedDirectives.isCondition(name) || trainedDirectives.hasAdvisoryCondition(name),
   };
 }
 
