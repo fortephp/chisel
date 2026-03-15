@@ -3,6 +3,7 @@ import { getSageDirectivePhpFormatTemplates } from "../../src/plugins/sage/print
 import {
   SAGE_ARGUMENT_DIRECTIVE_NAMES,
   SAGE_DECLARED_DIRECTIVE_NAMES,
+  SAGE_TREE_DIRECTIVES,
 } from "../../src/plugins/sage/metadata.js";
 import { tokenize } from "../../src/lexer/lexer.js";
 import { resolveBladeSyntaxProfile } from "../../src/plugins/runtime.js";
@@ -123,6 +124,13 @@ const SAGE_DECLARED_DIRECTIVES = [
   "wphead",
 ] as const;
 
+function splitDirectiveNames(value: string): string[] {
+  return value
+    .split(",")
+    .map((name) => name.trim().toLowerCase())
+    .filter(Boolean);
+}
+
 function parseWithSage(source: string): BuildResult {
   const profile = resolveBladeSyntaxProfile({
     bladeSyntaxPlugins: [SAGE_PLUGIN_TOKEN],
@@ -163,7 +171,15 @@ describe("plugins/sage", () => {
     expect([...SAGE_DECLARED_DIRECTIVE_NAMES].sort()).toEqual([...SAGE_DECLARED_DIRECTIVES].sort());
   });
 
-  it("uses Sage-specific guest/role semantics over built-in branch variants", () => {
+  it("does not declare synthetic Sage directives outside the audited package list", () => {
+    const pluginDirectiveNames = new Set(
+      SAGE_TREE_DIRECTIVES.flatMap((definition) => splitDirectiveNames(definition.name)),
+    );
+
+    expect([...pluginDirectiveNames].sort()).toEqual([...SAGE_DECLARED_DIRECTIVES].sort());
+  });
+
+  it("uses Sage-specific guest/role semantics without inventing branch directives", () => {
     const profile = resolveBladeSyntaxProfile({
       bladeSyntaxPlugins: [SAGE_PLUGIN_TOKEN],
     });
@@ -171,8 +187,8 @@ describe("plugins/sage", () => {
 
     expect(directives.getTerminators("guest")).toEqual(["endguest"]);
     expect(directives.getTerminators("role")).toEqual(["endrole"]);
-    expect(directives.isCondition("elseguest")).toBe(false);
-    expect(directives.isCondition("elserole")).toBe(false);
+    expect(SAGE_DECLARED_DIRECTIVE_NAMES).not.toContain("elseguest");
+    expect(SAGE_DECLARED_DIRECTIVE_NAMES).not.toContain("elserole");
   });
 
   it("provides php-format templates for every Sage directive that can take arguments", () => {

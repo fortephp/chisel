@@ -76,6 +76,39 @@ Notes:
 - Array options use repeated flags in CLI (for example: `--blade-inline-intent-elements p --blade-inline-intent-elements svg --blade-inline-intent-elements svg:*`).
 - `bladeDirectiveCaseMap` takes a JSON object string when passed via CLI, but shell quoting is easy to get wrong. Prefer setting it in `.prettierrc`.
 
+## Blade Plugins
+
+Use `bladeSyntaxPlugins` to enable framework-specific or package-specific Blade behavior.
+
+Available plugins:
+
+- `statamic`
+- `log1x/sage-directives`: for improved compatibility with [https://github.com/Log1x/sage-directives](https://github.com/Log1x/sage-directives)
+
+Example:
+
+```json
+{
+  "plugins": [
+    "prettier-plugin-blade",
+    "@prettier/plugin-php"
+  ],
+  "overrides": [
+    {
+      "files": ["*.blade.php"],
+      "options": {
+        "parser": "blade",
+        "bladePhpFormatting": "safe",
+        "bladeSyntaxPlugins": [
+            "statamic",
+            "log1x/sage-directives"
+        ]
+      }
+    }
+  ]
+}
+```
+
 ## PHP Formatting
 
 To format embedded PHP fragments inside Blade, install `@prettier/plugin-php` and include it in `plugins`:

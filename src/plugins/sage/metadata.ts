@@ -183,10 +183,6 @@ const SAGE_WORDPRESS_DIRECTIVES: readonly TreeDirectiveDefinition[] = [
     args: true,
     structure: { role: "open", condition: true, terminators: "endrole" },
   },
-  {
-    name: "elserole",
-    args: false,
-  },
   { name: "endrole", args: false, structure: { role: "close", condition: true } },
   {
     name: "user",
@@ -198,10 +194,6 @@ const SAGE_WORDPRESS_DIRECTIVES: readonly TreeDirectiveDefinition[] = [
     name: "guest",
     args: false,
     structure: { role: "open", condition: true, terminators: "endguest" },
-  },
-  {
-    name: "elseguest",
-    args: false,
   },
   { name: "endguest", args: false, structure: { role: "close", condition: true } },
   {
@@ -256,7 +248,6 @@ function isConditionDirective(definition: TreeDirectiveDefinition): boolean {
 }
 
 const SAGE_DIRECTIVE_METADATA = new Map<string, SageDirectiveMetadata>();
-const SAGE_INTERNAL_OVERRIDE_DIRECTIVE_NAMES = new Set(["elseguest", "elserole"]);
 
 for (const definition of SAGE_TREE_DIRECTIVES) {
   const directiveMetadata = {
@@ -272,11 +263,7 @@ for (const definition of SAGE_TREE_DIRECTIVES) {
   }
 }
 
-export const SAGE_DECLARED_DIRECTIVE_NAMES = Object.freeze(
-  [...SAGE_DIRECTIVE_METADATA.keys()].filter(
-    (name) => !SAGE_INTERNAL_OVERRIDE_DIRECTIVE_NAMES.has(name),
-  ),
-);
+export const SAGE_DECLARED_DIRECTIVE_NAMES = Object.freeze([...SAGE_DIRECTIVE_METADATA.keys()]);
 export const SAGE_ARGUMENT_DIRECTIVE_NAMES = Object.freeze(
   SAGE_DECLARED_DIRECTIVE_NAMES.filter(
     (name) => SAGE_DIRECTIVE_METADATA.get(name)?.allowsArguments === true,

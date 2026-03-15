@@ -1,4 +1,4 @@
-import { SAGE_TREE_DIRECTIVES } from "./tree-directives.js";
+import { SAGE_TREE_DIRECTIVES } from "./metadata.js";
 import { getSageDirectivePhpFormatTemplates } from "./print.js";
 import { type BladeSyntaxPlugin } from "../types.js";
 
