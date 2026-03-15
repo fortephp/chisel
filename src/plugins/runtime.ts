@@ -1,16 +1,20 @@
-import type { BladeSyntaxPlugin } from "./statamic.js";
+import type { TreeDirectiveDefinition } from "../tree/directive-definitions.js";
+import { SAGE_PLUGIN_NAME, sagePlugin } from "./sage/index.js";
+import type { BladeSyntaxPlugin } from "./types.js";
 import { statamicPlugin } from "./statamic.js";
 
 export interface BladeSyntaxProfile {
   lexerDirectives: string[];
-  treeDirectives: unknown[];
+  treeDirectives: TreeDirectiveDefinition[];
   verbatimStartDirectives: string[];
   verbatimEndDirectives: string[];
 }
 
 const BUILTIN_BLADE_SYNTAX_PLUGINS = new Map<string, BladeSyntaxPlugin>([
+  [SAGE_PLUGIN_NAME, sagePlugin],
   ["statamic", statamicPlugin],
 ]);
+const resolvedBladeSyntaxPluginsCache = new WeakMap<object, BladeSyntaxPlugin[]>();
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -66,26 +70,11 @@ function resolveBladeSyntaxPluginEntry(value: unknown): BladeSyntaxPlugin | null
 }
 
 export function resolveBladeSyntaxProfile(options?: unknown): BladeSyntaxProfile {
-  const optionRecord = isRecord(options) ? options : {};
-  const rawPlugins = parseBladeSyntaxPluginTokens(optionRecord.bladeSyntaxPlugins);
-
-  const seenPluginNames = new Set<string>();
-  const resolvedPlugins: BladeSyntaxPlugin[] = [];
-
-  for (const entry of rawPlugins) {
-    const plugin = resolveBladeSyntaxPluginEntry(entry);
-    if (!plugin) continue;
-
-    const key = plugin.name.toLowerCase();
-    if (seenPluginNames.has(key)) continue;
-    seenPluginNames.add(key);
-    resolvedPlugins.push(plugin);
-  }
-
+  const resolvedPlugins = resolveBladeSyntaxPlugins(options);
   const lexerDirectives = new Set<string>();
   const verbatimStartDirectives = new Set<string>();
   const verbatimEndDirectives = new Set<string>();
-  const treeDirectives: unknown[] = [];
+  const treeDirectives: TreeDirectiveDefinition[] = [];
 
   for (const plugin of resolvedPlugins) {
     for (const directive of plugin.lexerDirectives) {
@@ -111,4 +100,30 @@ export function resolveBladeSyntaxProfile(options?: unknown): BladeSyntaxProfile
     verbatimStartDirectives: [...verbatimStartDirectives],
     verbatimEndDirectives: [...verbatimEndDirectives],
   };
+}
+
+export function resolveBladeSyntaxPlugins(options?: unknown): BladeSyntaxPlugin[] {
+  const optionRecord = isRecord(options) ? options : {};
+  const cached = resolvedBladeSyntaxPluginsCache.get(optionRecord);
+  if (cached) {
+    return cached;
+  }
+
+  const rawPlugins = parseBladeSyntaxPluginTokens(optionRecord.bladeSyntaxPlugins);
+
+  const seenPluginNames = new Set<string>();
+  const resolvedPlugins: BladeSyntaxPlugin[] = [];
+
+  for (const entry of rawPlugins) {
+    const plugin = resolveBladeSyntaxPluginEntry(entry);
+    if (!plugin) continue;
+
+    const key = plugin.name.toLowerCase();
+    if (seenPluginNames.has(key)) continue;
+    seenPluginNames.add(key);
+    resolvedPlugins.push(plugin);
+  }
+
+  resolvedBladeSyntaxPluginsCache.set(optionRecord, resolvedPlugins);
+  return resolvedPlugins;
 }

@@ -295,6 +295,27 @@ describe("paired directives", () => {
     expect(blocks).toHaveLength(1);
   });
 
+  it("treats args:false on paired directives as metadata only", () => {
+    const directives = Directives.withDefaults([
+      { name: "noargs", args: false, structure: { role: "open", terminators: "endnoargs" } },
+      { name: "endnoargs", args: false, structure: { role: "close" } },
+    ]);
+    const r = parse("@noargs($value) content @endnoargs", directives);
+    const blocks = findByKind(r, NodeKind.DirectiveBlock);
+
+    expect(blocks).toHaveLength(1);
+
+    const blockIdx = indexOf(r, blocks[0]);
+    const blockKids = childrenOf(r, blockIdx);
+    const openingDirective = blockKids.find((node) => node.kind === NodeKind.Directive);
+
+    expect(blockKids.filter((node) => node.kind === NodeKind.Directive)).toHaveLength(2);
+    expect(openingDirective).toBeDefined();
+    expect(childrenOf(r, indexOf(r, openingDirective!)).some((node) => node.kind === NodeKind.Text)).toBe(
+      true,
+    );
+  });
+
   it("content between paired directives is child of opening directive", () => {
     const r = parse("@foreach($items as $item) <li>{{ $item }}</li> @endforeach");
     const blocks = findByKind(r, NodeKind.DirectiveBlock);
@@ -389,6 +410,15 @@ describe("php blocks", () => {
     const r = parse("@php $x = 1; @endphp");
     const blocks = findByKind(r, NodeKind.PhpBlock);
     expect(blocks).toHaveLength(1);
+  });
+
+  it("@php(...) shorthand stays standalone", () => {
+    const r = parse("@php($x = 1)");
+    const blocks = findByKind(r, NodeKind.DirectiveBlock);
+    const directives = findByKind(r, NodeKind.Directive);
+
+    expect(blocks).toHaveLength(0);
+    expect(directives).toHaveLength(1);
   });
 
   it("orphan @endphp becomes directive", () => {
