@@ -76,7 +76,7 @@ const options: Record<string, SupportOption> = {
     type: "string",
     array: true,
     default: [{ value: ["statamic"] }],
-    description: "List of Blade plugins",
+    description: "List of Blade syntax plugins, e.g. statamic or log1x/sage-directives.",
   },
   bladeDirectiveCase: {
     category: "Blade",

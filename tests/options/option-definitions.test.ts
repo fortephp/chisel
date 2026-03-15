@@ -54,6 +54,15 @@ const pluginOptionScenarios: Record<string, () => Promise<void>> = {
 
     expect(output).toContain("@antlers\n<div>{{$x}}</div>\n@if($ready)\n@endantlers");
     expect(output).toContain("<div>{{ $y }}</div>");
+
+    const sageInput = "@istrue($ready)<div>{{$title}}</div>@endistrue\n";
+    const sageOutput = await format(sageInput, {
+      bladeEchoSpacing: "space",
+      bladeSyntaxPlugins: ["log1x/sage-directives"],
+    });
+
+    expect(sageOutput).toContain("@istrue ($ready)");
+    expect(sageOutput).toContain("<div>{{ $title }}</div>");
   },
   bladeDirectiveCase: async () => {
     const lower = await format("@EndPushOnce($x)\n", {
