@@ -4,6 +4,8 @@ import type { WrappedNode } from "../types.js";
 import { NodeKind } from "../tree/types.js";
 import { TokenType } from "../lexer/types.js";
 import {
+  isBladeComponentAttributeDirectiveName,
+  isBladeComponentTagName,
   formatDirectiveNameToken,
   getBladeBlankLinesMode,
   getDirectiveArgSpacingMode,
@@ -78,7 +80,7 @@ function printIgnoredDirectiveBodyChild(
     ),
   );
 
-  if (child.kind === NodeKind.Text) {
+  if (child.kind === NodeKind.Text && ignoreMode === "single") {
     preservedText = htmlTrimStart(preservedText);
   }
 
@@ -99,7 +101,7 @@ function renderDirectiveTokens(node: WrappedNode, options: Options): string {
   const br = node.buildResult;
   const tc = node.flat.tokenCount;
   let result = "";
-  const argSpacingMode = getDirectiveArgSpacingMode(options);
+  const argSpacingMode = getEffectiveDirectiveArgSpacingMode(node, options);
   const start = node.flat.tokenStart;
   let sawDirectiveToken = false;
   let sawArgsToken = false;
@@ -162,6 +164,22 @@ function renderDirectiveTokens(node: WrappedNode, options: Options): string {
   }
 
   return result;
+}
+
+function getEffectiveDirectiveArgSpacingMode(
+  node: WrappedNode,
+  options: Options,
+): ReturnType<typeof getDirectiveArgSpacingMode> {
+  const mode = getDirectiveArgSpacingMode(options);
+  if (mode !== "space") {
+    return mode;
+  }
+
+  if (!isDirectiveComponentAttribute(node, options)) {
+    return mode;
+  }
+
+  return "none";
 }
 
 function hasUnterminatedDirectiveArgsAtEof(node: WrappedNode): boolean {
@@ -603,6 +621,28 @@ function isDirectiveInElementOpenTag(directive: WrappedNode): boolean {
   return directive.end <= parent.openTagEndOffset;
 }
 
+function isDirectiveComponentAttribute(node: WrappedNode, options: Options): boolean {
+  if (node.kind !== NodeKind.Directive || !isDirectiveInElementOpenTag(node)) {
+    return false;
+  }
+
+  const parent = node.parent;
+  if (!parent || parent.kind !== NodeKind.Element) {
+    return false;
+  }
+
+  const directiveToken = findFirstToken(node, TokenType.Directive);
+  if (!directiveToken) {
+    return false;
+  }
+
+  const rawDirectiveToken = node.source.slice(directiveToken.start, directiveToken.end);
+  return (
+    isBladeComponentTagName(parent.fullName, options) &&
+    isBladeComponentAttributeDirectiveName(rawDirectiveToken)
+  );
+}
+
 function getSourceBetween(prev: WrappedNode, next: WrappedNode): string {
   if (prev.source !== next.source) {
     return "";
@@ -643,18 +683,24 @@ function printBetweenLine(prev: WrappedNode, next: WrappedNode): Doc {
   }
 
   const sourceBetween = getSourceBetween(prev, next);
+  const prevIgnoreMode = getPrettierIgnoreMode(prev);
+  const nextIgnoreMode = getPrettierIgnoreMode(next);
   const hasLineBreakBetweenNodes = /[\r\n]/.test(sourceBetween) || next.startLine > prev.endLine;
+
+  if (prevIgnoreMode === "range" && nextIgnoreMode === "range") {
+    return sourceBetween;
+  }
 
   if (
     getIgnoreCommentKind(prev) === "ignore-start" &&
-    getPrettierIgnoreMode(next) === "range" &&
+    nextIgnoreMode === "range" &&
     !hasLineBreakBetweenNodes
   ) {
     return sourceBetween;
   }
 
   if (
-    getPrettierIgnoreMode(prev) === "range" &&
+    prevIgnoreMode === "range" &&
     getIgnoreCommentKind(next) === "ignore-end" &&
     !hasLineBreakBetweenNodes
   ) {

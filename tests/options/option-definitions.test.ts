@@ -170,6 +170,8 @@ const pluginOptionScenarios: Record<string, () => Promise<void>> = {
   bladeComponentPrefixes: async () => {
     const dashInput = '<widget-card :title="$user->name??$fallback" />\n';
     const colonInput = '<widget:card :title="$user->name??$fallback" />\n';
+    const directiveDashInput = '<widget-card @class([]) />\n';
+    const directiveColonInput = '<widget:card @class([]) />\n';
 
     const defaultDashOutput = await formatWithPhp(dashInput, {
       bladePhpFormatting: "safe",
@@ -182,10 +184,24 @@ const pluginOptionScenarios: Record<string, () => Promise<void>> = {
       bladePhpFormatting: "safe",
       bladeComponentPrefixes: ["widget"],
     });
+    const defaultDirectiveDashOutput = await format(directiveDashInput, {
+      bladeDirectiveArgSpacing: "space",
+    });
+    const customDirectiveDashOutput = await format(directiveDashInput, {
+      bladeDirectiveArgSpacing: "space",
+      bladeComponentPrefixes: ["widget"],
+    });
+    const customDirectiveColonOutput = await format(directiveColonInput, {
+      bladeDirectiveArgSpacing: "space",
+      bladeComponentPrefixes: ["widget"],
+    });
 
     expect(defaultDashOutput).toContain(':title="$user->name??$fallback"');
     expect(customDashOutput).toContain(':title="$user->name ?? $fallback"');
     expect(customColonOutput).toContain(':title="$user->name ?? $fallback"');
+    expect(defaultDirectiveDashOutput).toContain("@class ([])");
+    expect(customDirectiveDashOutput).toContain("@class([])");
+    expect(customDirectiveColonOutput).toContain("@class([])");
   },
   bladeInsertOptionalClosingTags: async () => {
     const input = "<div>\n<script>\n</script>\n";

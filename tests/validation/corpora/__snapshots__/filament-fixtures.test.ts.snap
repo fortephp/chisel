@@ -3408,7 +3408,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
                 :color="$color"
                 :x-bind:x-sortable-item="$isReorderable ? 'index' : null"
                 :x-sortable-handle="$isReorderable ? '' : null"
-                @class ([
+                @class([
                                     'fi-reorderable' => $isReorderable,
                                 ])
               >
@@ -4504,7 +4504,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
 
 <x-filament-panels::layout.base
   :livewire="$livewire"
-  @class ([
+  @class([
         'fi-body-has-navigation' => $hasNavigation,
         'fi-body-has-sidebar-collapsible-on-desktop' => $isSidebarCollapsibleOnDesktop,
         'fi-body-has-sidebar-fully-collapsible-on-desktop' => $isSidebarFullyCollapsibleOnDesktop,
@@ -10842,7 +10842,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_component
   :record-checkbox-position="$recordCheckboxPosition"
   :selected-state="$selectedState"
   :selection-enabled="$selectionEnabled"
-  @class ([
+  @class([
         'fi-striped' => ! $hasPageSummary,
     ])
 />
@@ -11304,7 +11304,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                   shift
                   width="xs"
                   wire:key="{{ $this->getId() }}.table.grouping"
-                  @class ([
+                  @class([
                                         'sm:fi-hidden' => ! $areGroupingSettingsInDropdownOnDesktop,
                                     ])
                 >

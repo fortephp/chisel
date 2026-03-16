@@ -23,7 +23,7 @@ import { resolveEmbeddedParserPlugins } from "./embedded-parser-plugins.js";
 import { resolvePhpPlugins } from "./php-plugin.js";
 import { isPhpFormattingEnabled } from "./php.js";
 import {
-  getBladeComponentPrefixes,
+  isBladeComponentTagName,
   shouldPreserveInlineIntentAttributes,
 } from "../blade-options.js";
 
@@ -49,8 +49,7 @@ function isColonBoundAttributeName(name: string): boolean {
 
 function isBladeComponentElement(node: WrappedNode | null, options: Options): boolean {
   if (!node || node.kind !== NodeKind.Element) return false;
-  const fullName = node.fullName.toLowerCase();
-  return getBladeComponentPrefixes(options).some((prefix) => fullName.startsWith(prefix));
+  return isBladeComponentTagName(node.fullName, options);
 }
 
 function createPhpAttributeOptions(options: Options, plugins: unknown[]): Options {

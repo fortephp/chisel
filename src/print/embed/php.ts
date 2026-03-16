@@ -16,7 +16,12 @@ import {
 import { resolveBladeSyntaxPlugins } from "../../plugins/runtime.js";
 import { NodeKind } from "../../tree/types.js";
 import { fullText } from "../utils.js";
-import { getDirectiveArgSpacingMode, getEchoSpacingMode } from "../blade-options.js";
+import {
+  getDirectiveArgSpacingMode,
+  getEchoSpacingMode,
+  isBladeComponentAttributeDirectiveName,
+  isBladeComponentTagName,
+} from "../blade-options.js";
 import { resolvePhpPlugins } from "./php-plugin.js";
 
 type PhpFormattingMode = "off" | "safe" | "aggressive";
@@ -648,7 +653,7 @@ function rebuildDirectiveWithFormattedArgs(
   const start = node.flat.tokenStart;
   const end = start + node.flat.tokenCount;
   const tokens = node.buildResult.tokens;
-  const argSpacingMode = getDirectiveArgSpacingMode(options);
+  const argSpacingMode = getEffectiveDirectiveArgSpacingMode(node, options);
   let result = "";
   let sawDirectiveToken = false;
   let sawArgsToken = false;
@@ -696,6 +701,45 @@ function rebuildDirectiveWithFormattedArgs(
   }
 
   return sawDirectiveToken ? result : "";
+}
+
+function getEffectiveDirectiveArgSpacingMode(
+  node: WrappedNode,
+  options: Options,
+): ReturnType<typeof getDirectiveArgSpacingMode> {
+  const mode = getDirectiveArgSpacingMode(options);
+  if (mode !== "space") {
+    return mode;
+  }
+
+  if (!isDirectiveComponentAttribute(node, options)) {
+    return mode;
+  }
+
+  return "none";
+}
+
+function isDirectiveComponentAttribute(node: WrappedNode, options: Options): boolean {
+  if (node.kind !== NodeKind.Directive) {
+    return false;
+  }
+
+  const parent = node.parent;
+  if (!parent || parent.kind !== NodeKind.Element) {
+    return false;
+  }
+
+  if (node.end > parent.openTagEndOffset || !isBladeComponentTagName(parent.fullName, options)) {
+    return false;
+  }
+
+  const directiveToken = findFirstToken(node, TokenType.Directive);
+  if (!directiveToken) {
+    return false;
+  }
+
+  const rawDirectiveToken = node.source.slice(directiveToken.start, directiveToken.end);
+  return isBladeComponentAttributeDirectiveName(rawDirectiveToken);
 }
 
 function getEchoDelimiters(node: WrappedNode): {

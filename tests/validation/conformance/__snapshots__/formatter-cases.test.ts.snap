@@ -93,12 +93,12 @@ exports[`validation/conformance/formatter-cases > formats can__001 1`] = `
 `;
 
 exports[`validation/conformance/formatter-cases > formats component_tags__001 1`] = `
-"<x-icon @class ([$icon, 'pe-2']) />
+"<x-icon @class([$icon, 'pe-2']) />
 "
 `;
 
 exports[`validation/conformance/formatter-cases > formats component_tags__002 1`] = `
-"<x-icon @class ([$icon, 'pe-2'])>
+"<x-icon @class([$icon, 'pe-2'])>
   <div>
     <p>test</p>
   </div>
@@ -964,7 +964,7 @@ exports[`validation/conformance/formatter-cases > formats directives__016 1`] = 
 `;
 
 exports[`validation/conformance/formatter-cases > formats directives__017 1`] = `
-"<x-foo @class (['foo', 'foo bar baz something long very very long']) />
+"<x-foo @class(['foo', 'foo bar baz something long very very long']) />
 "
 `;
 
@@ -2769,7 +2769,7 @@ exports[`validation/conformance/formatter-cases > formats props_directive__002 1
 @props (['icon'],)
 
 <div>
-  <x-icon @class ([$icon, 'pe-2']) />
+  <x-icon @class([$icon, 'pe-2']) />
   {{ $slot }}
 </div>
 "
