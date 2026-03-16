@@ -1969,6 +1969,7 @@ exports[`validation/conformance/formatter-cases > formats ignore__001 1`] = `
             </x:slot:name>
 
 <p>{{ $one }}: {{ $two }}</p>
+
 <p>
 {{ $one  }}:
 {{ $two }}
@@ -2014,6 +2015,7 @@ exports[`validation/conformance/formatter-cases > formats ignore__001 1`] = `
             @endunless
 
 @directive   ($test  + $that-$another   + $thing)
+
 @unless($true) 
                 Hello @endunless
 
@@ -2044,7 +2046,7 @@ exports[`validation/conformance/formatter-cases > formats ignore__001 1`] = `
 @forelse ($users as $user)
                                                                     <li>{{ $user->name }}</li>
                                                                 @endforelse
-<?php
+                                                                <?php
 
                                                                 $kernel = $app->                make(Illuminate\\Contracts\\Console\\Kernel::class);
                                                                 
@@ -2149,6 +2151,7 @@ exports[`validation/conformance/formatter-cases > formats ignore__002 1`] = `
             </x:slot:name>
 
 <p>{{ $one }}: {{ $two }}</p>
+
 <p>
 {{ $one  }}:
 {{ $two }}
@@ -2194,6 +2197,7 @@ exports[`validation/conformance/formatter-cases > formats ignore__002 1`] = `
             @endunless
 
 @directive   ($test  + $that-$another   + $thing)
+
 @unless($true) 
                 Hello @endunless
 
@@ -2224,7 +2228,7 @@ exports[`validation/conformance/formatter-cases > formats ignore__002 1`] = `
 @forelse ($users as $user)
                                                                     <li>{{ $user->name }}</li>
                                                                 @endforelse
-<?php
+                                                                <?php
 
                                                                 $kernel = $app->                make(Illuminate\\Contracts\\Console\\Kernel::class);
                                                                 
