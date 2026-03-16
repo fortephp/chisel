@@ -6,6 +6,7 @@ import { isTextLikeNode, isEchoLike } from "../node-predicates.js";
 import {
   hasPrettierIgnore,
   getPrettierIgnoreMode,
+  getIgnoreCommentKind,
   forceBreakChildren,
   forceNextEmptyLine,
   preferHardlineAsLeadingSpaces,
@@ -34,6 +35,31 @@ function getEndLocation(node: WrappedNode): number {
     return Math.max(node.end, getEndLocation(node.children[node.children.length - 1]));
   }
   return node.end;
+}
+
+function getSourceBetween(prev: WrappedNode, next: WrappedNode): string {
+  if (prev.source !== next.source) {
+    return "";
+  }
+
+  return prev.source.slice(prev.end, next.start);
+}
+
+function shouldKeepInlineIgnoreBoundary(prev: WrappedNode, next: WrappedNode): boolean {
+  const sourceBetween = getSourceBetween(prev, next);
+  if (/[\r\n]/u.test(sourceBetween)) {
+    return false;
+  }
+
+  if (getIgnoreCommentKind(prev) === "ignore-start" && getPrettierIgnoreMode(next) === "range") {
+    return true;
+  }
+
+  return (
+    getPrettierIgnoreMode(prev) === "range" &&
+    getIgnoreCommentKind(next) === "ignore-end" &&
+    !/[\r\n]/u.test(sourceBetween)
+  );
 }
 
 /**
@@ -87,6 +113,10 @@ function printChild(
  * Ported from Prettier's print/children.js printBetweenLine.
  */
 function printBetweenLine(prev: WrappedNode, next: WrappedNode): Doc {
+  if (shouldKeepInlineIgnoreBoundary(prev, next)) {
+    return getSourceBetween(prev, next);
+  }
+
   // Escaped blade prefixes (e.g. @@, @{{, @{!!) must stay attached to
   // the following construct/text to preserve semantics.
   if (prev.kind === NodeKind.NonOutput || next.kind === NodeKind.NonOutput) {

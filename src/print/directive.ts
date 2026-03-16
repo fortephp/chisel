@@ -11,10 +11,24 @@ import {
 } from "./blade-options.js";
 import { trimTrailingHorizontalWhitespace } from "../string-utils.js";
 import { isEchoLike, isTextLikeNode } from "../node-predicates.js";
-import { fullText, preferHardlineAsLeadingSpaces } from "./utils.js";
-import { replaceEndOfLine } from "./doc-utils.js";
+import {
+  fullText,
+  preferHardlineAsLeadingSpaces,
+  getIgnoreCommentKind,
+  getPrettierIgnoreMode,
+  hasPrettierIgnore,
+} from "./utils.js";
+import { htmlTrimEnd, htmlTrimStart, replaceEndOfLine } from "./doc-utils.js";
+import {
+  needsToBorrowNextOpeningTagStartMarker,
+  needsToBorrowPrevClosingTagEndMarker,
+  printOpeningTagPrefix,
+  printOpeningTagStartMarker,
+  printClosingTagSuffix,
+  printClosingTagEndMarker,
+} from "./tag.js";
 
-const { indent, hardline } = doc.builders;
+const { indent, hardline, dedentToRoot } = doc.builders;
 
 type BranchNodeKind = NodeKind.Directive | NodeKind.PhpTag;
 
@@ -30,6 +44,52 @@ const BODY_BLANK_LINE_LAYOUT_DIRECTIVES = new Set([
   "includefirst",
   "each",
 ]);
+
+function getEndLocation(node: WrappedNode): number {
+  if (node.kind === NodeKind.Element && !node.hasClosingTag && node.children.length > 0) {
+    return Math.max(node.end, getEndLocation(node.children[node.children.length - 1]));
+  }
+
+  return node.end;
+}
+
+function printIgnoredDirectiveBodyChild(
+  childPath: AstPath<WrappedNode>,
+  options: Options,
+): Doc | null {
+  const child = childPath.node;
+  const ignoreMode = getPrettierIgnoreMode(child);
+
+  if (!(hasPrettierIgnore(child) && ignoreMode)) {
+    return null;
+  }
+
+  const endLocation = getEndLocation(child);
+  let preservedText = htmlTrimEnd(
+    child.source.slice(
+      child.start +
+        (child.prev && needsToBorrowNextOpeningTagStartMarker(child.prev)
+          ? printOpeningTagStartMarker(child).length
+          : 0),
+      endLocation -
+        (child.next && needsToBorrowPrevClosingTagEndMarker(child.next)
+          ? printClosingTagEndMarker(child, options).length
+          : 0),
+    ),
+  );
+
+  if (child.kind === NodeKind.Text) {
+    preservedText = htmlTrimStart(preservedText);
+  }
+
+  return [
+    printOpeningTagPrefix(child, options),
+    ignoreMode === "range"
+      ? dedentToRoot(replaceEndOfLine(preservedText))
+      : replaceEndOfLine(preservedText),
+    printClosingTagSuffix(child, options),
+  ];
+}
 
 export function printDirective(node: WrappedNode, options: Options): Doc {
   return renderDirectiveTokens(node, options);
@@ -149,7 +209,7 @@ export function printDirectiveBlock(
 
   const style = getDirectiveBlockStyle(options);
   if (style !== "multiline" && shouldPreserveInlineBlock(node, style)) {
-    return printDirectiveBlockInline(path, print);
+    return printDirectiveBlockInline(path, print, options);
   }
 
   return printDirectiveBlockMultiline(node, path, print, options);
@@ -279,7 +339,7 @@ function printDirectiveBody(
         docs.push(indent([hardline, nestedDocs]));
       }
     } else {
-      docs.push(printDirectiveBodyChild(childPath, print));
+      docs.push(printDirectiveBodyChild(childPath, print, options));
     }
   }, "children");
 
@@ -289,6 +349,7 @@ function printDirectiveBody(
 function printDirectiveBodyInline(
   branchPath: AstPath<WrappedNode>,
   print: (path: AstPath<WrappedNode>) => Doc,
+  options: Options,
 ): Doc[] {
   const docs: Doc[] = [];
   let prev: WrappedNode | null = null;
@@ -301,7 +362,7 @@ function printDirectiveBodyInline(
         docs.push(" ");
       }
     }
-    docs.push(printDirectiveBodyChild(childPath, print));
+    docs.push(printDirectiveBodyChild(childPath, print, options));
     prev = child;
   }, "children");
 
@@ -311,6 +372,7 @@ function printDirectiveBodyInline(
 function printDirectiveBlockInline(
   path: AstPath<WrappedNode>,
   print: (path: AstPath<WrappedNode>) => Doc,
+  options: Options,
 ): Doc {
   const segments: Doc[] = [];
   let previousDirective: WrappedNode | null = null;
@@ -331,7 +393,7 @@ function printDirectiveBlockInline(
 
     segments.push(print(childPath));
     if (child.children.length > 0) {
-      const body = printDirectiveBodyInline(childPath, print);
+      const body = printDirectiveBodyInline(childPath, print, options);
       if (body.length > 0) {
         segments.push(" ", body);
       }
@@ -391,8 +453,14 @@ function printDirectiveBlockMultiline(
 function printDirectiveBodyChild(
   childPath: AstPath<WrappedNode>,
   print: (path: AstPath<WrappedNode>) => Doc,
+  options: Options,
 ): Doc {
   const child = childPath.node;
+  const ignored = printIgnoredDirectiveBodyChild(childPath, options);
+  if (ignored !== null) {
+    return ignored;
+  }
+
   if (
     child.kind === NodeKind.Text &&
     ((child.prev !== null && isEchoLike(child.prev)) ||
@@ -576,6 +644,22 @@ function printBetweenLine(prev: WrappedNode, next: WrappedNode): Doc {
 
   const sourceBetween = getSourceBetween(prev, next);
   const hasLineBreakBetweenNodes = /[\r\n]/.test(sourceBetween) || next.startLine > prev.endLine;
+
+  if (
+    getIgnoreCommentKind(prev) === "ignore-start" &&
+    getPrettierIgnoreMode(next) === "range" &&
+    !hasLineBreakBetweenNodes
+  ) {
+    return sourceBetween;
+  }
+
+  if (
+    getPrettierIgnoreMode(prev) === "range" &&
+    getIgnoreCommentKind(next) === "ignore-end" &&
+    !hasLineBreakBetweenNodes
+  ) {
+    return sourceBetween;
+  }
 
   if (hasBlankLineBetween(sourceBetween) && shouldPreserveBodyBlankLine(prev, next)) {
     return [hardline, hardline];
