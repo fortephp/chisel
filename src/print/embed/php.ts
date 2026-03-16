@@ -19,7 +19,6 @@ import { fullText } from "../utils.js";
 import {
   getDirectiveArgSpacingMode,
   getEchoSpacingMode,
-  isBladeComponentAttributeDirectiveName,
   isBladeComponentTagName,
 } from "../blade-options.js";
 import { resolvePhpPlugins } from "./php-plugin.js";
@@ -707,13 +706,8 @@ function getEffectiveDirectiveArgSpacingMode(
   node: WrappedNode,
   options: Options,
 ): ReturnType<typeof getDirectiveArgSpacingMode> {
-  const mode = getDirectiveArgSpacingMode(options);
-  if (mode !== "space") {
-    return mode;
-  }
-
   if (!isDirectiveComponentAttribute(node, options)) {
-    return mode;
+    return getDirectiveArgSpacingMode(options);
   }
 
   return "none";
@@ -724,22 +718,29 @@ function isDirectiveComponentAttribute(node: WrappedNode, options: Options): boo
     return false;
   }
 
-  const parent = node.parent;
+  const parent = getAttributeContextElement(node);
+  if (!parent) {
+    return false;
+  }
+
+  if (!isBladeComponentTagName(parent.fullName, options)) {
+    return false;
+  }
+  return true;
+}
+
+function getAttributeContextElement(node: WrappedNode): WrappedNode | null {
+  let current = node;
+  while (current.parent?.kind === NodeKind.DirectiveBlock) {
+    current = current.parent;
+  }
+
+  const parent = current.parent;
   if (!parent || parent.kind !== NodeKind.Element) {
-    return false;
+    return null;
   }
 
-  if (node.end > parent.openTagEndOffset || !isBladeComponentTagName(parent.fullName, options)) {
-    return false;
-  }
-
-  const directiveToken = findFirstToken(node, TokenType.Directive);
-  if (!directiveToken) {
-    return false;
-  }
-
-  const rawDirectiveToken = node.source.slice(directiveToken.start, directiveToken.end);
-  return isBladeComponentAttributeDirectiveName(rawDirectiveToken);
+  return current.end <= parent.openTagEndOffset ? parent : null;
 }
 
 function getEchoDelimiters(node: WrappedNode): {

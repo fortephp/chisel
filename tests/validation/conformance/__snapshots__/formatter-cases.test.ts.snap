@@ -215,18 +215,18 @@ exports[`validation/conformance/formatter-cases > formats component_tags__016 1`
   param="{{ $title }}"
   {{ $title }}
   @directiveName
-  @directiveWithParams ('test')
+  @directiveWithParams('test')
 />
 "
 `;
 
 exports[`validation/conformance/formatter-cases > formats component_tags__017 1`] = `
-"<x-alert @param ($value + $anotherValue) />
+"<x-alert @param($value + $anotherValue) />
 "
 `;
 
 exports[`validation/conformance/formatter-cases > formats component_tags__018 1`] = `
-"<x-alert @param ($value   $= + $anotherValue) />
+"<x-alert @param($value   $= + $anotherValue) />
 "
 `;
 

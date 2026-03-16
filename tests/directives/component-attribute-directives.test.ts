@@ -51,6 +51,39 @@ describe("directives/component-attribute-directives", () => {
     await formatEqual(input, expected, COMPONENT_ATTRIBUTE_OPTIONS);
   });
 
+  it("keeps control directives tight on component tags but not regular elements", async () => {
+    const input = `<div>
+  <x-button
+    @if($active) disabled @endif
+  />
+  <button
+    @if($active) disabled @endif
+  ></button>
+</div>
+`;
+
+    const expected = `<div>
+  <x-button @if($active) disabled @endif />
+  <button @if ($active) disabled @endif></button>
+</div>
+`;
+
+    await formatEqual(input, expected, COMPONENT_ATTRIBUTE_OPTIONS);
+  });
+
+  it("keeps directive fragments tight in component attribute names", async () => {
+    const input = `<x-button data-@IF($ok)-flag="v"></x-button>
+`;
+
+    const expected = `<x-button data-@if($ok)-flag="v"></x-button>
+`;
+
+    await formatEqual(input, expected, {
+      bladeDirectiveCase: "lower",
+      bladeDirectiveArgSpacing: "space",
+    });
+  });
+
   for (const tagName of ["flux-button", "flux:button", "livewire-widget", "livewire:widget"]) {
     it(`keeps attribute directives tight on <${tagName}>`, async () => {
       const input = `<${tagName}

@@ -170,8 +170,8 @@ const pluginOptionScenarios: Record<string, () => Promise<void>> = {
   bladeComponentPrefixes: async () => {
     const dashInput = '<widget-card :title="$user->name??$fallback" />\n';
     const colonInput = '<widget:card :title="$user->name??$fallback" />\n';
-    const directiveDashInput = '<widget-card @class([]) />\n';
-    const directiveColonInput = '<widget:card @class([]) />\n';
+    const directiveDashInput = '<widget-card @if($enabled) disabled @endif />\n';
+    const directiveColonInput = '<widget:card @if($enabled) disabled @endif />\n';
 
     const defaultDashOutput = await formatWithPhp(dashInput, {
       bladePhpFormatting: "safe",
@@ -199,9 +199,9 @@ const pluginOptionScenarios: Record<string, () => Promise<void>> = {
     expect(defaultDashOutput).toContain(':title="$user->name??$fallback"');
     expect(customDashOutput).toContain(':title="$user->name ?? $fallback"');
     expect(customColonOutput).toContain(':title="$user->name ?? $fallback"');
-    expect(defaultDirectiveDashOutput).toContain("@class ([])");
-    expect(customDirectiveDashOutput).toContain("@class([])");
-    expect(customDirectiveColonOutput).toContain("@class([])");
+    expect(defaultDirectiveDashOutput).toContain("@if ($enabled)");
+    expect(customDirectiveDashOutput).toContain("@if($enabled)");
+    expect(customDirectiveColonOutput).toContain("@if($enabled)");
   },
   bladeInsertOptionalClosingTags: async () => {
     const input = "<div>\n<script>\n</script>\n";

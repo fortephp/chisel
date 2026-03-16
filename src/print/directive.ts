@@ -4,12 +4,11 @@ import type { WrappedNode } from "../types.js";
 import { NodeKind } from "../tree/types.js";
 import { TokenType } from "../lexer/types.js";
 import {
-  isBladeComponentAttributeDirectiveName,
-  isBladeComponentTagName,
   formatDirectiveNameToken,
   getBladeBlankLinesMode,
   getDirectiveArgSpacingMode,
   getDirectiveBlockStyle,
+  isBladeComponentTagName,
 } from "./blade-options.js";
 import { trimTrailingHorizontalWhitespace } from "../string-utils.js";
 import { isEchoLike, isTextLikeNode } from "../node-predicates.js";
@@ -170,16 +169,11 @@ function getEffectiveDirectiveArgSpacingMode(
   node: WrappedNode,
   options: Options,
 ): ReturnType<typeof getDirectiveArgSpacingMode> {
-  const mode = getDirectiveArgSpacingMode(options);
-  if (mode !== "space") {
-    return mode;
+  if (isDirectiveInBladeComponentAttributeContext(node, options)) {
+    return "none";
   }
 
-  if (!isDirectiveComponentAttribute(node, options)) {
-    return mode;
-  }
-
-  return "none";
+  return getDirectiveArgSpacingMode(options);
 }
 
 function hasUnterminatedDirectiveArgsAtEof(node: WrappedNode): boolean {
@@ -616,30 +610,31 @@ function isInlineDirectiveBlock(node: WrappedNode): boolean {
 }
 
 function isDirectiveInElementOpenTag(directive: WrappedNode): boolean {
-  const parent = directive.parent;
-  if (!parent || parent.kind !== NodeKind.Element) return false;
-  return directive.end <= parent.openTagEndOffset;
+  return getAttributeContextElement(directive) !== null;
 }
 
-function isDirectiveComponentAttribute(node: WrappedNode, options: Options): boolean {
-  if (node.kind !== NodeKind.Directive || !isDirectiveInElementOpenTag(node)) {
+function isDirectiveInBladeComponentAttributeContext(node: WrappedNode, options: Options): boolean {
+  const element = getAttributeContextElement(node);
+  if (!element) {
     return false;
   }
 
-  const parent = node.parent;
+  return isBladeComponentTagName(element.fullName, options);
+}
+
+function getAttributeContextElement(node: WrappedNode): WrappedNode | null {
+  let current = node;
+  while (current.parent?.kind === NodeKind.DirectiveBlock) {
+    current = current.parent;
+  }
+
+  const parent = current.parent;
   if (!parent || parent.kind !== NodeKind.Element) {
-    return false;
+    return null;
   }
 
-  const directiveToken = findFirstToken(node, TokenType.Directive);
-  if (!directiveToken) {
-    return false;
-  }
-
-  const rawDirectiveToken = node.source.slice(directiveToken.start, directiveToken.end);
   return (
-    isBladeComponentTagName(parent.fullName, options) &&
-    isBladeComponentAttributeDirectiveName(rawDirectiveToken)
+    current.end <= parent.openTagEndOffset ? parent : null
   );
 }
 

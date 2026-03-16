@@ -235,6 +235,12 @@ export function getBladeComponentPrefixes(options: Options): string[] {
   return values;
 }
 
+export function isBladeComponentTagName(fullName: string, options: Options): boolean {
+  const normalized = fullName.trim().toLowerCase();
+  if (!normalized) return false;
+  return getBladeComponentPrefixes(options).some((prefix) => normalized.startsWith(prefix));
+}
+
 export function formatDirectiveNameToken(rawDirectiveToken: string, options: Options): string {
   if (!rawDirectiveToken.startsWith("@")) {
     return rawDirectiveToken;
