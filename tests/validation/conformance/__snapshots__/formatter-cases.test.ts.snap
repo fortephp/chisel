@@ -44,17 +44,13 @@ exports[`validation/conformance/formatter-cases > formats basic_nodes__007 1`] =
 
 exports[`validation/conformance/formatter-cases > formats basic_nodes__008 1`] = `
 "@if ($someCondition)
-  {{-- format-ignore-start --}}
-  <x-slot:the_slot>
-    {{-- format-ignore-end --}}
+  {{-- format-ignore-start --}}<x-slot:the_slot>{{-- format-ignore-end --}}
 @endif
 
 <!-- More content here. -->
 
 @if ($someCondition)
-  {{-- format-ignore-start --}}
-  </x-slot>
-  {{-- format-ignore-end --}}
+  {{-- format-ignore-start --}}</x-slot>{{-- format-ignore-end --}}
 @endif
 "
 `;

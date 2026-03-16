@@ -345,7 +345,7 @@ function getIgnoredChildren(parent: WrappedNode): Map<WrappedNode, IgnoreApplyMo
   let ignoreNextCount = 0;
 
   for (const child of parent.children) {
-    const ignoreKind = parseIgnoreCommentKind(child);
+    const ignoreKind = getIgnoreCommentKind(child);
     const isRangeEnd = ignoreKind === "ignore-end";
 
     if ((ignoreDepth > 0 || ignoreNextCount > 0) && !isRangeEnd) {
@@ -374,7 +374,7 @@ function getIgnoredChildren(parent: WrappedNode): Map<WrappedNode, IgnoreApplyMo
   return ignored;
 }
 
-function parseIgnoreCommentKind(node: WrappedNode): IgnoreCommentKind | null {
+export function getIgnoreCommentKind(node: WrappedNode): IgnoreCommentKind | null {
   let value: string | null = null;
 
   if (node.kind === NodeKind.Comment) {
