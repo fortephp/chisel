@@ -135,7 +135,7 @@ export async function formatEqual(
   expected: string,
   options: prettier.Options = {},
   passes = 5,
-) {
+): Promise<string> {
   const opts = {
     parser: "blade" as const,
     plugins: [plugin],
@@ -151,6 +151,8 @@ export async function formatEqual(
     expect(next, `not idempotent on pass ${i}`).toBe(prev);
     prev = next;
   }
+
+  return prev;
 }
 
 export {

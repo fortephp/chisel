@@ -83,6 +83,43 @@ describe("php/general", () => {
     });
   });
 
+  it("formats nullsafe operators in all echo delimiter variants without leaking wrapper syntax", async () => {
+    await formatEqual("{{ user()?->name }}\n", "{{ user()?->name }}\n", withPhp);
+    await formatEqual("{!! user()?->name !!}\n", "{!! user()?->name !!}\n", withPhp);
+    await formatEqual("{{{ user()?->name }}}\n", "{{{ user()?->name }}}\n", withPhp);
+
+    await formatEqual(
+      "{{ user()?->profile()?->displayName() }}\n",
+      `{{
+  user()
+    ?->profile()
+    ?->displayName()
+}}
+`,
+      {
+        ...withPhp,
+        printWidth: 20,
+      },
+    );
+  });
+
+  it("preserves leading echo-like string literals when unwrapping delegated echo formatting", async () => {
+    await formatEqual("{{ '   echo' }}\n", '{{ "   echo" }}\n', withPhp);
+    await formatEqual("{!! 'echo' !!}\n", '{!! "echo" !!}\n', withPhp);
+    await formatEqual(
+      "{{{ 'echo' . $suffix }}}\n",
+      `{{{
+  "echo" .
+    $suffix
+}}}
+`,
+      {
+        ...withPhp,
+        printWidth: 14,
+      },
+    );
+  });
+
   it("keeps invalid php fragments unchanged as fallback", async () => {
     const input = "{{$a + }}\n@blaze($x + )\n";
     const expected = "{{$a + }}\n@blaze ($x + )\n";

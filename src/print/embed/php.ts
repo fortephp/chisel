@@ -633,7 +633,11 @@ function getDirectivePhpFormatAttempts(
 }
 
 function wrapEchoExpression(expression: string): string {
-  return `<?php $__prettier_blade_echo__ = (${START_MARKER_COMMENT}${expression}${END_MARKER_COMMENT});`;
+  return `<?php ${START_MARKER_COMMENT} echo ${expression}; ${END_MARKER_COMMENT}`;
+}
+
+function stripLeadingEchoKeyword(text: string): string {
+  return text.replace(/^\s*echo\b\s*/u, "");
 }
 
 function rebuildDirectiveWithFormattedArgs(
@@ -866,7 +870,7 @@ export async function formatEchoNode(node: WrappedNode, options: Options): Promi
   const extracted = getTextBetweenMarkers(formatted);
   if (extracted === null) return null;
 
-  const expression = normalizePayload(extracted);
+  const expression = normalizePayload(stripLeadingEchoKeyword(extracted));
   const normalizedExpression = normalizePayload(stripTrailingSemicolon(expression));
   if (!normalizedExpression) return null;
 
