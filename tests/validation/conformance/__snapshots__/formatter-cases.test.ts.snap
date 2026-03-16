@@ -176,9 +176,9 @@ exports[`validation/conformance/formatter-cases > formats component_tags__012 1`
 exports[`validation/conformance/formatter-cases > formats component_tags__013 1`] = `
 "<div
   {{
-    $attributes->merge(
-      ['class' => 'alert alert-' . $type],
-    )
+    $attributes->merge([
+      'class' => 'alert alert-' . $type,
+    ])
   }}
 >
   {{ $message }}
@@ -189,9 +189,10 @@ exports[`validation/conformance/formatter-cases > formats component_tags__013 1`
 exports[`validation/conformance/formatter-cases > formats component_tags__014 1`] = `
 "<div
   {{
-    $attributes->class(
-      ['p-4', 'bg-red' => $hasError],
-    )
+    $attributes->class([
+      'p-4',
+      'bg-red' => $hasError,
+    ])
   }}
 >
   {{ $message }}
@@ -275,11 +276,7 @@ exports[`validation/conformance/formatter-cases > formats component_tags__024 1`
   href="{{ route('logout') }}"
   @click.prevent="$root.submit()"
 >
-  {{
-    __(
-      'Log Out',
-    )
-  }}
+  {{ __('Log Out') }}
 </x-jet-dropdown-link>
 "
 `;
@@ -290,17 +287,9 @@ exports[`validation/conformance/formatter-cases > formats component_tags__025 1`
 </x-slot>
 
 <x-slot:title>
-  {{
-    __(
-      'My Title',
-    )
-  }}
+  {{ __('My Title') }}
   <x-slot:title>
-    {{
-      __(
-        'My Title',
-      )
-    }}
+    {{ __('My Title') }}
   </x-slot:title>
 
   <x-slot name="title">
@@ -308,33 +297,17 @@ exports[`validation/conformance/formatter-cases > formats component_tags__025 1`
   </x-slot>
 
   <x-slot:title-two>
-    {{
-      __(
-        'My Title',
-      )
-    }}
+    {{ __('My Title') }}
     <x-slot:title-three>
-      {{
-        __(
-          'My Title',
-        )
-      }}
+      {{ __('My Title') }}
       <x-slot name="title">
         <p>Howdy, sir.</p>
       </x-slot>
 
       <x-slot:title>
-        {{
-          __(
-            'My Title',
-          )
-        }}
+        {{ __('My Title') }}
         <x-slot:title>
-          {{
-            __(
-              'My Title',
-            )
-          }}
+          {{ __('My Title') }}
         </x-slot:title>
 
         <x-slot name="title">
@@ -342,59 +315,31 @@ exports[`validation/conformance/formatter-cases > formats component_tags__025 1`
         </x-slot>
 
         <x-slot:title-two>
-          {{
-            __(
-              'My Title',
-            )
-          }}
+          {{ __('My Title') }}
           <x-slot:title-three>
-            {{
-              __(
-                'My Title',
-              )
-            }}
+            {{ __('My Title') }}
           </x-slot:title-three>
           <x-slot name="title">
             <p>Howdy, sir.</p>
           </x-slot>
 
           <x-slot:title>
-            {{
-              __(
-                'My Title',
-              )
-            }}
+            {{ __('My Title') }}
             <x-slot:title>
-              {{
-                __(
-                  'My Title',
-                )
-              }}
+              {{ __('My Title') }}
             </x-slot:title>
           </x-slot:title>
 
           <x-slot:title>
-            {{
-              __(
-                'My Title',
-              )
-            }}
+            {{ __('My Title') }}
             <x-slot name="title">
               <p>Howdy, sir.</p>
             </x-slot>
 
             <x-slot:title>
-              {{
-                __(
-                  'My Title',
-                )
-              }}
+              {{ __('My Title') }}
               <x-slot:title>
-                {{
-                  __(
-                    'My Title',
-                  )
-                }}
+                {{ __('My Title') }}
               </x-slot:title>
 
               <x-slot name="title">
@@ -402,80 +347,44 @@ exports[`validation/conformance/formatter-cases > formats component_tags__025 1`
               </x-slot>
 
               <x-slot:title-two>
-                {{
-                  __(
-                    'My Title',
-                  )
-                }}
+                {{ __('My Title') }}
                 <x-slot:title-three>
-                  {{
-                    __(
-                      'My Title',
-                    )
-                  }}
+                  {{ __('My Title') }}
                 </x-slot:title-three>
                 <x-slot name="title">
                   <p>Howdy, sir.</p>
                 </x-slot>
 
                 <x-slot:title>
-                  {{
-                    __(
-                      'My Title',
-                    )
-                  }}
+                  {{ __('My Title') }}
                   <x-slot:title>
-                    {{
-                      __(
-                        'My Title',
-                      )
-                    }}
+                    {{ __('My Title') }}
                   </x-slot:title>
                 </x-slot:title>
 
                 <x-slot:title>
-                  {{
-                    __(
-                      'My Title',
-                    )
-                  }}
+                  {{ __('My Title') }}
                 </x-slot:title>
               </x-slot:title-two>
 
               <x-slot:title-four>
-                {{
-                  __(
-                    'My Title',
-                  )
-                }}
+                {{ __('My Title') }}
               </x-slot:title-four>
             </x-slot:title>
 
             <x-slot:title>
-              {{
-                __(
-                  'My Title',
-                )
-              }}
+              {{ __('My Title') }}
             </x-slot:title>
           </x-slot:title>
         </x-slot:title-two>
 
         <x-slot:title-four>
-          {{
-            __(
-              'My Title',
-            )
-          }}
+          {{ __('My Title') }}
         </x-slot:title-four>
       </x-slot:title>
 
       <x-slot:title>
-        {{
-          __(
-            'My Title',
-          )
-        }}
+        {{ __('My Title') }}
       </x-slot:title>
     </x-slot:title-three>
     <x-slot name="title">
@@ -483,44 +392,24 @@ exports[`validation/conformance/formatter-cases > formats component_tags__025 1`
     </x-slot>
 
     <x-slot:title>
-      {{
-        __(
-          'My Title',
-        )
-      }}
+      {{ __('My Title') }}
       <x-slot:title>
-        {{
-          __(
-            'My Title',
-          )
-        }}
+        {{ __('My Title') }}
       </x-slot:title>
     </x-slot:title>
 
     <x-slot:title>
-      {{
-        __(
-          'My Title',
-        )
-      }}
+      {{ __('My Title') }}
     </x-slot:title>
   </x-slot:title-two>
 
   <x-slot:title-four>
-    {{
-      __(
-        'My Title',
-      )
-    }}
+    {{ __('My Title') }}
   </x-slot:title-four>
 </x-slot:title>
 
 <x-slot:title>
-  {{
-    __(
-      'My Title',
-    )
-  }}
+  {{ __('My Title') }}
 </x-slot:title>
 "
 `;
@@ -1422,12 +1311,10 @@ exports[`validation/conformance/formatter-cases > formats echos__008 1`] = `
   href="#"
   target="_blank"
   {{
-    $attributes->merge(
-      [
-        'class' =>
-          'rounded transition focus-visible:outline-none focus-visible:ring focus-visible:ring-red-600',
-      ],
-    )
+    $attributes->merge([
+      'class' =>
+        'rounded transition focus-visible:outline-none focus-visible:ring focus-visible:ring-red-600',
+    ])
   }}
 >
   Some link
@@ -1444,11 +1331,9 @@ exports[`validation/conformance/formatter-cases > formats echos__009 1`] = `
 
 exports[`validation/conformance/formatter-cases > formats echos__010 1`] = `
 "{{
-  $attributes->class(
-    [
-      'text-gray-900 border-gray-300 invalid:text-gray-400 block w-full h-9 py-1 transition duration-75 rounded-lg shadow-sm outline-none focus:border-primary-500 focus:ring-1 focus:ring-inset focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:border-primary-500',
-    ],
-  )
+  $attributes->class([
+    'text-gray-900 border-gray-300 invalid:text-gray-400 block w-full h-9 py-1 transition duration-75 rounded-lg shadow-sm outline-none focus:border-primary-500 focus:ring-1 focus:ring-inset focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:border-primary-500',
+  ])
 }}
 "
 `;
@@ -1493,15 +1378,13 @@ exports[`validation/conformance/formatter-cases > formats echos__013 1`] = `
 exports[`validation/conformance/formatter-cases > formats echos__014 1`] = `
 "<div
   {{
-    $attributes->class(
-      [
-        'some classes',
-        match ($someCondition) {
-          true => 'more classes foo bar baz',
-          default => 'even more classes foo bar baz',
-        },
-      ],
-    )
+    $attributes->class([
+      'some classes',
+      match ($someCondition) {
+        true => 'more classes foo bar baz',
+        default => 'even more classes foo bar baz',
+      },
+    ])
   }}
 ></div>
 "
@@ -1510,15 +1393,13 @@ exports[`validation/conformance/formatter-cases > formats echos__014 1`] = `
 exports[`validation/conformance/formatter-cases > formats echos__015 1`] = `
 "<div
   {{
-    $attributes->class(
-      [
-        'some classes',
-        match ($someCondition) {
-          true => 'more classes foo bar baz',
-          default => 'even more classes foo bar baz',
-        },
-      ],
-    )
+    $attributes->class([
+      'some classes',
+      match ($someCondition) {
+        true => 'more classes foo bar baz',
+        default => 'even more classes foo bar baz',
+      },
+    ])
   }}
 ></div>
 "
@@ -1527,15 +1408,13 @@ exports[`validation/conformance/formatter-cases > formats echos__015 1`] = `
 exports[`validation/conformance/formatter-cases > formats echos__016 1`] = `
 "<div
   {{
-    $attributes->class(
-      [
-        'some classes',
-        match ($someCondition) {
-          true => 'more classes foo bar baz',
-          default => 'even more classes foo bar baz',
-        },
-      ],
-    )
+    $attributes->class([
+      'some classes',
+      match ($someCondition) {
+        true => 'more classes foo bar baz',
+        default => 'even more classes foo bar baz',
+      },
+    ])
   }}
   more
   attributes
@@ -1548,15 +1427,13 @@ exports[`validation/conformance/formatter-cases > formats echos__016 1`] = `
 exports[`validation/conformance/formatter-cases > formats echos__017 1`] = `
 "<div
   {{
-    $attributes->class(
-      [
-        'some classes',
-        match ($someCondition) {
-          true => 'more classes foo bar baz',
-          default => 'even more classes foo bar baz',
-        },
-      ],
-    )
+    $attributes->class([
+      'some classes',
+      match ($someCondition) {
+        true => 'more classes foo bar baz',
+        default => 'even more classes foo bar baz',
+      },
+    ])
   }}
   more
   attributes
@@ -1604,12 +1481,10 @@ exports[`validation/conformance/formatter-cases > formats echos__021 1`] = `
 </div>
 <div
   {{
-    $attributes->class(
-      [
-        'foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo oo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo f',
-        'bar',
-      ],
-    )
+    $attributes->class([
+      'foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo oo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo f',
+      'bar',
+    ])
   }}
 ></div>
 "
@@ -1627,12 +1502,10 @@ exports[`validation/conformance/formatter-cases > formats echos__022 1`] = `
 </div>
 <div
   {{
-    $attributes->class(
-      [
-        'foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo oo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo f',
-        'bar',
-      ],
-    )
+    $attributes->class([
+      'foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo oo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo f',
+      'bar',
+    ])
   }}
 ></div>
 "
@@ -1660,38 +1533,38 @@ exports[`validation/conformance/formatter-cases > formats echos__023 1`] = `
 
 exports[`validation/conformance/formatter-cases > formats echos__024 1`] = `
 "{{
-    $attributes
-// @something here
-->class(['something']);
+  $attributes
+    // @something here
+    ->class(['something'])
 }}
 "
 `;
 
 exports[`validation/conformance/formatter-cases > formats echos__025 1`] = `
 "{{
-    $attributes
-/* @something here */
-->class(['something']);
+  $attributes
+    /* @something here */
+    ->class(['something'])
 }}
 "
 `;
 
 exports[`validation/conformance/formatter-cases > formats echos__026 1`] = `
 "{{{
-    $attributes
-// @something
-/* @something here */
-->class(['something']);
+  $attributes
+    // @something
+    /* @something here */
+    ->class(['something'])
 }}}
 "
 `;
 
 exports[`validation/conformance/formatter-cases > formats echos__027 1`] = `
 "{!!
-    $attributes
-// @something
-/* @something here */
-->class(['something']);
+  $attributes
+    // @something
+    /* @something here */
+    ->class(['something'])
 !!}
 "
 `;
@@ -2060,9 +1933,9 @@ exports[`validation/conformance/formatter-cases > formats if_statements__019 1`]
         </span>
         <span class="text-base font-semibold text-gray-900">
           {{
-            $data[
-              'nextInspection'
-            ]->format('d.m.Y')
+            $data['nextInspection']->format(
+              'd.m.Y',
+            )
           }}
         </span>
       @endif
@@ -3364,17 +3237,17 @@ exports[`validation/conformance/formatter-cases > formats switch__010 1`] = `
 `;
 
 exports[`validation/conformance/formatter-cases > formats syntax_reflow__001 1`] = `
-"{{ (fn() => 'foo') }}
+"{{ fn() => 'foo' }}
 "
 `;
 
 exports[`validation/conformance/formatter-cases > formats syntax_reflow__002 1`] = `
-"{{ (fn() => 'foo') }}
+"{{ fn() => 'foo' }}
 "
 `;
 
 exports[`validation/conformance/formatter-cases > formats syntax_reflow__003 1`] = `
-"{{ (fn() => 'foo') }}
+"{{ fn() => 'foo' }}
 "
 `;
 

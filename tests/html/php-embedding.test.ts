@@ -99,7 +99,13 @@ describe("html/php-embedding", () => {
 
   it("compensates inline echo wrapper width inside html text contexts", async () => {
     const input = "<title>{{ $title ?? 'Formatter Playground - Forte' }}</title>\n";
-    const expected = '<title>{{ $title ?? "Formatter Playground - Forte" }}</title>\n';
+    const expected = `<title>
+  {{
+    $title ??
+      "Formatter Playground - Forte"
+  }}
+</title>
+`;
 
     await formatEqual(input, expected, {
       ...withPhp,

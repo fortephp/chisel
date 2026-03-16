@@ -47,12 +47,10 @@ exports[`validation/conformance/format-cases > formats inline_echo_block__008 1`
   href="#"
   target="_blank"
   {{
-    $attributes->merge(
-      [
-        'class' =>
-          'rounded transition focus-visible:outline-none focus-visible:ring focus-visible:ring-red-600',
-      ],
-    )
+    $attributes->merge([
+      'class' =>
+        'rounded transition focus-visible:outline-none focus-visible:ring focus-visible:ring-red-600',
+    ])
   }}
 >
   Some link
@@ -69,11 +67,9 @@ exports[`validation/conformance/format-cases > formats inline_echo_block__009 1`
 
 exports[`validation/conformance/format-cases > formats inline_echo_block__010 1`] = `
 "{{
-  $attributes->class(
-    [
-      'text-gray-900 border-gray-300 invalid:text-gray-400 block w-full h-9 py-1 transition duration-75 rounded-lg shadow-sm outline-none focus:border-primary-500 focus:ring-1 focus:ring-inset focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:border-primary-500',
-    ],
-  )
+  $attributes->class([
+    'text-gray-900 border-gray-300 invalid:text-gray-400 block w-full h-9 py-1 transition duration-75 rounded-lg shadow-sm outline-none focus:border-primary-500 focus:ring-1 focus:ring-inset focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:border-primary-500',
+  ])
 }}
 "
 `;
@@ -118,15 +114,13 @@ exports[`validation/conformance/format-cases > formats inline_echo_block__013 1`
 exports[`validation/conformance/format-cases > formats inline_echo_block__014 1`] = `
 "<div
   {{
-    $attributes->class(
-      [
-        'some classes',
-        match ($someCondition) {
-          true => 'more classes foo bar baz',
-          default => 'even more classes foo bar baz',
-        },
-      ],
-    )
+    $attributes->class([
+      'some classes',
+      match ($someCondition) {
+        true => 'more classes foo bar baz',
+        default => 'even more classes foo bar baz',
+      },
+    ])
   }}
 ></div>
 "
@@ -135,15 +129,13 @@ exports[`validation/conformance/format-cases > formats inline_echo_block__014 1`
 exports[`validation/conformance/format-cases > formats inline_echo_block__015 1`] = `
 "<div
   {{
-    $attributes->class(
-      [
-        'some classes',
-        match ($someCondition) {
-          true => 'more classes foo bar baz',
-          default => 'even more classes foo bar baz',
-        },
-      ],
-    )
+    $attributes->class([
+      'some classes',
+      match ($someCondition) {
+        true => 'more classes foo bar baz',
+        default => 'even more classes foo bar baz',
+      },
+    ])
   }}
 ></div>
 "
@@ -152,15 +144,13 @@ exports[`validation/conformance/format-cases > formats inline_echo_block__015 1`
 exports[`validation/conformance/format-cases > formats inline_echo_block__016 1`] = `
 "<div
   {{
-    $attributes->class(
-      [
-        'some classes',
-        match ($someCondition) {
-          true => 'more classes foo bar baz',
-          default => 'even more classes foo bar baz',
-        },
-      ],
-    )
+    $attributes->class([
+      'some classes',
+      match ($someCondition) {
+        true => 'more classes foo bar baz',
+        default => 'even more classes foo bar baz',
+      },
+    ])
   }}
   more
   attributes
@@ -173,15 +163,13 @@ exports[`validation/conformance/format-cases > formats inline_echo_block__016 1`
 exports[`validation/conformance/format-cases > formats inline_echo_block__017 1`] = `
 "<div
   {{
-    $attributes->class(
-      [
-        'some classes',
-        match ($someCondition) {
-          true => 'more classes foo bar baz',
-          default => 'even more classes foo bar baz',
-        },
-      ],
-    )
+    $attributes->class([
+      'some classes',
+      match ($someCondition) {
+        true => 'more classes foo bar baz',
+        default => 'even more classes foo bar baz',
+      },
+    ])
   }}
   more
   attributes
