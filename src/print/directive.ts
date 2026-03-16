@@ -633,9 +633,7 @@ function getAttributeContextElement(node: WrappedNode): WrappedNode | null {
     return null;
   }
 
-  return (
-    current.end <= parent.openTagEndOffset ? parent : null
-  );
+  return current.end <= parent.openTagEndOffset ? parent : null;
 }
 
 function getSourceBetween(prev: WrappedNode, next: WrappedNode): string {
