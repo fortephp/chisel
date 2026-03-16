@@ -8,6 +8,7 @@ import {
   getBladeBlankLinesMode,
   getDirectiveArgSpacingMode,
   getDirectiveBlockStyle,
+  isBladeComponentTagName,
 } from "./blade-options.js";
 import { trimTrailingHorizontalWhitespace } from "../string-utils.js";
 import { isEchoLike, isTextLikeNode } from "../node-predicates.js";
@@ -78,7 +79,7 @@ function printIgnoredDirectiveBodyChild(
     ),
   );
 
-  if (child.kind === NodeKind.Text) {
+  if (child.kind === NodeKind.Text && ignoreMode === "single") {
     preservedText = htmlTrimStart(preservedText);
   }
 
@@ -99,7 +100,7 @@ function renderDirectiveTokens(node: WrappedNode, options: Options): string {
   const br = node.buildResult;
   const tc = node.flat.tokenCount;
   let result = "";
-  const argSpacingMode = getDirectiveArgSpacingMode(options);
+  const argSpacingMode = getEffectiveDirectiveArgSpacingMode(node, options);
   const start = node.flat.tokenStart;
   let sawDirectiveToken = false;
   let sawArgsToken = false;
@@ -162,6 +163,17 @@ function renderDirectiveTokens(node: WrappedNode, options: Options): string {
   }
 
   return result;
+}
+
+function getEffectiveDirectiveArgSpacingMode(
+  node: WrappedNode,
+  options: Options,
+): ReturnType<typeof getDirectiveArgSpacingMode> {
+  if (isDirectiveInBladeComponentAttributeContext(node, options)) {
+    return "none";
+  }
+
+  return getDirectiveArgSpacingMode(options);
 }
 
 function hasUnterminatedDirectiveArgsAtEof(node: WrappedNode): boolean {
@@ -598,9 +610,32 @@ function isInlineDirectiveBlock(node: WrappedNode): boolean {
 }
 
 function isDirectiveInElementOpenTag(directive: WrappedNode): boolean {
-  const parent = directive.parent;
-  if (!parent || parent.kind !== NodeKind.Element) return false;
-  return directive.end <= parent.openTagEndOffset;
+  return getAttributeContextElement(directive) !== null;
+}
+
+function isDirectiveInBladeComponentAttributeContext(node: WrappedNode, options: Options): boolean {
+  const element = getAttributeContextElement(node);
+  if (!element) {
+    return false;
+  }
+
+  return isBladeComponentTagName(element.fullName, options);
+}
+
+function getAttributeContextElement(node: WrappedNode): WrappedNode | null {
+  let current = node;
+  while (current.parent?.kind === NodeKind.DirectiveBlock) {
+    current = current.parent;
+  }
+
+  const parent = current.parent;
+  if (!parent || parent.kind !== NodeKind.Element) {
+    return null;
+  }
+
+  return (
+    current.end <= parent.openTagEndOffset ? parent : null
+  );
 }
 
 function getSourceBetween(prev: WrappedNode, next: WrappedNode): string {
@@ -643,18 +678,24 @@ function printBetweenLine(prev: WrappedNode, next: WrappedNode): Doc {
   }
 
   const sourceBetween = getSourceBetween(prev, next);
+  const prevIgnoreMode = getPrettierIgnoreMode(prev);
+  const nextIgnoreMode = getPrettierIgnoreMode(next);
   const hasLineBreakBetweenNodes = /[\r\n]/.test(sourceBetween) || next.startLine > prev.endLine;
+
+  if (prevIgnoreMode === "range" && nextIgnoreMode === "range") {
+    return sourceBetween;
+  }
 
   if (
     getIgnoreCommentKind(prev) === "ignore-start" &&
-    getPrettierIgnoreMode(next) === "range" &&
+    nextIgnoreMode === "range" &&
     !hasLineBreakBetweenNodes
   ) {
     return sourceBetween;
   }
 
   if (
-    getPrettierIgnoreMode(prev) === "range" &&
+    prevIgnoreMode === "range" &&
     getIgnoreCommentKind(next) === "ignore-end" &&
     !hasLineBreakBetweenNodes
   ) {

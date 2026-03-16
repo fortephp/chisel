@@ -93,12 +93,12 @@ exports[`validation/conformance/formatter-cases > formats can__001 1`] = `
 `;
 
 exports[`validation/conformance/formatter-cases > formats component_tags__001 1`] = `
-"<x-icon @class ([$icon, 'pe-2']) />
+"<x-icon @class([$icon, 'pe-2']) />
 "
 `;
 
 exports[`validation/conformance/formatter-cases > formats component_tags__002 1`] = `
-"<x-icon @class ([$icon, 'pe-2'])>
+"<x-icon @class([$icon, 'pe-2'])>
   <div>
     <p>test</p>
   </div>
@@ -215,18 +215,18 @@ exports[`validation/conformance/formatter-cases > formats component_tags__016 1`
   param="{{ $title }}"
   {{ $title }}
   @directiveName
-  @directiveWithParams ('test')
+  @directiveWithParams('test')
 />
 "
 `;
 
 exports[`validation/conformance/formatter-cases > formats component_tags__017 1`] = `
-"<x-alert @param ($value + $anotherValue) />
+"<x-alert @param($value + $anotherValue) />
 "
 `;
 
 exports[`validation/conformance/formatter-cases > formats component_tags__018 1`] = `
-"<x-alert @param ($value   $= + $anotherValue) />
+"<x-alert @param($value   $= + $anotherValue) />
 "
 `;
 
@@ -964,7 +964,7 @@ exports[`validation/conformance/formatter-cases > formats directives__016 1`] = 
 `;
 
 exports[`validation/conformance/formatter-cases > formats directives__017 1`] = `
-"<x-foo @class (['foo', 'foo bar baz something long very very long']) />
+"<x-foo @class(['foo', 'foo bar baz something long very very long']) />
 "
 `;
 
@@ -1969,6 +1969,7 @@ exports[`validation/conformance/formatter-cases > formats ignore__001 1`] = `
             </x:slot:name>
 
 <p>{{ $one }}: {{ $two }}</p>
+
 <p>
 {{ $one  }}:
 {{ $two }}
@@ -2014,6 +2015,7 @@ exports[`validation/conformance/formatter-cases > formats ignore__001 1`] = `
             @endunless
 
 @directive   ($test  + $that-$another   + $thing)
+
 @unless($true) 
                 Hello @endunless
 
@@ -2044,7 +2046,7 @@ exports[`validation/conformance/formatter-cases > formats ignore__001 1`] = `
 @forelse ($users as $user)
                                                                     <li>{{ $user->name }}</li>
                                                                 @endforelse
-<?php
+                                                                <?php
 
                                                                 $kernel = $app->                make(Illuminate\\Contracts\\Console\\Kernel::class);
                                                                 
@@ -2149,6 +2151,7 @@ exports[`validation/conformance/formatter-cases > formats ignore__002 1`] = `
             </x:slot:name>
 
 <p>{{ $one }}: {{ $two }}</p>
+
 <p>
 {{ $one  }}:
 {{ $two }}
@@ -2194,6 +2197,7 @@ exports[`validation/conformance/formatter-cases > formats ignore__002 1`] = `
             @endunless
 
 @directive   ($test  + $that-$another   + $thing)
+
 @unless($true) 
                 Hello @endunless
 
@@ -2224,7 +2228,7 @@ exports[`validation/conformance/formatter-cases > formats ignore__002 1`] = `
 @forelse ($users as $user)
                                                                     <li>{{ $user->name }}</li>
                                                                 @endforelse
-<?php
+                                                                <?php
 
                                                                 $kernel = $app->                make(Illuminate\\Contracts\\Console\\Kernel::class);
                                                                 
@@ -2765,7 +2769,7 @@ exports[`validation/conformance/formatter-cases > formats props_directive__002 1
 @props (['icon'],)
 
 <div>
-  <x-icon @class ([$icon, 'pe-2']) />
+  <x-icon @class([$icon, 'pe-2']) />
   {{ $slot }}
 </div>
 "

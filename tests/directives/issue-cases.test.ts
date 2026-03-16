@@ -230,7 +230,19 @@ describe("directives/issue-cases", () => {
       "</x-dashboard-card>",
       "",
     ].join("\n");
-    await formatEqual(input, input);
+    const expected = [
+      "<x-dashboard-card",
+      '  cursor="cursor-pointer"',
+      "  @class([",
+      "    '!h-[23rem] !min-h-[23rem]' => true,",
+      "    '!mb-8' => $balance_count > 0,",
+      "  ])",
+      ">",
+      "  <p>content</p>",
+      "</x-dashboard-card>",
+      "",
+    ].join("\n");
+    await formatEqual(input, expected);
   });
 
   // Issue #115: useTabs with multiline directive attributes

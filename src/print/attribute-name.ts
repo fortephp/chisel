@@ -1,5 +1,6 @@
 import type { Options } from "prettier";
 import type { WrappedNode } from "../types.js";
+import { NodeKind } from "../tree/types.js";
 import {
   getAttributeNameParts,
   getAttributeNameRaw,
@@ -10,6 +11,7 @@ import {
   formatDirectiveNameToken,
   getDirectiveArgSpacingMode,
   getEchoSpacingMode,
+  isBladeComponentTagName,
 } from "./blade-options.js";
 
 function getEchoDelimiters(part: AttributeNamePart): { open: string; close: string } | null {
@@ -55,7 +57,13 @@ function formatEchoPart(part: AttributeNamePart, options: Options): string {
   return `${open} ${trimmed} ${close}`;
 }
 
-function formatDirectivePart(part: AttributeNamePart, options: Options): string {
+function isComponentAttributeName(node: WrappedNode, options: Options): boolean {
+  return (
+    node.parent?.kind === NodeKind.Element && isBladeComponentTagName(node.parent.fullName, options)
+  );
+}
+
+function formatDirectivePart(part: AttributeNamePart, node: WrappedNode, options: Options): string {
   if (!part.text.startsWith("@")) return part.text;
 
   const argsStart = part.text.indexOf("(");
@@ -68,7 +76,9 @@ function formatDirectivePart(part: AttributeNamePart, options: Options): string 
   const spacing = beforeArgs.slice(trimmedName.length);
   const args = part.text.slice(argsStart);
   const formattedName = formatDirectiveNameToken(trimmedName, options);
-  const spacingMode = getDirectiveArgSpacingMode(options);
+  const spacingMode = isComponentAttributeName(node, options)
+    ? "none"
+    : getDirectiveArgSpacingMode(options);
 
   if (spacingMode === "preserve") {
     return `${formattedName}${spacing}${args}`;
@@ -82,14 +92,18 @@ function formatDirectivePart(part: AttributeNamePart, options: Options): string 
   return `${formattedName} ${normalizedArgs}`;
 }
 
-function formatAttributeNamePart(part: AttributeNamePart, options: Options): string {
+function formatAttributeNamePart(
+  part: AttributeNamePart,
+  node: WrappedNode,
+  options: Options,
+): string {
   switch (part.kind) {
     case "echo":
     case "raw_echo":
     case "triple_echo":
       return formatEchoPart(part, options);
     case "directive":
-      return formatDirectivePart(part, options);
+      return formatDirectivePart(part, node, options);
     case "php_tag":
     case "php_block":
     case "text":
@@ -108,5 +122,5 @@ export function formatAttributeNameForPrint(node: WrappedNode, options: Options)
     return getAttributeNameRaw(node);
   }
 
-  return parts.map((part) => formatAttributeNamePart(part, options)).join("");
+  return parts.map((part) => formatAttributeNamePart(part, node, options)).join("");
 }

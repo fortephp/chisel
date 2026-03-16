@@ -16,7 +16,11 @@ import {
 import { resolveBladeSyntaxPlugins } from "../../plugins/runtime.js";
 import { NodeKind } from "../../tree/types.js";
 import { fullText } from "../utils.js";
-import { getDirectiveArgSpacingMode, getEchoSpacingMode } from "../blade-options.js";
+import {
+  getDirectiveArgSpacingMode,
+  getEchoSpacingMode,
+  isBladeComponentTagName,
+} from "../blade-options.js";
 import { resolvePhpPlugins } from "./php-plugin.js";
 
 type PhpFormattingMode = "off" | "safe" | "aggressive";
@@ -648,7 +652,7 @@ function rebuildDirectiveWithFormattedArgs(
   const start = node.flat.tokenStart;
   const end = start + node.flat.tokenCount;
   const tokens = node.buildResult.tokens;
-  const argSpacingMode = getDirectiveArgSpacingMode(options);
+  const argSpacingMode = getEffectiveDirectiveArgSpacingMode(node, options);
   let result = "";
   let sawDirectiveToken = false;
   let sawArgsToken = false;
@@ -696,6 +700,47 @@ function rebuildDirectiveWithFormattedArgs(
   }
 
   return sawDirectiveToken ? result : "";
+}
+
+function getEffectiveDirectiveArgSpacingMode(
+  node: WrappedNode,
+  options: Options,
+): ReturnType<typeof getDirectiveArgSpacingMode> {
+  if (!isDirectiveComponentAttribute(node, options)) {
+    return getDirectiveArgSpacingMode(options);
+  }
+
+  return "none";
+}
+
+function isDirectiveComponentAttribute(node: WrappedNode, options: Options): boolean {
+  if (node.kind !== NodeKind.Directive) {
+    return false;
+  }
+
+  const parent = getAttributeContextElement(node);
+  if (!parent) {
+    return false;
+  }
+
+  if (!isBladeComponentTagName(parent.fullName, options)) {
+    return false;
+  }
+  return true;
+}
+
+function getAttributeContextElement(node: WrappedNode): WrappedNode | null {
+  let current = node;
+  while (current.parent?.kind === NodeKind.DirectiveBlock) {
+    current = current.parent;
+  }
+
+  const parent = current.parent;
+  if (!parent || parent.kind !== NodeKind.Element) {
+    return null;
+  }
+
+  return current.end <= parent.openTagEndOffset ? parent : null;
 }
 
 function getEchoDelimiters(node: WrappedNode): {

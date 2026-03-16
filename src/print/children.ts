@@ -47,19 +47,22 @@ function getSourceBetween(prev: WrappedNode, next: WrappedNode): string {
 
 function shouldKeepInlineIgnoreBoundary(prev: WrappedNode, next: WrappedNode): boolean {
   const sourceBetween = getSourceBetween(prev, next);
+  const prevIgnoreMode = getPrettierIgnoreMode(prev);
+  const nextIgnoreMode = getPrettierIgnoreMode(next);
+
+  if (prevIgnoreMode === "range" && nextIgnoreMode === "range") {
+    return true;
+  }
+
   if (/[\r\n]/u.test(sourceBetween)) {
     return false;
   }
 
-  if (getIgnoreCommentKind(prev) === "ignore-start" && getPrettierIgnoreMode(next) === "range") {
+  if (getIgnoreCommentKind(prev) === "ignore-start" && nextIgnoreMode === "range") {
     return true;
   }
 
-  return (
-    getPrettierIgnoreMode(prev) === "range" &&
-    getIgnoreCommentKind(next) === "ignore-end" &&
-    !/[\r\n]/u.test(sourceBetween)
-  );
+  return prevIgnoreMode === "range" && getIgnoreCommentKind(next) === "ignore-end";
 }
 
 /**
@@ -92,7 +95,7 @@ function printChild(
     // Our text node boundaries include leading indentation that Prettier's
     // parser doesn't attach to ignored text nodes. Remove it to avoid
     // double-indenting when surrounding docs already provide spacing.
-    if (child.kind === NodeKind.Text) {
+    if (child.kind === NodeKind.Text && ignoreMode === "single") {
       preservedText = htmlTrimStart(preservedText);
     }
 
