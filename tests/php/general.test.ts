@@ -38,7 +38,7 @@ describe("php/general", () => {
 `;
     const expected = `@class ([
   "filament antialiased min-h-screen js-focus-visible",
-  "dark" => filament()->hasDarkModeForced(),
+  "dark" => filament()->hasDarkModeForced()
 ])
 `;
 

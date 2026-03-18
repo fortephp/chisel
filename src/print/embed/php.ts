@@ -35,6 +35,7 @@ const DIRECTIVE_END_MARKER_COMMENT = "/*__BDE__*/";
 const phpFormatCache = new Map<string, string | null>();
 const BROWSER_DEFAULT_PHP_VERSION = "8.4";
 const PHP_INLINE_WRAPPER_PRINT_WIDTH_MARGIN = 8;
+const FORCED_DIRECTIVE_ARG_TRAILING_COMMA = false;
 
 function getMode(options: Options): PhpFormattingMode {
   const rawOptions = options as Record<string, unknown>;
@@ -439,7 +440,12 @@ function shouldPreferInlineDirectiveArgs(
   return preview.length <= printWidth;
 }
 
-function getPhpFormatCacheKey(snippet: string, mode: PhpFormattingMode, options: Options): string {
+function getPhpFormatCacheKey(
+  snippet: string,
+  mode: PhpFormattingMode,
+  options: Options,
+  trailingCommaPHPOverride?: boolean,
+): string {
   const opts = options as Record<string, unknown>;
   const optionsKey = safeSerialize({
     mode,
@@ -454,7 +460,8 @@ function getPhpFormatCacheKey(snippet: string, mode: PhpFormattingMode, options:
     quoteProps: opts.quoteProps,
     endOfLine: opts.endOfLine,
     phpVersion: opts.phpVersion,
-    trailingCommaPHP: opts.trailingCommaPHP,
+    trailingCommaPHP:
+      trailingCommaPHPOverride === undefined ? opts.trailingCommaPHP : trailingCommaPHPOverride,
     braceStyle: opts.braceStyle,
   });
 
@@ -468,7 +475,11 @@ function setCachedPhpFormatResult(key: string, value: string | null): void {
   phpFormatCache.set(key, value);
 }
 
-function createPhpFormatOptions(options: Options, plugins: unknown[]): Options {
+function createPhpFormatOptions(
+  options: Options,
+  plugins: unknown[],
+  trailingCommaPHPOverride?: boolean,
+): Options {
   const baseOptions = {
     ...(options as Record<string, unknown>),
   };
@@ -495,6 +506,10 @@ function createPhpFormatOptions(options: Options, plugins: unknown[]): Options {
     baseOptions.phpVersion = BROWSER_DEFAULT_PHP_VERSION;
   }
 
+  if (trailingCommaPHPOverride !== undefined) {
+    baseOptions.trailingCommaPHP = trailingCommaPHPOverride;
+  }
+
   return {
     ...baseOptions,
     parser: "php",
@@ -506,17 +521,21 @@ async function formatPhpSnippet(
   snippet: string,
   options: Options,
   mode: PhpFormattingMode,
+  trailingCommaPHPOverride?: boolean,
 ): Promise<string | null> {
   const plugins = await resolvePhpPlugins(options);
   if (!plugins) return null;
 
-  const cacheKey = getPhpFormatCacheKey(snippet, mode, options);
+  const cacheKey = getPhpFormatCacheKey(snippet, mode, options, trailingCommaPHPOverride);
   if (phpFormatCache.has(cacheKey)) {
     return phpFormatCache.get(cacheKey) ?? null;
   }
 
   try {
-    const formatted = await prettierFormat(snippet, createPhpFormatOptions(options, plugins));
+    const formatted = await prettierFormat(
+      snippet,
+      createPhpFormatOptions(options, plugins, trailingCommaPHPOverride),
+    );
     const normalized = normalizeLineEndingsToLf(trimFinalLineBreak(formatted));
     setCachedPhpFormatResult(cacheKey, normalized);
     return normalized;
@@ -857,7 +876,12 @@ export async function formatDirectiveNodeArgs(
 
   for (const attempt of formatAttempts) {
     const wrapped = attempt.wrapped;
-    const formatted = await formatPhpSnippet(wrapped, options, activeMode);
+    const formatted = await formatPhpSnippet(
+      wrapped,
+      options,
+      activeMode,
+      FORCED_DIRECTIVE_ARG_TRAILING_COMMA,
+    );
     if (!formatted) continue;
 
     const extracted = getTextBetweenMarkers(

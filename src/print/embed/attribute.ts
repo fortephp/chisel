@@ -22,10 +22,7 @@ import { sortClassNamesWithTailwind } from "./tailwind.js";
 import { resolveEmbeddedParserPlugins } from "./embedded-parser-plugins.js";
 import { resolvePhpPlugins } from "./php-plugin.js";
 import { isPhpFormattingEnabled } from "./php.js";
-import {
-  isBladeComponentTagName,
-  shouldPreserveInlineIntentAttributes,
-} from "../blade-options.js";
+import { isBladeComponentTagName, shouldPreserveInlineIntentAttributes } from "../blade-options.js";
 
 const { group, join, line, ifBreak } = doc.builders;
 

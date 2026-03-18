@@ -103,7 +103,7 @@ describe("plugins/sage formatting", () => {
       "@query ([",
       "  'post_type' => 'page',",
       "  'posts_per_page' => 1,",
-      "  'ignore_sticky_posts' => true,",
+      "  'ignore_sticky_posts' => true",
       "])",
       "",
     ].join("\n");

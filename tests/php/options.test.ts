@@ -74,11 +74,12 @@ describe("php/options", () => {
     });
   });
 
-  it("passes trailingCommaPHP to php formatting", async () => {
-    const input = "@php\n$y=['a'=>1,'b'=>2,'long_key'=>3];\n@endphp\n";
+  it("passes trailingCommaPHP to php block and php tag formatting", async () => {
+    const blockInput = "@php\n$y=['a'=>1,'b'=>2,'long_key'=>3];\n@endphp\n";
+    const tagInput = "<?php $y=['a'=>1,'b'=>2,'long_key'=>3]; ?>\n";
 
     await formatEqual(
-      input,
+      blockInput,
       '@php\n  $y = [\n    "a" => 1,\n    "b" => 2,\n    "long_key" => 3,\n  ];\n@endphp\n',
       {
         ...withPhp,
@@ -88,7 +89,7 @@ describe("php/options", () => {
     );
 
     await formatEqual(
-      input,
+      blockInput,
       '@php\n  $y = [\n    "a" => 1,\n    "b" => 2,\n    "long_key" => 3\n  ];\n@endphp\n',
       {
         ...withPhp,
@@ -96,6 +97,53 @@ describe("php/options", () => {
         trailingCommaPHP: false,
       },
     );
+
+    await formatEqual(
+      tagInput,
+      '<?php $y = [\n  "a" => 1,\n  "b" => 2,\n  "long_key" => 3,\n]; ?>\n',
+      {
+        ...withPhp,
+        printWidth: 30,
+        trailingCommaPHP: true,
+      },
+    );
+
+    await formatEqual(
+      tagInput,
+      '<?php $y = [\n  "a" => 1,\n  "b" => 2,\n  "long_key" => 3\n]; ?>\n',
+      {
+        ...withPhp,
+        printWidth: 30,
+        trailingCommaPHP: false,
+      },
+    );
+  });
+
+  it("does not introduce trailing commas in directive args", async () => {
+    const input =
+      "@image ($item, 'large', ['class' => 'media size-full rounded-3xl object-cover object-center'])\n";
+
+    await formatEqual(
+      input,
+      "@image ($item, 'large', ['class' => 'media size-full rounded-3xl object-cover object-center'])\n",
+      {
+        ...withPhp,
+        printWidth: 120,
+        singleQuote: true,
+        trailingCommaPHP: true,
+      },
+    );
+
+    const multiline = await format(input, {
+      ...withPhp,
+      printWidth: 40,
+      singleQuote: true,
+      trailingCommaPHP: true,
+    });
+
+    expect(multiline).toContain("@image ($item,\n  'large',\n  [\n");
+    expect(multiline).not.toContain("object-center',\n  ])");
+    expect(multiline).toContain("object-center'\n  ])");
   });
 
   it("passes useTabs to php formatting indentation", async () => {
