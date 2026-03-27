@@ -46,6 +46,14 @@ describe("php/options", () => {
     });
   });
 
+  it("applies bladeDirectiveArgSpacingOverrides for @php directive args", async () => {
+    await formatEqual("@php($a+$b)\n", "@php  ($a + $b)\n", {
+      ...withPhp,
+      bladeDirectiveArgSpacing: "none",
+      bladeDirectiveArgSpacingOverrides: ["php=2"],
+    });
+  });
+
   it("passes singleQuote to php formatting", async () => {
     const input = '@blaze("alpha"."beta")\n';
 
@@ -121,13 +129,14 @@ describe("php/options", () => {
 
   it("does not introduce trailing commas in directive args", async () => {
     const input =
-      "@image ($item, 'large', ['class' => 'media size-full rounded-3xl object-cover object-center'])\n";
+      "@image($item, 'large', ['class' => 'media size-full rounded-3xl object-cover object-center'])\n";
 
     await formatEqual(
       input,
       "@image ($item, 'large', ['class' => 'media size-full rounded-3xl object-cover object-center'])\n",
       {
         ...withPhp,
+        bladeDirectiveArgSpacing: "space",
         printWidth: 120,
         singleQuote: true,
         trailingCommaPHP: true,
@@ -136,6 +145,7 @@ describe("php/options", () => {
 
     const multiline = await format(input, {
       ...withPhp,
+      bladeDirectiveArgSpacing: "space",
       printWidth: 40,
       singleQuote: true,
       trailingCommaPHP: true,
@@ -173,17 +183,25 @@ describe("php/options", () => {
   });
 
   it("supports bladePhpFormattingTargets=none", async () => {
-    await formatEqual("{{$a+$b}}\n@blaze(a:1+2)\n", "{{$a+$b}}\n@blaze (a:1+2)\n", {
-      ...withPhp,
-      bladePhpFormattingTargets: [],
-    });
+    await formatEqual(
+      "{{$a+$b}}\n@blaze(a:1+2)\n",
+      "{{$a+$b}}\n@blaze (a:1+2)\n",
+      {
+        ...withPhp,
+        bladePhpFormattingTargets: [],
+      },
+    );
   });
 
   it("supports bladePhpFormattingTargets=echo", async () => {
-    await formatEqual("{{$a+$b}}\n@blaze(a:1+2)\n", "{{ $a + $b }}\n@blaze (a:1+2)\n", {
-      ...withPhp,
-      bladePhpFormattingTargets: ["echo"],
-    });
+    await formatEqual(
+      "{{$a+$b}}\n@blaze(a:1+2)\n",
+      "{{ $a + $b }}\n@blaze (a:1+2)\n",
+      {
+        ...withPhp,
+        bladePhpFormattingTargets: ["echo"],
+      },
+    );
   });
 
   it("supports bladePhpFormattingTargets=directiveArgs", async () => {
@@ -210,8 +228,8 @@ describe("php/options", () => {
 
   it("respects bladeEchoSpacing=tight when php echo formatting is enabled", async () => {
     await formatEqual(
-      "{{$a+$b}}\n<div @if($x)wire:key=\"{{ $x->id }}\"@endif></div>\n",
-      "{{$a + $b}}\n<div @if ($x) wire:key=\"{{$x->id}}\"@endif></div>\n",
+      '{{$a+$b}}\n<div @if($x)wire:key="{{ $x->id }}"@endif></div>\n',
+      '{{$a + $b}}\n<div @if ($x) wire:key="{{$x->id}}"@endif></div>\n',
       {
         ...withPhp,
         bladeEchoSpacing: "tight",

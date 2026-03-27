@@ -16,11 +16,11 @@ import {
 import { resolveBladeSyntaxPlugins } from "../../plugins/runtime.js";
 import { NodeKind } from "../../tree/types.js";
 import { fullText } from "../utils.js";
+import { getEchoSpacingMode, getDirectiveArgSpacingText } from "../blade-options.js";
 import {
-  getDirectiveArgSpacingMode,
-  getEchoSpacingMode,
-  isBladeComponentTagName,
-} from "../blade-options.js";
+  getDirectiveName,
+  getEffectiveDirectiveArgSpacingRule,
+} from "../directive-spacing-context.js";
 import { resolvePhpPlugins } from "./php-plugin.js";
 
 type PhpFormattingMode = "off" | "safe" | "aggressive";
@@ -427,6 +427,7 @@ function getCompensatedDelegatedPhpPrintWidth(snippet: string, options: Options)
 }
 
 function shouldPreferInlineDirectiveArgs(
+  node: WrappedNode,
   directiveName: string,
   payload: string,
   options: Options,
@@ -436,7 +437,11 @@ function shouldPreferInlineDirectiveArgs(
   }
 
   const printWidth = getPrintWidth(options);
-  const preview = `@${directiveName} (${payload})`;
+  const spacing = getDirectiveArgSpacingText(
+    "",
+    getEffectiveDirectiveArgSpacingRule(node, options),
+  );
+  const preview = `@${directiveName}${spacing}(${payload})`;
   return preview.length <= printWidth;
 }
 
@@ -543,15 +548,6 @@ async function formatPhpSnippet(
     setCachedPhpFormatResult(cacheKey, null);
     return null;
   }
-}
-
-function getDirectiveName(node: WrappedNode): string | null {
-  const directiveToken = findFirstToken(node, TokenType.Directive);
-  if (!directiveToken) return null;
-
-  const raw = node.source.slice(directiveToken.start, directiveToken.end);
-  if (!raw.startsWith("@")) return null;
-  return raw.slice(1).toLowerCase();
 }
 
 function getDirectiveWrapperContext(node: WrappedNode): DirectivePhpWrapperContext {
@@ -671,7 +667,7 @@ function rebuildDirectiveWithFormattedArgs(
   const start = node.flat.tokenStart;
   const end = start + node.flat.tokenCount;
   const tokens = node.buildResult.tokens;
-  const argSpacingMode = getEffectiveDirectiveArgSpacingMode(node, options);
+  const argSpacingRule = getEffectiveDirectiveArgSpacingRule(node, options);
   let result = "";
   let sawDirectiveToken = false;
   let sawArgsToken = false;
@@ -685,8 +681,8 @@ function rebuildDirectiveWithFormattedArgs(
     if (token.type === TokenType.Directive) {
       result += tokenText;
       sawDirectiveToken = true;
-      if (argSpacingMode === "space" && next?.type === TokenType.DirectiveArgs) {
-        result += " ";
+      if (next?.type === TokenType.DirectiveArgs) {
+        result += getDirectiveArgSpacingText("", argSpacingRule);
       }
       continue;
     }
@@ -700,11 +696,7 @@ function rebuildDirectiveWithFormattedArgs(
       prev?.type === TokenType.Directive &&
       next?.type === TokenType.DirectiveArgs
     ) {
-      if (argSpacingMode === "preserve") {
-        result += tokenText;
-      } else if (argSpacingMode === "space" && !result.endsWith(" ")) {
-        result += " ";
-      }
+      result += getDirectiveArgSpacingText(tokenText, argSpacingRule);
       continue;
     }
 
@@ -719,47 +711,6 @@ function rebuildDirectiveWithFormattedArgs(
   }
 
   return sawDirectiveToken ? result : "";
-}
-
-function getEffectiveDirectiveArgSpacingMode(
-  node: WrappedNode,
-  options: Options,
-): ReturnType<typeof getDirectiveArgSpacingMode> {
-  if (!isDirectiveComponentAttribute(node, options)) {
-    return getDirectiveArgSpacingMode(options);
-  }
-
-  return "none";
-}
-
-function isDirectiveComponentAttribute(node: WrappedNode, options: Options): boolean {
-  if (node.kind !== NodeKind.Directive) {
-    return false;
-  }
-
-  const parent = getAttributeContextElement(node);
-  if (!parent) {
-    return false;
-  }
-
-  if (!isBladeComponentTagName(parent.fullName, options)) {
-    return false;
-  }
-  return true;
-}
-
-function getAttributeContextElement(node: WrappedNode): WrappedNode | null {
-  let current = node;
-  while (current.parent?.kind === NodeKind.DirectiveBlock) {
-    current = current.parent;
-  }
-
-  const parent = current.parent;
-  if (!parent || parent.kind !== NodeKind.Element) {
-    return null;
-  }
-
-  return current.end <= parent.openTagEndOffset ? parent : null;
 }
 
 function getEchoDelimiters(node: WrappedNode): {
@@ -901,7 +852,7 @@ export async function formatDirectiveNodeArgs(
       : null;
     const finalPayload =
       collapsedInlinePayload &&
-      shouldPreferInlineDirectiveArgs(directiveName, collapsedInlinePayload, options)
+      shouldPreferInlineDirectiveArgs(node, directiveName, collapsedInlinePayload, options)
         ? collapsedInlinePayload
         : payload;
     const shouldPreserveWrappedMultilineArgs =

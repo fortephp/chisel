@@ -2063,9 +2063,9 @@ exports[`validation/conformance/formatter-cases > formats ignore__001 1`] = `
 {{-- 
                                                                             Just 
                                                 a comment --}}
-@if         ($true)
+@if ($true)
   <span>Hello</span>
-@elseif                     ($anotherValue)
+@elseif ($anotherValue)
   <div>
     <p>Hello world</p>
     <div>
@@ -2080,11 +2080,11 @@ exports[`validation/conformance/formatter-cases > formats ignore__001 1`] = `
 
 @endif
 
-@switch($i)
-  @case(1)
+@switch ($i)
+  @case (1)
     First case...
     @break
-  @case(2)
+  @case (2)
     Second case...
     @break
   @default
@@ -2092,16 +2092,16 @@ exports[`validation/conformance/formatter-cases > formats ignore__001 1`] = `
 
 @endswitch
 
-@unless($true)
+@unless ($true)
 
 @endunless
 
 @directive   ($test  + $that-$another   + $thing)
-@unless($true)
+@unless ($true)
   Hello
 @endunless
 
-@unless($true)
+@unless ($true)
   <p>World</p>
   <x-icon @class([$icon, 'pe-2'])>
     <div>
@@ -2262,11 +2262,11 @@ exports[`validation/conformance/formatter-cases > formats ignore__002 1`] = `
   <p>Test {{ $title }} test</p>
 @endif
 
-@switch($i)
-  @case(1)
+@switch ($i)
+  @case (1)
     First case...
     @break
-  @case(2)
+  @case (2)
     Second case...
     @break
   @default

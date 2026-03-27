@@ -1,6 +1,7 @@
 import type { Plugin, SupportOption } from "prettier";
 import { bladeParser } from "./parser.js";
 import { bladePrinter } from "./printer.js";
+import { DEFAULT_DIRECTIVE_ARG_SPACING_OVERRIDE_TOKENS } from "./print/blade-options.js";
 
 const languages: Plugin["languages"] = [
   {
@@ -123,6 +124,14 @@ const options: Record<string, SupportOption> = {
         description: "Print with one space, e.g. @if ($x).",
       },
     ],
+  },
+  bladeDirectiveArgSpacingOverrides: {
+    category: "Blade",
+    type: "string",
+    array: true,
+    default: [{ value: [...DEFAULT_DIRECTIVE_ARG_SPACING_OVERRIDE_TOKENS] }],
+    description:
+      "Directive spacing overrides in directive[=rule] form; bare directive names imply space.",
   },
   bladeDirectiveBlockStyle: {
     category: "Blade",

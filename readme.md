@@ -66,6 +66,8 @@ npx prettier "resources/views/**/*.blade.php" \
   --blade-component-prefixes x \
   --blade-component-prefixes flux \
   --blade-directive-arg-spacing space \
+  --blade-directive-arg-spacing-overrides if \
+  --blade-directive-arg-spacing-overrides section=0 \
   --blade-echo-spacing tight
 ```
 
@@ -189,6 +191,7 @@ Install the Tailwind CSS plugin and include it in `plugins`:
 | `bladeDirectiveCase` | `choice` | `"preserve"` | `"preserve"`, `"canonical"`, `"lower"` |
 | `bladeDirectiveCaseMap` | `string` | `""` | JSON object string, e.g. `{"disk":"Disk"}` |
 | `bladeDirectiveArgSpacing` | `choice` | `"space"` | `"preserve"`, `"none"`, `"space"` |
+| `bladeDirectiveArgSpacingOverrides` | `string[]` | `["if", "elseif", "unless", "while", "for", "foreach", "forelse", "switch", "case"]` | tokens like `if`, `section=none`, `php=2`, `custom=preserve` |
 | `bladeDirectiveBlockStyle` | `choice` | `"preserve"` | `"preserve"`, `"inline-if-short"`, `"multiline"` |
 | `bladeBlankLinesAroundDirectives` | `choice` | `"preserve"` | `"preserve"`, `"always"` |
 | `bladeEchoSpacing` | `choice` | `"preserve"` | `"preserve"`, `"space"`, `"tight"` |
@@ -219,6 +222,33 @@ Install the Tailwind CSS plugin and include it in `plugins`:
 - `svg` keeps single-line `<svg>...</svg>` container intent when the source is inline.
 - `svg:*` keeps inline attribute and style intent for SVG namespace elements such as `<path>` and `<line>`.
 - Remove one or both entries to opt out of those SVG-specific inline layouts.
+
+### Directive Arg Spacing
+
+Directive argument spacing has one base rule plus optional per-directive overrides.
+
+- `bladeDirectiveArgSpacing` is the base rule.
+- `bladeDirectiveArgSpacingOverrides` is a `string[]` of `directive[=rule]` options.
+- Directive names, without a specified rule, default to `space`.
+- Directive names are case-insensitive and may be written with or without `@`.
+- Rules may be `"preserve"`, `"none"`, `"space"`, or a non-negative integer.
+- Providing `bladeDirectiveArgSpacingOverrides` replaces the built-in defaults (`if`, `elseif`, `unless`, `while`, `for`, `foreach`, `forelse`, `switch`, `case`).
+
+Example:
+
+```json
+{
+  "bladeDirectiveArgSpacing": "none",
+  "bladeDirectiveArgSpacingOverrides": ["if", "section=1", "php=2"]
+}
+```
+
+With that configuration:
+
+- `@if($x)` becomes `@if ($x)`
+- `@include ($view)` becomes `@include($view)`
+- `@section($name)` becomes `@section ($name)`
+- `@php($expr)` becomes `@php  ($expr)`
 
 ### `bladeBlankLinesAroundDirectives`
 
@@ -317,6 +347,7 @@ This plugin also respects standard Prettier options, including:
         "bladeSyntaxPlugins": ["statamic"],
         "bladeDirectiveCase": "preserve",
         "bladeDirectiveArgSpacing": "space",
+        "bladeDirectiveArgSpacingOverrides": ["if", "elseif", "unless", "while", "for", "foreach", "forelse", "switch", "case"],
         "bladeDirectiveBlockStyle": "preserve",
         "bladeBlankLinesAroundDirectives": "preserve",
         "bladeEchoSpacing": "space",

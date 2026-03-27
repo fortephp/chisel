@@ -149,6 +149,16 @@ describe("directives/issue-cases", () => {
   it("#124: @class with nested array indents correctly without PHP formatting", async () => {
     const input = [
       "<div",
+      "  @class([",
+      "    'base-class',",
+      "    'active' => $isActive,",
+      "    'text-red' => $hasError,",
+      "  ])",
+      "></div>",
+      "",
+    ].join("\n");
+    const expected = [
+      "<div",
       "  @class ([",
       "    'base-class',",
       "    'active' => $isActive,",
@@ -157,7 +167,7 @@ describe("directives/issue-cases", () => {
       "></div>",
       "",
     ].join("\n");
-    await formatEqual(input, input, { bladePhpFormatting: "off" });
+    await formatEqual(input, expected, { bladePhpFormatting: "off" });
   });
 
   // Issue #123: conditionals in <input> attributes
@@ -167,11 +177,20 @@ describe("directives/issue-cases", () => {
       '  wire:model.defer="id"',
       '  type="text"',
       '  class="w-full border-gray-300 rounded-md"',
+      "  @unlessrole('admin') disabled @endunlessrole",
+      "/>",
+      "",
+    ].join("\n");
+    const expected = [
+      "<input",
+      '  wire:model.defer="id"',
+      '  type="text"',
+      '  class="w-full border-gray-300 rounded-md"',
       "  @unlessrole ('admin') disabled @endunlessrole",
       "/>",
       "",
     ].join("\n");
-    await formatEqual(input, input);
+    await formatEqual(input, expected);
   });
 
   it("#123: echo brace conditional in input attributes", async () => {
@@ -294,7 +313,7 @@ describe("directives/issue-cases", () => {
   // Issue #107: no progressive indentation in @section > @if
   it("#107: @section with nested @if does not drift on repeated formatting", async () => {
     const input = [
-      "@section ('head-mid')",
+      "@section('head-mid')",
       "  @if ($form->picture !== '')",
       '    <meta property="og:image" content="{{ $form->picture_url }}" />',
       "  @endif",
@@ -448,6 +467,16 @@ describe("pennant feature flag directives", () => {
     const input = [
       "<nav>",
       "  <ul>",
+      "    @feature('sidebar-v2')",
+      "      <li>New sidebar item</li>",
+      "    @endfeature",
+      "  </ul>",
+      "</nav>",
+      "",
+    ].join("\n");
+    const expected = [
+      "<nav>",
+      "  <ul>",
       "    @feature ('sidebar-v2')",
       "      <li>New sidebar item</li>",
       "    @endfeature",
@@ -455,6 +484,6 @@ describe("pennant feature flag directives", () => {
       "</nav>",
       "",
     ].join("\n");
-    await formatEqual(input, input);
+    await formatEqual(input, expected);
   });
 });
