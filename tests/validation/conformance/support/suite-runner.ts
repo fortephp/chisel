@@ -4,6 +4,7 @@ import plugin from "../../../../src/index.js";
 import * as phpPlugin from "@prettier/plugin-php";
 import { loadConformanceCases, type ConformanceGroup } from "./cases.js";
 import { CONFORMANCE_SUITE_DEFAULT_OPTIONS } from "./suite-options.js";
+import { expectIgnoreRangesUnchanged } from "../../../support/ignore-range.js";
 
 type OptionPrecedence = "entry-over-defaults" | "defaults-over-entry";
 
@@ -34,6 +35,7 @@ export function runConformanceSuite(
           ...mergedOptions,
         });
 
+        expectIgnoreRangesUnchanged(entry.input, actual, entry.sourceLabel, mergedOptions);
         expect(actual, entry.sourceLabel).toMatchSnapshot();
       });
     }

@@ -1963,7 +1963,6 @@ exports[`validation/conformance/formatter-cases > formats ignore__001 1`] = `
             </x:slot:name>
 
 <p>{{ $one }}: {{ $two }}</p>
-
 <p>
 {{ $one  }}:
 {{ $two }}
@@ -1990,7 +1989,7 @@ exports[`validation/conformance/formatter-cases > formats ignore__001 1`] = `
             
             @endif
 
-@switch($i)
+            @switch($i)
             @case(1)
                 First case...
                 @break
@@ -2004,16 +2003,15 @@ exports[`validation/conformance/formatter-cases > formats ignore__001 1`] = `
                 Default case...
             @endswitch
 
-@unless($true)
+            @unless($true)
 
             @endunless
-
-@directive   ($test  + $that-$another   + $thing)
-
-@unless($true) 
+            
+            @directive   ($test  + $that-$another   + $thing)
+            @unless($true) 
                 Hello @endunless
-
-@unless($true)
+            
+            @unless($true)
                                     <p>World
                                     
                                     </p>
@@ -2031,13 +2029,13 @@ exports[`validation/conformance/formatter-cases > formats ignore__001 1`] = `
                                     
             @endunless
 
-<div>
+            <div>
             @forelse ($users as $user)
                 <li>{{ $user->name }}</li>
                                                                     @endforelse
                                                                 </div>
-
-@forelse ($users as $user)
+                                                                
+                                                                @forelse ($users as $user)
                                                                     <li>{{ $user->name }}</li>
                                                                 @endforelse
                                                                 <?php
@@ -2145,7 +2143,6 @@ exports[`validation/conformance/formatter-cases > formats ignore__002 1`] = `
             </x:slot:name>
 
 <p>{{ $one }}: {{ $two }}</p>
-
 <p>
 {{ $one  }}:
 {{ $two }}
@@ -2172,7 +2169,7 @@ exports[`validation/conformance/formatter-cases > formats ignore__002 1`] = `
             
             @endif
 
-@switch($i)
+            @switch($i)
             @case(1)
                 First case...
                 @break
@@ -2186,16 +2183,15 @@ exports[`validation/conformance/formatter-cases > formats ignore__002 1`] = `
                 Default case...
             @endswitch
 
-@unless($true)
+            @unless($true)
 
             @endunless
-
-@directive   ($test  + $that-$another   + $thing)
-
-@unless($true) 
+            
+            @directive   ($test  + $that-$another   + $thing)
+            @unless($true) 
                 Hello @endunless
-
-@unless($true)
+            
+            @unless($true)
                                     <p>World
                                     
                                     </p>
@@ -2213,13 +2209,13 @@ exports[`validation/conformance/formatter-cases > formats ignore__002 1`] = `
                                     
             @endunless
 
-<div>
+            <div>
             @forelse ($users as $user)
                 <li>{{ $user->name }}</li>
                                                                     @endforelse
                                                                 </div>
-
-@forelse ($users as $user)
+                                                                
+                                                                @forelse ($users as $user)
                                                                     <li>{{ $user->name }}</li>
                                                                 @endforelse
                                                                 <?php
@@ -2317,8 +2313,8 @@ $status = $kernel->handle(
 exports[`validation/conformance/formatter-cases > formats ignore__003 1`] = `
 "@if (true)
   {{-- format-ignore-start --}}
-  <div></div>
-  {{-- format-ignore-end --}}
+    <div></div>
+    {{-- format-ignore-end --}}
 @endif
 "
 `;

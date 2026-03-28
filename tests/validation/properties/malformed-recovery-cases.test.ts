@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Options } from "prettier";
 import * as prettier from "prettier";
 import bladePlugin from "../../../src/index.js";
-import { wrapInDiv } from "../../helpers.js";
+import { expectIgnoreRangesUnchanged, wrapInDiv } from "../../helpers.js";
 import {
   expectCoreConstructDelimiterSafety,
   expectNoBladePhpConstructLoss,
@@ -13,6 +13,7 @@ type RecoveryCase = {
   name: string;
   input: string;
   markers: string[];
+  requiredLiterals?: readonly string[];
 };
 
 const CASES: readonly RecoveryCase[] = [
@@ -101,6 +102,16 @@ const x = @foo($x)
 `,
     markers: ["MAL_GA_7"],
   },
+  {
+    name: "ignore-range-malformed-slot-tail-resumes-after-end-marker",
+    input: `@if($x)
+{{-- format-ignore-start --}}<x-slot:foo>{{-- format-ignore-end --}}tail
+<div   class="x"   ></div>
+@endif
+`,
+    markers: ["format-ignore-start", "format-ignore-end"],
+    requiredLiterals: ["tail", "<div class=\"x\"></div>"],
+  },
 ] as const;
 
 const PROFILES: Array<{ name: string; options: Options }> = [
@@ -159,12 +170,17 @@ describe("validation/malformed-recovery-cases", () => {
           expectCoreConstructDelimiterSafety(input, fourth, context);
           expectNoBladePhpConstructLoss(input, fourth, context);
           expectRespectsFormattingInvariants(fourth, profile.options, context);
+          expectIgnoreRangesUnchanged(input, fourth, context, profile.options);
 
           for (const marker of caseEntry.markers) {
             expect(
               countOccurrences(fourth, marker),
               `${context}: marker count drifted for ${marker}`,
             ).toBe(countOccurrences(input, marker));
+          }
+
+          for (const literal of caseEntry.requiredLiterals ?? []) {
+            expect(fourth, `${context}: missing required literal ${literal}`).toContain(literal);
           }
         }
       });

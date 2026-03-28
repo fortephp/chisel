@@ -1,4 +1,10 @@
-import { TokenType, State, type Token } from "./types.js";
+import {
+  TokenType,
+  State,
+  type IgnoreRangeRegion,
+  type IgnoreRangeResumeState,
+  type Token,
+} from "./types.js";
 import { Directives } from "./directives.js";
 import { ErrorReason, type LexerError } from "./errors.js";
 import { isFrontendEventStyleAtName } from "../frontend-attribute-names.js";
@@ -23,6 +29,26 @@ export interface LexerResult {
 export interface LexerRawBlockConfig {
   verbatimStartDirectives?: readonly string[];
   verbatimEndDirectives?: readonly string[];
+  ignoreRanges?: readonly IgnoreRangeRegion[];
+  ignoreRangeCollector?: IgnoreRangeCollector | null;
+}
+
+interface IgnoreRangeCollector {
+  handleBladeComment(
+    start: number,
+    end: number,
+    originState: State,
+    tagStart: number | null,
+    resume: IgnoreRangeResumeState,
+  ): void;
+  handleHtmlComment(
+    start: number,
+    end: number,
+    originState: State,
+    tagStart: number | null,
+    resume: IgnoreRangeResumeState,
+  ): void;
+  finish(resume: IgnoreRangeResumeState, eof: number): IgnoreRangeRegion[];
 }
 
 export class Lexer {
@@ -40,6 +66,14 @@ export class Lexer {
   private attrPhpDirectiveDepth = 0;
   private rawtextTagName = "";
   private currentTagName = "";
+  private currentTagStart = -1;
+  private ignoreRanges: readonly IgnoreRangeRegion[];
+  private nextIgnoreRangeIndex = 0;
+  private ignoreRangeCollector: IgnoreRangeCollector | null;
+  private pendingHtmlCommentOriginState: State | null = null;
+  private pendingHtmlCommentTagStart: number | null = null;
+  private pendingBladeCommentOriginState: State | null = null;
+  private pendingBladeCommentTagStart: number | null = null;
 
   private isAtAttributeCandidate(nameLower: string, afterNamePos: number): boolean {
     if (afterNamePos >= this.len) {
@@ -82,6 +116,8 @@ export class Lexer {
     this.src = source;
     this.len = source.length;
     this._directives = directives ?? Directives.acceptAll();
+    this.ignoreRanges = rawBlockConfig?.ignoreRanges ?? [];
+    this.ignoreRangeCollector = rawBlockConfig?.ignoreRangeCollector ?? null;
 
     for (const directive of rawBlockConfig?.verbatimStartDirectives ?? []) {
       const normalized = normalizeDirectiveName(directive);
@@ -100,6 +136,10 @@ export class Lexer {
 
   tokenize(): LexerResult {
     while (this.pos < this.len) {
+      if (this.tryEmitIgnoreRange()) {
+        continue;
+      }
+
       switch (this.state) {
         case State.Data:
           this.scanData();
@@ -152,11 +192,103 @@ export class Lexer {
       this.emit(TokenType.SyntheticClose, this.pos, this.pos);
     }
 
+    this.ignoreRangeCollector?.finish(this.snapshotIgnoreRangeResumeState(), this.len);
+
     return { tokens: this.tokens, errors: this.errors };
   }
 
   private emit(type: TokenType, start: number, end: number): void {
     this.tokens.push({ type, start, end });
+  }
+
+  private snapshotIgnoreRangeResumeState(): IgnoreRangeResumeState {
+    return {
+      state: this.state,
+      returnState: this.returnState,
+      rawtextTagName: this.rawtextTagName,
+      currentTagName: this.currentTagName,
+      isClosingTag: this.isClosingTag,
+      continuedTagName: this.continuedTagName,
+      inXmlDeclaration: this.inXmlDeclaration,
+      verbatim: this.verbatim,
+      verbatimReturnState: this.verbatimReturnState,
+      phpBlock: this.phpBlock,
+      phpTag: this.phpTag,
+      attrPhpDirectiveDepth: this.attrPhpDirectiveDepth,
+    };
+  }
+
+  private restoreIgnoreRangeResumeState(resume: IgnoreRangeResumeState): void {
+    this.state = resume.state;
+    this.returnState = resume.returnState;
+    this.rawtextTagName = resume.rawtextTagName;
+    this.currentTagName = resume.currentTagName;
+    this.isClosingTag = resume.isClosingTag;
+    this.continuedTagName = resume.continuedTagName;
+    this.inXmlDeclaration = resume.inXmlDeclaration;
+    this.verbatim = resume.verbatim;
+    this.verbatimReturnState = resume.verbatimReturnState;
+    this.phpBlock = resume.phpBlock;
+    this.phpTag = resume.phpTag;
+    this.attrPhpDirectiveDepth = resume.attrPhpDirectiveDepth;
+  }
+
+  private tryEmitIgnoreRange(): boolean {
+    const range = this.ignoreRanges[this.nextIgnoreRangeIndex];
+    if (!range || this.pos !== range.start) {
+      return false;
+    }
+
+    this.emit(TokenType.IgnoreRange, range.start, range.end);
+    this.pos = range.end;
+    this.restoreIgnoreRangeResumeState(range.resume);
+    this.nextIgnoreRangeIndex++;
+    return true;
+  }
+
+  private nextIgnoreRangeStart(): number | null {
+    const range = this.ignoreRanges[this.nextIgnoreRangeIndex];
+    return range ? range.start : null;
+  }
+
+  private recordBladeComment(
+    start: number,
+    end: number,
+    originState: State,
+    tagStart: number | null,
+  ): void {
+    this.ignoreRangeCollector?.handleBladeComment(
+      start,
+      end,
+      originState,
+      tagStart,
+      this.snapshotIgnoreRangeResumeState(),
+    );
+  }
+
+  private recordHtmlComment(
+    start: number,
+    end: number,
+    originState: State,
+    tagStart: number | null,
+  ): void {
+    this.ignoreRangeCollector?.handleHtmlComment(
+      start,
+      end,
+      originState,
+      tagStart,
+      this.snapshotIgnoreRangeResumeState(),
+    );
+  }
+
+  private beginBladeCommentCapture(originState: State, tagStart: number | null): void {
+    this.pendingBladeCommentOriginState = originState;
+    this.pendingBladeCommentTagStart = tagStart;
+  }
+
+  private beginHtmlCommentCapture(originState: State, tagStart: number | null): void {
+    this.pendingHtmlCommentOriginState = originState;
+    this.pendingHtmlCommentTagStart = tagStart;
   }
 
   private logError(reason: ErrorReason, offset: number): void {
@@ -451,6 +583,20 @@ export class Lexer {
     const start = this.pos;
 
     while (this.pos < this.len) {
+      const nextIgnoreRangeStart = this.nextIgnoreRangeStart();
+      if (nextIgnoreRangeStart !== null && this.pos === nextIgnoreRangeStart) {
+        if (start < this.pos) {
+          if (this.phpBlock) {
+            this.emit(TokenType.PhpBlock, start, this.pos);
+          } else if (this.phpTag) {
+            this.emit(TokenType.PhpContent, start, this.pos);
+          } else {
+            this.emit(TokenType.Text, start, this.pos);
+          }
+        }
+        return;
+      }
+
       const byte = this.src[this.pos];
 
       if (this.phpBlock) {
@@ -541,6 +687,7 @@ export class Lexer {
           }
 
           if (next2 === "-" && next3 === "-") {
+            this.beginBladeCommentCapture(State.Data, null);
             this.scanBladeCommentStart();
             return;
           }
@@ -814,6 +961,11 @@ export class Lexer {
 
   private scanComment(): void {
     const start = this.pos;
+    const originState = this.pendingHtmlCommentOriginState ?? State.Data;
+    const tagStart = this.pendingHtmlCommentTagStart;
+    this.pendingHtmlCommentOriginState = null;
+    this.pendingHtmlCommentTagStart = null;
+
     this.emit(TokenType.CommentStart, start, start + 4);
     this.pos += 4;
 
@@ -829,6 +981,7 @@ export class Lexer {
       this.logError(ErrorReason.UnexpectedEof, this.len);
       this.pos = this.len;
       this.state = State.Data;
+      this.recordHtmlComment(start, this.pos, originState, tagStart);
       return;
     }
 
@@ -839,6 +992,7 @@ export class Lexer {
     this.emit(TokenType.CommentEnd, closePos, closePos + 3);
     this.pos = closePos + 3;
     this.state = State.Data;
+    this.recordHtmlComment(start, this.pos, originState, tagStart);
   }
 
   private tryScanBogusComment(): boolean {
@@ -903,6 +1057,11 @@ export class Lexer {
 
   private scanBladeCommentContent(): void {
     const start = this.pos;
+    const commentStart = start - 4;
+    const originState = this.pendingBladeCommentOriginState ?? this.returnState;
+    const tagStart = this.pendingBladeCommentTagStart;
+    this.pendingBladeCommentOriginState = null;
+    this.pendingBladeCommentTagStart = null;
 
     while (this.pos < this.len) {
       const closePos = this.src.indexOf("--}}", this.pos);
@@ -916,6 +1075,7 @@ export class Lexer {
         this.logError(ErrorReason.UnexpectedEof, this.len);
         this.state = this.returnState;
         this.returnState = State.Data;
+        this.recordBladeComment(commentStart, this.pos, originState, tagStart);
         return;
       }
 
@@ -926,11 +1086,13 @@ export class Lexer {
       this.pos = closePos + 4;
       this.state = this.returnState;
       this.returnState = State.Data;
+      this.recordBladeComment(commentStart, this.pos, originState, tagStart);
       return;
     }
 
     this.state = this.returnState;
     this.returnState = State.Data;
+    this.recordBladeComment(commentStart, this.pos, originState, tagStart);
   }
 
   private tryScanConditionalComment(): boolean {
@@ -1299,6 +1461,7 @@ export class Lexer {
   private scanTagOpen(): void {
     const start = this.pos;
     this.currentTagName = "";
+    this.currentTagStart = start;
 
     this.emit(TokenType.LessThan, start, start + 1);
     this.pos++;
@@ -1381,6 +1544,7 @@ export class Lexer {
           if (this.peekAhead(2) === "-" && this.peekAhead(3) === "-") {
             this.returnState = State.TagName;
             this.continuedTagName = true;
+            this.beginBladeCommentCapture(State.TagName, this.currentTagStart);
             this.scanBladeCommentStart();
             this.scanBladeCommentContent();
             return;
@@ -1555,6 +1719,7 @@ export class Lexer {
       this.src[this.pos + 2] === "-" &&
       this.src[this.pos + 3] === "-"
     ) {
+      this.beginHtmlCommentCapture(State.BeforeAttrName, this.currentTagStart);
       this.emit(TokenType.SyntheticClose, this.pos, this.pos);
       this.state = State.Data;
       return;
@@ -1586,6 +1751,7 @@ export class Lexer {
       if (this.peekAhead(1) === "{") {
         if (this.peekAhead(2) === "-" && this.peekAhead(3) === "-") {
           this.returnState = State.BeforeAttrName;
+          this.beginBladeCommentCapture(State.BeforeAttrName, this.currentTagStart);
           this.scanBladeCommentStart();
           this.scanBladeCommentContent();
           return;
@@ -1689,6 +1855,7 @@ export class Lexer {
           if (this.peekAhead(2) === "-" && this.peekAhead(3) === "-") {
             const savedState = this.state;
             this.returnState = State.Data;
+            this.beginBladeCommentCapture(State.AttrName, this.currentTagStart);
             this.scanBladeCommentStart();
             this.scanBladeCommentContent();
             this.state = savedState;
@@ -2022,6 +2189,7 @@ export class Lexer {
               this.emit(TokenType.AttributeValue, valueStart, savedPos);
             }
             this.returnState = State.AttrValueQuoted;
+            this.beginBladeCommentCapture(State.AttrValueQuoted, null);
             this.scanBladeCommentStart();
             this.scanBladeCommentContent();
             valueStart = this.pos;
@@ -2106,6 +2274,7 @@ export class Lexer {
               this.emit(TokenType.AttributeValue, valueStart, this.pos);
             }
             this.returnState = State.AttrValueUnquoted;
+            this.beginBladeCommentCapture(State.AttrValueUnquoted, this.currentTagStart);
             this.scanBladeCommentStart();
             this.scanBladeCommentContent();
             valueStart = this.pos;
@@ -2924,6 +3093,14 @@ export class Lexer {
     const tagNameLen = tagName.length;
 
     while (this.pos < this.len) {
+      const nextIgnoreRangeStart = this.nextIgnoreRangeStart();
+      if (nextIgnoreRangeStart !== null && this.pos === nextIgnoreRangeStart) {
+        if (start < this.pos) {
+          this.emit(TokenType.Text, start, this.pos);
+        }
+        return;
+      }
+
       const byte = this.src[this.pos];
 
       // Check for Blade constructs
@@ -2938,6 +3115,7 @@ export class Lexer {
           }
           this.returnState = State.RawText;
           if (next2 === "-" && next3 === "-") {
+            this.beginBladeCommentCapture(State.RawText, null);
             this.scanBladeCommentStart();
             return;
           }

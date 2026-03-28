@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { formatEqual, hasLoneLf } from "../helpers.js";
+import {
+  expectIgnoreRangesUnchanged,
+  formatEqual,
+  hasLoneLf,
+} from "../helpers.js";
+
+async function formatRangeEqual(input: string, expected: string, options = {}) {
+  const output = await formatEqual(input, expected, options);
+  expectIgnoreRangesUnchanged(input, output, "directives/format-ignore", options);
+  return output;
+}
 
 describe("directives/format-ignore", () => {
   it("treats Blade format-ignore-start/end as range ignore markers", async () => {
@@ -171,11 +181,11 @@ describe("directives/format-ignore", () => {
 
     const expected = `@fields ('section1_words')
   {{-- format-ignore-start --}}
-  <span class="word overflow-hidden">
+     <span class="word overflow-hidden">
         @sub('item')
       *</span
     >
-  {{-- format-ignore-end --}}
+   {{-- format-ignore-end --}}
 @endfields
 `;
 
@@ -195,11 +205,11 @@ describe("directives/format-ignore", () => {
 
     const expected = `@fields ('section1_words')
   {{-- prettier-ignore-start --}}
-  <span class="word overflow-hidden">
+     <span class="word overflow-hidden">
         @sub('item')
       *</span
     >
-  {{-- prettier-ignore-end --}}
+   {{-- prettier-ignore-end --}}
 @endfields
 `;
 
@@ -309,6 +319,50 @@ describe("directives/format-ignore", () => {
       await formatEqual(input, expected);
     });
 
+    it(`preserves spaces around echo tags inside ${ignoreLabel} ranges`, async () => {
+      const input = `{{-- ${ignoreLabel}-start --}}
+Dear {{$user->first_name}},  
+Roster on {{$date->format('d-m-Y')}}
+Distance to station: {{ $distance }}
+{{-- ${ignoreLabel}-end --}}
+`;
+
+      await formatRangeEqual(input, input);
+    });
+
+    it(`preserves blank lines before directives inside ${ignoreLabel} ranges`, async () => {
+      const input = `{{-- ${ignoreLabel}-start --}}
+The following ecrew messages were sent to you.
+
+@foreach($messageData as $ecrewMessage)
+=====
+@endforeach
+{{-- ${ignoreLabel}-end --}}
+`;
+
+      await formatRangeEqual(input, input);
+    });
+
+    it(`preserves the closing marker line break inside ${ignoreLabel} ranges`, async () => {
+      const input = `{{-- ${ignoreLabel}-start --}}
+This action WILL NOT accept any changes for you.
+{{-- ${ignoreLabel}-end --}}
+`;
+
+      await formatRangeEqual(input, input);
+    });
+
+    it(`preserves emoji and html spacing inside ${ignoreLabel} ranges`, async () => {
+      const input = `{{-- ${ignoreLabel}-start --}}
+🚨 <b>Stick Time Monitor Alert</b> 🚨  
+
+<b>Date:</b> {{ $flightplan->date->format('Y-m-d') }}
+{{-- ${ignoreLabel}-end --}}
+`;
+
+      await formatRangeEqual(input, input);
+    });
+
     it(`preserves multiple ${ignoreLabel} ranges in one directive body`, async () => {
       const input = `@section('content')
    {{-- ${ignoreLabel}-start --}}@csrf('a')*{{-- ${ignoreLabel}-end --}}
@@ -402,10 +456,10 @@ describe("directives/format-ignore", () => {
       const expected = `@switch ($state)
   @case ('ready')
     {{-- ${ignoreLabel}-start --}}
-    @csrf('item')
+@csrf('item')
 {{ $slot }}
 *
-    {{-- ${ignoreLabel}-end --}}
+   {{-- ${ignoreLabel}-end --}}
     @break
 @endswitch
 `;
@@ -425,13 +479,53 @@ describe("directives/format-ignore", () => {
       const expected =
         `@fields ('section1_words')\r\n` +
         `  {{-- ${ignoreLabel}-start --}}\r\n` +
-        `  @csrf('item')\r\n` +
+        `    @csrf('item')\r\n` +
         `    {{ $slot }}\r\n` +
-        `  {{-- ${ignoreLabel}-end --}}\r\n` +
+        `   {{-- ${ignoreLabel}-end --}}\r\n` +
         `@endfields\r\n`;
 
-      const output = await formatEqual(input, expected, { endOfLine: "crlf" });
+      const output = await formatRangeEqual(input, expected, { endOfLine: "crlf" });
       expect(hasLoneLf(output)).toBe(false);
+    });
+
+    it(`preserves matched ${ignoreLabel} ranges at eof with trailing spaces`, async () => {
+      const input = `<div>
+  outside</div>
+{{-- ${ignoreLabel}-start --}}
+tail  
+still raw    
+{{-- ${ignoreLabel}-end --}}
+`;
+
+      const expected = `<div>outside</div>
+{{-- ${ignoreLabel}-start --}}
+tail  
+still raw    
+{{-- ${ignoreLabel}-end --}}
+`;
+
+      await formatRangeEqual(input, expected);
+    });
+
+    it(`preserves unmatched ${ignoreLabel} ranges to eof with trailing blank lines`, async () => {
+      const input = `<div>
+  outside</div>
+{{-- ${ignoreLabel}-start --}}
+alpha
+
+  
+
+`;
+
+      const expected = `<div>outside</div>
+{{-- ${ignoreLabel}-start --}}
+alpha
+
+  
+
+`;
+
+      await formatRangeEqual(input, expected);
     });
   }
 });

@@ -50,6 +50,7 @@ export const enum TokenType {
   JsxAttributeValue = 48,
   JsxShorthandAttribute = 49,
   TsxGenericType = 50,
+  IgnoreRange = 51,
 }
 
 export const TOKEN_LABELS: Record<number, string> = {
@@ -104,6 +105,7 @@ export const TOKEN_LABELS: Record<number, string> = {
   [48]: "JsxAttributeValue",
   [49]: "JsxShorthandAttribute",
   [50]: "TsxGenericType",
+  [51]: "IgnoreRange",
 };
 
 export function tokenLabel(type: number): string {
@@ -114,6 +116,27 @@ export interface Token {
   type: TokenType;
   start: number;
   end: number;
+}
+
+export interface IgnoreRangeResumeState {
+  state: State;
+  returnState: State;
+  rawtextTagName: string;
+  currentTagName: string;
+  isClosingTag: boolean;
+  continuedTagName: boolean;
+  inXmlDeclaration: boolean;
+  verbatim: boolean;
+  verbatimReturnState: State | null;
+  phpBlock: boolean;
+  phpTag: boolean;
+  attrPhpDirectiveDepth: number;
+}
+
+export interface IgnoreRangeRegion {
+  start: number;
+  end: number;
+  resume: IgnoreRangeResumeState;
 }
 
 export const enum State {

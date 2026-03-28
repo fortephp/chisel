@@ -1,6 +1,7 @@
 import { expect } from "vitest";
 import * as prettier from "prettier";
 import plugin from "../src/index.js";
+import { expectIgnoreRangesUnchanged } from "./support/ignore-range.js";
 
 const DEFAULT_IDEMPOTENT_PASSES = 2;
 const TEST_DEFAULT_OPTIONS: prettier.Options = {
@@ -56,6 +57,7 @@ export async function formatWithPasses(
   };
 
   let current = await prettier.format(code, opts);
+  expectIgnoreRangesUnchanged(code, current, "formatWithPasses pass 1", opts);
   if (!assertIdempotent) {
     return current;
   }
@@ -63,6 +65,7 @@ export async function formatWithPasses(
   for (let i = 2; i <= passes; i++) {
     const next = await prettier.format(current, opts);
     expect(next, `formatter is not idempotent on pass ${i}`).toBe(current);
+    expectIgnoreRangesUnchanged(code, next, `formatWithPasses pass ${i}`, opts);
     current = next;
   }
 
@@ -121,11 +124,13 @@ export async function formatEqualToPrettierHtml(input: string, options: prettier
   const htmlOpts = { parser: "html" as const, ...toHtmlReferenceOptions(options) };
 
   const bladeOutput = await prettier.format(input, bladeOpts);
+  expectIgnoreRangesUnchanged(input, bladeOutput, "blade/html parity pass 1", bladeOpts);
   const htmlOutput = await prettier.format(input, htmlOpts);
   expect(bladeOutput).toBe(htmlOutput);
 
   const secondPass = await prettier.format(bladeOutput, bladeOpts);
   expect(secondPass, "blade formatter is not idempotent").toBe(bladeOutput);
+  expectIgnoreRangesUnchanged(input, secondPass, "blade/html parity pass 2", bladeOpts);
 
   return bladeOutput;
 }
@@ -144,11 +149,13 @@ export async function formatEqual(
   };
   const first = await prettier.format(input, opts);
   expect(first).toBe(expected);
+  expectIgnoreRangesUnchanged(input, first, "formatEqual pass 1", opts);
 
   let prev = first;
   for (let i = 2; i <= passes; i++) {
     const next = await prettier.format(prev, opts);
     expect(next, `not idempotent on pass ${i}`).toBe(prev);
+    expectIgnoreRangesUnchanged(input, next, `formatEqual pass ${i}`, opts);
     prev = next;
   }
 
@@ -165,3 +172,8 @@ export {
   nodeText,
   indexOf,
 } from "./debug.js";
+export {
+  collectIgnoreRangeSlices,
+  expectIgnoreRangesUnchanged,
+  expectIgnoreRangeSlicesUnchanged,
+} from "./support/ignore-range.js";

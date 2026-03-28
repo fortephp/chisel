@@ -4,12 +4,14 @@ import type { WrappedNode } from "../types.js";
 import { NodeKind } from "../tree/types.js";
 import { isTextLikeNode, isEchoLike } from "../node-predicates.js";
 import {
+  getChildPrintSegments,
   hasPrettierIgnore,
   getPrettierIgnoreMode,
-  getIgnoreCommentKind,
   forceBreakChildren,
   forceNextEmptyLine,
+  getPrintableSubtreeEnd,
   preferHardlineAsLeadingSpaces,
+  type ChildPrintSegment,
 } from "./utils.js";
 import {
   needsToBorrowNextOpeningTagStartMarker,
@@ -23,19 +25,7 @@ import {
 import { htmlTrimEnd, htmlTrimStart, replaceEndOfLine } from "./doc-utils.js";
 import { ifBreakChain } from "./if-break-chain.js";
 
-const { breakParent, group, hardline, softline, line, dedentToRoot } = doc.builders;
-
-/**
- * Get the end location for a node, accounting for unclosed elements
- * whose end is determined by their last child.
- * Ported from Prettier's print/children.js getEndLocation.
- */
-function getEndLocation(node: WrappedNode): number {
-  if (node.kind === NodeKind.Element && !node.hasClosingTag && node.children.length > 0) {
-    return Math.max(node.end, getEndLocation(node.children[node.children.length - 1]));
-  }
-  return node.end;
-}
+const { breakParent, group, hardline, softline, line } = doc.builders;
 
 function getSourceBetween(prev: WrappedNode, next: WrappedNode): string {
   if (prev.source !== next.source) {
@@ -45,24 +35,8 @@ function getSourceBetween(prev: WrappedNode, next: WrappedNode): string {
   return prev.source.slice(prev.end, next.start);
 }
 
-function shouldKeepInlineIgnoreBoundary(prev: WrappedNode, next: WrappedNode): boolean {
-  const sourceBetween = getSourceBetween(prev, next);
-  const prevIgnoreMode = getPrettierIgnoreMode(prev);
-  const nextIgnoreMode = getPrettierIgnoreMode(next);
-
-  if (prevIgnoreMode === "range" && nextIgnoreMode === "range") {
-    return true;
-  }
-
-  if (/[\r\n]/u.test(sourceBetween)) {
-    return false;
-  }
-
-  if (getIgnoreCommentKind(prev) === "ignore-start" && nextIgnoreMode === "range") {
-    return true;
-  }
-
-  return prevIgnoreMode === "range" && getIgnoreCommentKind(next) === "ignore-end";
+function isIgnoreRangeNode(node: WrappedNode): boolean {
+  return node.kind === NodeKind.IgnoreRange;
 }
 
 /**
@@ -77,8 +51,8 @@ function printChild(
   const child = childPath.node;
   const ignoreMode = getPrettierIgnoreMode(child);
 
-  if (hasPrettierIgnore(child) && ignoreMode) {
-    const endLocation = getEndLocation(child);
+  if (hasPrettierIgnore(child) && ignoreMode === "single") {
+    const endLocation = getPrintableSubtreeEnd(child);
     let preservedText = htmlTrimEnd(
       child.source.slice(
         child.start +
@@ -101,9 +75,7 @@ function printChild(
 
     return [
       printOpeningTagPrefix(child, options),
-      ignoreMode === "range"
-        ? dedentToRoot(replaceEndOfLine(preservedText))
-        : replaceEndOfLine(preservedText),
+      replaceEndOfLine(preservedText),
       printClosingTagSuffix(child, options),
     ];
   }
@@ -111,13 +83,63 @@ function printChild(
   return print(childPath);
 }
 
+function getSourceBetweenSegments(prev: ChildPrintSegment, next: ChildPrintSegment): string {
+  if (prev.first.source !== next.first.source) {
+    return "";
+  }
+
+  return prev.first.source.slice(prev.sourceEnd, next.sourceStart);
+}
+
+function hasEmptyLineBetweenSegments(prev: ChildPrintSegment, next: ChildPrintSegment): boolean {
+  if (!isIgnoreRangeNode(prev.last) && !isIgnoreRangeNode(next.first)) {
+    return forceNextEmptyLine(prev.last);
+  }
+
+  const sourceBetween = getSourceBetweenSegments(prev, next);
+
+  return /(?:\r\n|\r|\n)[^\S\r\n]*(?:\r\n|\r|\n)/u.test(sourceBetween);
+}
+
+function printBetweenSegments(prev: ChildPrintSegment, next: ChildPrintSegment): Doc {
+  if (isIgnoreRangeNode(prev.last) || isIgnoreRangeNode(next.first)) {
+    const sourceBetween = getSourceBetweenSegments(prev, next);
+    if (sourceBetween.length === 0) {
+      return "";
+    }
+
+    if (/(?:\r\n|\r|\n)[^\S\r\n]*(?:\r\n|\r|\n)/u.test(sourceBetween)) {
+      return [hardline, hardline];
+    }
+
+    if (/[\r\n]/u.test(sourceBetween)) {
+      return hardline;
+    }
+
+    return sourceBetween;
+  }
+
+  return printBetweenLine(prev.last, next.first);
+}
+
 /**
  * Determine line break between two adjacent content nodes.
  * Ported from Prettier's print/children.js printBetweenLine.
  */
 function printBetweenLine(prev: WrappedNode, next: WrappedNode): Doc {
-  if (shouldKeepInlineIgnoreBoundary(prev, next)) {
-    return getSourceBetween(prev, next);
+  const sourceBetween = getSourceBetween(prev, next);
+
+  if (isIgnoreRangeNode(prev) || isIgnoreRangeNode(next)) {
+    if (sourceBetween.length === 0) {
+      return "";
+    }
+    if (/(?:\r\n|\r|\n)[^\S\r\n]*(?:\r\n|\r|\n)/u.test(sourceBetween)) {
+      return [hardline, hardline];
+    }
+    if (/[\r\n]/u.test(sourceBetween)) {
+      return hardline;
+    }
+    return sourceBetween;
   }
 
   // Escaped blade prefixes (e.g. @@, @{{, @{!!) must stay attached to
@@ -189,43 +211,50 @@ export function printChildren(
   options: Options,
 ): Doc[] {
   const node = path.node;
+  const segments = getChildPrintSegments(node.children);
+  const printedChildren = path.map(
+    (childPath) => printChild(childPath, options, print),
+    "children",
+  );
 
   // Force-break mode: certain elements (ul, ol, table, etc.) always break.
   if (forceBreakChildren(node)) {
     return [
       breakParent,
-      ...path.map((childPath) => {
-        const childNode = childPath.node;
-        const prevBetweenLine = !childNode.prev ? "" : printBetweenLine(childNode.prev, childNode);
+      ...segments.map((segment, segmentIndex) => {
+        const prevSegment = segmentIndex > 0 ? segments[segmentIndex - 1] : null;
+        const prevBetweenLine = !prevSegment ? "" : printBetweenSegments(prevSegment, segment);
         return [
           !prevBetweenLine
             ? ""
-            : [prevBetweenLine, forceNextEmptyLine(childNode.prev!) ? hardline : ""],
-          printChild(childPath, options, print),
+            : [prevBetweenLine, hasEmptyLineBetweenSegments(prevSegment!, segment) ? hardline : ""],
+          printedChildren[segment.startIndex],
         ];
-      }, "children"),
+      }),
     ];
   }
 
   // Normal mode: use group IDs for proper inline element formatting.
-  const needsGroupIds = node.children.some((child) => !isTextLikeNode(child));
-  const groupIds = needsGroupIds ? node.children.map(() => Symbol("")) : [];
+  const needsGroupIds = segments.some((segment) => !isTextLikeNode(segment.first));
+  const groupIds = needsGroupIds ? segments.map(() => Symbol("")) : [];
 
-  return path.map((childPath, childIndex) => {
-    const childNode = childPath.node;
+  return segments.map((segment, childIndex) => {
+    const childNode = segment.first;
+    const segmentDoc = printedChildren[segment.startIndex];
 
     // Text-like nodes: simpler handling - no group wrapping needed.
     if (isTextLikeNode(childNode)) {
-      if (childNode.prev && isTextLikeNode(childNode.prev)) {
-        const prevBetweenLine = printBetweenLine(childNode.prev, childNode);
+      const prevSegment = childIndex > 0 ? segments[childIndex - 1] : null;
+      if (prevSegment && isTextLikeNode(prevSegment.last)) {
+        const prevBetweenLine = printBetweenSegments(prevSegment, segment);
         if (prevBetweenLine) {
-          if (forceNextEmptyLine(childNode.prev)) {
-            return [hardline, hardline, printChild(childPath, options, print)];
+          if (hasEmptyLineBetweenSegments(prevSegment, segment)) {
+            return [hardline, hardline, segmentDoc];
           }
-          return [prevBetweenLine, printChild(childPath, options, print)];
+          return [prevBetweenLine, segmentDoc];
         }
       }
-      return printChild(childPath, options, print);
+      return segmentDoc;
     }
 
     // Non-text nodes: wrap in groups with leading/trailing parts.
@@ -234,16 +263,18 @@ export function printChildren(
     const trailingParts: Doc[] = [];
     const nextParts: Doc[] = [];
 
-    const prevBetweenLine = childNode.prev ? printBetweenLine(childNode.prev, childNode) : "";
+    const prevSegment = childIndex > 0 ? segments[childIndex - 1] : null;
+    const prevBetweenLine = prevSegment ? printBetweenSegments(prevSegment, segment) : "";
 
-    const nextBetweenLine = childNode.next ? printBetweenLine(childNode, childNode.next) : "";
+    const nextSegment = childIndex + 1 < segments.length ? segments[childIndex + 1] : null;
+    const nextBetweenLine = nextSegment ? printBetweenSegments(segment, nextSegment) : "";
 
     if (prevBetweenLine) {
-      if (forceNextEmptyLine(childNode.prev!)) {
+      if (hasEmptyLineBetweenSegments(prevSegment!, segment)) {
         prevParts.push(hardline, hardline);
       } else if (prevBetweenLine === hardline) {
         prevParts.push(hardline);
-      } else if (isTextLikeNode(childNode.prev!)) {
+      } else if (prevSegment && isTextLikeNode(prevSegment.last)) {
         leadingParts.push(prevBetweenLine);
       } else {
         leadingParts.push(ifBreakChain(softline, [groupIds[childIndex - 1]]));
@@ -251,12 +282,12 @@ export function printChildren(
     }
 
     if (nextBetweenLine) {
-      if (forceNextEmptyLine(childNode)) {
-        if (isTextLikeNode(childNode.next!)) {
+      if (nextSegment && hasEmptyLineBetweenSegments(segment, nextSegment)) {
+        if (isTextLikeNode(nextSegment.first)) {
           nextParts.push(hardline, hardline);
         }
       } else if (nextBetweenLine === hardline) {
-        if (isTextLikeNode(childNode.next!)) {
+        if (nextSegment && isTextLikeNode(nextSegment.first)) {
           nextParts.push(hardline);
         }
       } else {
@@ -268,11 +299,11 @@ export function printChildren(
       ...prevParts,
       group([
         ...leadingParts,
-        group([printChild(childPath, options, print), ...trailingParts], {
+        group([segmentDoc, ...trailingParts], {
           id: groupIds[childIndex],
         }),
       ]),
       ...nextParts,
     ];
-  }, "children");
+  });
 }

@@ -5,6 +5,7 @@ import { expect } from "vitest";
 import plugin from "../../../src/index.js";
 import { tokenize } from "../../../src/lexer/lexer.js";
 import { TokenType, tokenLabel, type Token } from "../../../src/lexer/types.js";
+import { expectIgnoreRangesUnchanged } from "../../support/ignore-range.js";
 
 const VALIDATION_DEFAULT_OPTIONS: prettier.Options = {
   bladePhpFormatting: "off",
@@ -186,6 +187,9 @@ export async function formatWithStabilityChecks(
   expectRespectsFormattingInvariants(first, options, "stability pass 1");
   expectRespectsFormattingInvariants(second, options, "stability pass 2");
   expectRespectsFormattingInvariants(third, options, "stability pass 3");
+  expectIgnoreRangesUnchanged(input, first, "stability pass 1", formatOptions);
+  expectIgnoreRangesUnchanged(input, second, "stability pass 2", formatOptions);
+  expectIgnoreRangesUnchanged(input, third, "stability pass 3", formatOptions);
 
   return first;
 }
@@ -209,6 +213,9 @@ export async function formatWithConvergenceChecks(
   expectRespectsFormattingInvariants(first, options, "convergence pass 1");
   expectRespectsFormattingInvariants(second, options, "convergence pass 2");
   expectRespectsFormattingInvariants(third, options, "convergence pass 3");
+  expectIgnoreRangesUnchanged(input, first, "convergence pass 1", formatOptions);
+  expectIgnoreRangesUnchanged(input, second, "convergence pass 2", formatOptions);
+  expectIgnoreRangesUnchanged(input, third, "convergence pass 3", formatOptions);
 
   return { first, second, third };
 }
@@ -229,6 +236,8 @@ export async function formatWithRoundTripChecks(
 
   expectRespectsFormattingInvariants(first, options, "round-trip pass 1");
   expectRespectsFormattingInvariants(second, options, "round-trip pass 2");
+  expectIgnoreRangesUnchanged(input, first, "round-trip pass 1", formatOptions);
+  expectIgnoreRangesUnchanged(input, second, "round-trip pass 2", formatOptions);
 
   return { first, second };
 }

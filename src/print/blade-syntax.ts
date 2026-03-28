@@ -134,6 +134,7 @@ export function isBladeConstructChild(
     case NodeKind.PhpTag:
     case NodeKind.PhpBlock:
     case NodeKind.DirectiveBlock:
+    case NodeKind.IgnoreRange:
       return true;
     case NodeKind.Directive:
       return isDirectiveNodeBladeLike(node, context);
