@@ -100,8 +100,10 @@ function normalizeMultilineFallbackValueIndentation(value: string): string {
   return output.join("\n");
 }
 
-function hasMustacheInterpolation(node: WrappedNode): boolean {
-  return getUnescapedAttributeValue(node).includes("{{");
+function hasBladeValueSyntax(node: WrappedNode): boolean {
+  const value = getUnescapedAttributeValue(node);
+  // {{ ... }}, {{-- comment --}}, and {!! raw !!} all start with these prefixes.
+  return value.includes("{{") || value.includes("{!!");
 }
 
 const ALPINE_DIRECTIVES = new Map<string, AlpineDirectiveKind>([
@@ -222,7 +224,7 @@ const isAlpineAttribute: AttrPredicate = (path, options) => {
   }
 
   const node = path.node;
-  if (hasMustacheInterpolation(node)) {
+  if (hasBladeValueSyntax(node)) {
     return false;
   }
   if (!isStaticAttributeValue(node)) {
