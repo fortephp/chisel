@@ -6147,7 +6147,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_livewire_
     @endphp
 
   {{-- format-ignore-start --}}
-  <aside
+    <aside
         x-data="{}"
         @if ($isSidebarCollapsibleOnDesktop || $isSidebarFullyCollapsibleOnDesktop)
             x-cloak
@@ -6330,7 +6330,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_livewire_
 
         {{ \\Filament\\Support\\Facades\\FilamentView::renderHook(\\Filament\\View\\PanelsRenderHook::SIDEBAR_FOOTER) }}
     </aside>
-  {{-- format-ignore-end --}}
+    {{-- format-ignore-end --}}
 
   <x-filament-actions::modals />
 </div>

@@ -19,9 +19,11 @@ import { isEchoLike, isTextLikeNode } from "../node-predicates.js";
 import {
   fullText,
   preferHardlineAsLeadingSpaces,
-  getIgnoreCommentKind,
+  getChildPrintSegments,
+  getPrintableSubtreeEnd,
   getPrettierIgnoreMode,
   hasPrettierIgnore,
+  type ChildPrintSegment,
 } from "./utils.js";
 import { htmlTrimEnd, htmlTrimStart, replaceEndOfLine } from "./doc-utils.js";
 import {
@@ -33,7 +35,7 @@ import {
   printClosingTagEndMarker,
 } from "./tag.js";
 
-const { indent, hardline, dedentToRoot } = doc.builders;
+const { indent, hardline } = doc.builders;
 
 type BranchNodeKind = NodeKind.Directive | NodeKind.PhpTag;
 
@@ -50,12 +52,8 @@ const BODY_BLANK_LINE_LAYOUT_DIRECTIVES = new Set([
   "each",
 ]);
 
-function getEndLocation(node: WrappedNode): number {
-  if (node.kind === NodeKind.Element && !node.hasClosingTag && node.children.length > 0) {
-    return Math.max(node.end, getEndLocation(node.children[node.children.length - 1]));
-  }
-
-  return node.end;
+function isIgnoreRangeNode(node: WrappedNode): boolean {
+  return node.kind === NodeKind.IgnoreRange;
 }
 
 function printIgnoredDirectiveBodyChild(
@@ -65,11 +63,11 @@ function printIgnoredDirectiveBodyChild(
   const child = childPath.node;
   const ignoreMode = getPrettierIgnoreMode(child);
 
-  if (!(hasPrettierIgnore(child) && ignoreMode)) {
+  if (!(hasPrettierIgnore(child) && ignoreMode === "single")) {
     return null;
   }
 
-  const endLocation = getEndLocation(child);
+  const endLocation = getPrintableSubtreeEnd(child);
   let preservedText = htmlTrimEnd(
     child.source.slice(
       child.start +
@@ -89,11 +87,38 @@ function printIgnoredDirectiveBodyChild(
 
   return [
     printOpeningTagPrefix(child, options),
-    ignoreMode === "range"
-      ? dedentToRoot(replaceEndOfLine(preservedText))
-      : replaceEndOfLine(preservedText),
+    replaceEndOfLine(preservedText),
     printClosingTagSuffix(child, options),
   ];
+}
+
+function getSourceBetweenSegments(prev: ChildPrintSegment, next: ChildPrintSegment): string {
+  if (prev.first.source !== next.first.source) {
+    return "";
+  }
+
+  return getSourceBetweenBounds(prev.first.source, prev.sourceEnd, next.sourceStart);
+}
+
+function printBetweenSegments(prev: ChildPrintSegment, next: ChildPrintSegment): Doc {
+  if (isIgnoreRangeNode(prev.last) || isIgnoreRangeNode(next.first)) {
+    const sourceBetween = getSourceBetweenSegments(prev, next);
+    if (sourceBetween.length === 0) {
+      return "";
+    }
+
+    if (!/[\r\n]/u.test(sourceBetween)) {
+      return sourceBetween;
+    }
+
+    if (hasBlankLineBetween(sourceBetween) && shouldPreserveBodyBlankLine(prev.last, next.first)) {
+      return [hardline, hardline];
+    }
+
+    return hardline;
+  }
+
+  return printBetweenLine(prev.last, next.first);
 }
 
 export function printDirective(node: WrappedNode, options: Options): Doc {
@@ -314,15 +339,38 @@ function printDirectiveBody(
 ): Doc[] {
   const docs: Doc[] = [];
   const branch = branchPath.node;
-
-  branchPath.each((childPath, i) => {
+  const segments = getChildPrintSegments(branch.children);
+  const renderedChildren = branchPath.map((childPath) => {
     const child = childPath.node;
+    if (isBranchNode(child) && child.children.length > 0) {
+      return {
+        branchDoc:
+          child.kind === NodeKind.Directive
+            ? renderDirectiveTokens(child, options)
+            : print(childPath),
+        nestedDocs: printDirectiveBody(childPath, print, options),
+      };
+    }
+
+    return {
+      branchDoc: printDirectiveBodyChild(childPath, print, options),
+      nestedDocs: [],
+    };
+  }, "children");
+
+  for (const [segmentIndex, segment] of segments.entries()) {
+    const child = segment.first;
 
     if (docs.length > 0) {
-      const prev = branch.children[i - 1];
+      const prev = segments[segmentIndex - 1];
       if (prev) {
-        docs.push(printBetweenLine(prev, child));
+        docs.push(printBetweenSegments(prev, segment));
       }
+    }
+
+    const rendered = renderedChildren[segment.startIndex];
+    if (!rendered) {
+      continue;
     }
 
     // Directive children with their own body (e.g. @case/@default inside
@@ -330,19 +378,15 @@ function printDirectiveBody(
     // indented - mirroring how printDirectiveBlockMultiline handles its
     // direct Directive children.
     if (isBranchNode(child) && child.children.length > 0) {
-      docs.push(
-        child.kind === NodeKind.Directive
-          ? renderDirectiveTokens(child, options)
-          : print(childPath),
-      );
-      const nestedDocs = printDirectiveBody(childPath, print, options);
+      docs.push(rendered.branchDoc);
+      const nestedDocs = rendered.nestedDocs;
       if (nestedDocs.length > 0) {
         docs.push(indent([hardline, nestedDocs]));
       }
     } else {
-      docs.push(printDirectiveBodyChild(childPath, print, options));
+      docs.push(rendered.branchDoc);
     }
-  }, "children");
+  }
 
   return docs;
 }
@@ -353,19 +397,40 @@ function printDirectiveBodyInline(
   options: Options,
 ): Doc[] {
   const docs: Doc[] = [];
-  let prev: WrappedNode | null = null;
+  const segments = getChildPrintSegments(branchPath.node.children);
+  const printedChildren = branchPath.map(
+    (childPath) => printDirectiveBodyChild(childPath, print, options),
+    "children",
+  );
 
-  branchPath.each((childPath) => {
-    const child = childPath.node;
+  for (const [segmentIndex, segment] of segments.entries()) {
+    const prev = segmentIndex > 0 ? segments[segmentIndex - 1] : null;
     if (prev !== null) {
-      const between = getSourceBetween(prev, child);
-      if (/\s/.test(between)) {
+      const between =
+        isIgnoreRangeNode(prev.last) || isIgnoreRangeNode(segment.first)
+          ? getSourceBetweenSegments(prev, segment)
+          : getSourceBetween(prev.last, segment.first);
+
+      if (isIgnoreRangeNode(prev.last) || isIgnoreRangeNode(segment.first)) {
+        if (between.length > 0) {
+          docs.push(
+            hasBlankLineBetween(between)
+              ? [hardline, hardline]
+              : /[\r\n]/u.test(between)
+                ? hardline
+                : between,
+          );
+        }
+      } else if (/\s/.test(between)) {
         docs.push(" ");
       }
     }
-    docs.push(printDirectiveBodyChild(childPath, print, options));
-    prev = child;
-  }, "children");
+
+    const printed = printedChildren[segment.startIndex];
+    if (printed !== "") {
+      docs.push(printed);
+    }
+  }
 
   return docs;
 }
@@ -638,27 +703,18 @@ function printBetweenLine(prev: WrappedNode, next: WrappedNode): Doc {
   }
 
   const sourceBetween = getSourceBetween(prev, next);
-  const prevIgnoreMode = getPrettierIgnoreMode(prev);
-  const nextIgnoreMode = getPrettierIgnoreMode(next);
   const hasLineBreakBetweenNodes = /[\r\n]/.test(sourceBetween) || next.startLine > prev.endLine;
 
-  if (prevIgnoreMode === "range" && nextIgnoreMode === "range") {
-    return sourceBetween;
-  }
-
-  if (
-    getIgnoreCommentKind(prev) === "ignore-start" &&
-    nextIgnoreMode === "range" &&
-    !hasLineBreakBetweenNodes
-  ) {
-    return sourceBetween;
-  }
-
-  if (
-    prevIgnoreMode === "range" &&
-    getIgnoreCommentKind(next) === "ignore-end" &&
-    !hasLineBreakBetweenNodes
-  ) {
+  if (isIgnoreRangeNode(prev) || isIgnoreRangeNode(next)) {
+    if (sourceBetween.length === 0) {
+      return "";
+    }
+    if (hasBlankLineBetween(sourceBetween)) {
+      return [hardline, hardline];
+    }
+    if (hasLineBreakBetweenNodes) {
+      return hardline;
+    }
     return sourceBetween;
   }
 

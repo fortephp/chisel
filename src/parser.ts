@@ -1,11 +1,12 @@
 import type { Parser } from "prettier";
 import { tokenize } from "./lexer/lexer.js";
 import { Directives as LexerDirectives } from "./lexer/directives.js";
+import { collectIgnoreRanges } from "./lexer/ignore-ranges.js";
 import { buildTree } from "./tree/tree-builder.js";
 import { Directives as TreeDirectives } from "./tree/directives.js";
 import type { WrappedNode } from "./types.js";
 import { NodeKind, NONE, type BuildResult, type FlatNode } from "./tree/types.js";
-import { TokenType } from "./lexer/types.js";
+import { TokenType, type IgnoreRangeRegion } from "./lexer/types.js";
 import { hasPragma } from "./pragma.js";
 import { resolveBladeSyntaxProfile } from "./plugins/runtime.js";
 import { markFrontMatter, parseFrontMatter, type FrontMatter } from "./front-matter.js";
@@ -20,6 +21,12 @@ const INTERNAL_KINDS = new Set([
   NodeKind.AttributeValue,
   NodeKind.AttributeWhitespace,
 ]);
+
+const IGNORE_RANGES_OPTION = "__bladeIgnoreRanges";
+
+type ParserOptionsWithIgnoreRanges = Record<string, unknown> & {
+  [IGNORE_RANGES_OPTION]?: IgnoreRangeRegion[];
+};
 
 function buildTokenLineNumbers(
   tokens: BuildResult["tokens"],
@@ -252,6 +259,7 @@ function shouldMaterializeRawText(kind: number): boolean {
     case NodeKind.Comment:
     case NodeKind.BogusComment:
     case NodeKind.BladeComment:
+    case NodeKind.IgnoreRange:
     case NodeKind.Doctype:
     case NodeKind.ElementName:
     case NodeKind.ClosingElementName:
@@ -337,15 +345,24 @@ function parse(text: string, options?: unknown): WrappedNode {
 
   const syntaxProfile = resolveBladeSyntaxProfile(options);
   const lexerDirectives = LexerDirectives.acceptAll();
+  const parserOptions = (options ?? {}) as ParserOptionsWithIgnoreRanges;
+  const ignoreRanges =
+    parserOptions[IGNORE_RANGES_OPTION] ??
+    collectIgnoreRanges(content, lexerDirectives, {
+      verbatimStartDirectives: syntaxProfile.verbatimStartDirectives,
+      verbatimEndDirectives: syntaxProfile.verbatimEndDirectives,
+    });
 
   const { tokens } = tokenize(content, lexerDirectives, {
     verbatimStartDirectives: syntaxProfile.verbatimStartDirectives,
     verbatimEndDirectives: syntaxProfile.verbatimEndDirectives,
+    ignoreRanges,
   });
 
   const directives = TreeDirectives.withDefaults(syntaxProfile.treeDirectives);
   directives.train(tokens, content);
   const result = buildTree(tokens, content, directives);
+  result.ignoreRanges = ignoreRanges;
   const root = wrapTree(result);
 
   if (frontMatter) {
@@ -355,8 +372,23 @@ function parse(text: string, options?: unknown): WrappedNode {
   return root;
 }
 
+function preprocess(text: string, options?: unknown): string {
+  const { content } = parseFrontMatter(text);
+  const syntaxProfile = resolveBladeSyntaxProfile(options);
+  const lexerDirectives = LexerDirectives.acceptAll();
+  const parserOptions = (options ?? {}) as ParserOptionsWithIgnoreRanges;
+
+  parserOptions[IGNORE_RANGES_OPTION] = collectIgnoreRanges(content, lexerDirectives, {
+    verbatimStartDirectives: syntaxProfile.verbatimStartDirectives,
+    verbatimEndDirectives: syntaxProfile.verbatimEndDirectives,
+  });
+
+  return text;
+}
+
 export const bladeParser: Parser<WrappedNode> = {
   parse,
+  preprocess,
   hasPragma,
   astFormat: "blade-ast",
   locStart: (node: WrappedNode) => node.start,

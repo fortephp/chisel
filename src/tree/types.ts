@@ -1,3 +1,4 @@
+import type { IgnoreRangeRegion } from "../lexer/types.js";
 import type { Directives } from "./directives.js";
 
 export const enum NodeKind {
@@ -30,6 +31,7 @@ export const enum NodeKind {
   AttributeName = 26,
   AttributeValue = 27,
   ProcessingInstruction = 28,
+  IgnoreRange = 29,
 }
 
 export const NODE_KIND_LABELS: Record<number, string> = {
@@ -62,6 +64,7 @@ export const NODE_KIND_LABELS: Record<number, string> = {
   [NodeKind.AttributeName]: "AttributeName",
   [NodeKind.AttributeValue]: "AttributeValue",
   [NodeKind.ProcessingInstruction]: "ProcessingInstruction",
+  [NodeKind.IgnoreRange]: "IgnoreRange",
 };
 
 export function nodeKindLabel(kind: number): string {
@@ -122,6 +125,7 @@ export interface BuildResult {
   source: string;
   tokens: readonly { type: number; start: number; end: number }[];
   directives?: Directives;
+  ignoreRanges?: readonly IgnoreRangeRegion[];
 }
 
 export interface DirectiveFrame {

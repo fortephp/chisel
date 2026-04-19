@@ -197,6 +197,10 @@ export class TreeBuilder {
       case TokenType.DoctypeStart:
         this.createBlockNode(this.pos, TokenType.DoctypeEnd, NodeKind.Doctype);
         break;
+      case TokenType.IgnoreRange:
+        this.addChild(createFlatNode(NodeKind.IgnoreRange, 0, this.pos, 1));
+        this.pos++;
+        break;
       case TokenType.PhpBlockStart:
         this.createBlockNode(this.pos, TokenType.PhpBlockEnd, NodeKind.PhpBlock);
         break;

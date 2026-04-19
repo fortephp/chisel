@@ -7,6 +7,7 @@ export {
   tokenContent,
   reconstructFromTokens,
 } from "./lexer.js";
+export { collectIgnoreRanges } from "./ignore-ranges.js";
 export {
   Directives,
   getDirectivePhpWrapperKind,

@@ -4,6 +4,7 @@ import { NodeKind } from "../tree/types.js";
 import { TokenType } from "../lexer/types.js";
 import { HTML_ELEMENT_ATTRIBUTES } from "../html-data.js";
 import { hasFrontMatterMark } from "../front-matter.js";
+import { getIgnoreCommentKindFromCommentText, type IgnoreCommentKind } from "../ignore-markers.js";
 import { parentContainsBladeSyntax } from "./blade-syntax.js";
 import { isEchoLike, isScriptLikeTag, isVueNonHtmlBlock } from "../node-predicates.js";
 
@@ -317,8 +318,18 @@ export function forceNextEmptyLine(node: WrappedNode): boolean {
   return !!node.next && node.endLine + 1 < node.next.startLine;
 }
 
-type IgnoreCommentKind = "ignore" | "ignore-start" | "ignore-end";
-type IgnoreApplyMode = "single" | "range";
+type IgnoreApplyMode = "single";
+
+interface ChildPrintSegmentBase {
+  startIndex: number;
+  endIndex: number;
+  first: WrappedNode;
+  last: WrappedNode;
+  sourceStart: number;
+  sourceEnd: number;
+}
+
+export interface ChildPrintSegment extends ChildPrintSegmentBase {}
 
 const ignoredChildrenCache = new WeakMap<WrappedNode, Map<WrappedNode, IgnoreApplyMode>>();
 
@@ -341,32 +352,18 @@ function getIgnoredChildren(parent: WrappedNode): Map<WrappedNode, IgnoreApplyMo
   if (cached) return cached;
 
   const ignored = new Map<WrappedNode, IgnoreApplyMode>();
-  let ignoreDepth = 0;
   let ignoreNextCount = 0;
 
   for (const child of parent.children) {
     const ignoreKind = getIgnoreCommentKind(child);
-    const isRangeEnd = ignoreKind === "ignore-end";
 
-    if ((ignoreDepth > 0 || ignoreNextCount > 0) && !isRangeEnd) {
-      ignored.set(child, ignoreDepth > 0 ? "range" : "single");
-      if (ignoreNextCount > 0) {
-        ignoreNextCount--;
-      }
+    if (ignoreNextCount > 0 && ignoreKind !== "ignore") {
+      ignored.set(child, "single");
+      ignoreNextCount--;
     }
 
     if (ignoreKind === "ignore") {
       ignoreNextCount = Math.max(ignoreNextCount, 1);
-      continue;
-    }
-
-    if (ignoreKind === "ignore-start") {
-      ignoreDepth++;
-      continue;
-    }
-
-    if (ignoreKind === "ignore-end" && ignoreDepth > 0) {
-      ignoreDepth--;
     }
   }
 
@@ -375,34 +372,43 @@ function getIgnoredChildren(parent: WrappedNode): Map<WrappedNode, IgnoreApplyMo
 }
 
 export function getIgnoreCommentKind(node: WrappedNode): IgnoreCommentKind | null {
-  let value: string | null = null;
-
   if (node.kind === NodeKind.Comment) {
-    const text = fullText(node);
-    const match = text.match(/^<!--\s*([\s\S]*?)\s*-->$/s);
-    value = match?.[1] ?? null;
-  } else if (node.kind === NodeKind.BladeComment) {
-    const text = fullText(node);
-    const match = text.match(/^\{\{--\s*([\s\S]*?)\s*--\}\}$/s);
-    value = match?.[1] ?? null;
+    return getIgnoreCommentKindFromCommentText(fullText(node), "html");
+  }
+  if (node.kind === NodeKind.BladeComment) {
+    return getIgnoreCommentKindFromCommentText(fullText(node), "blade");
+  }
+  return null;
+}
+
+export function getPrintableSubtreeEnd(node: WrappedNode): number {
+  let end = node.end;
+
+  const subtreeChildren =
+    node.attrs.length === 0
+      ? node.children
+      : node.children.length === 0
+        ? node.attrs
+        : [...node.attrs, ...node.children].sort((left, right) =>
+            left.start !== right.start ? left.start - right.start : left.end - right.end,
+          );
+
+  for (const child of subtreeChildren) {
+    end = Math.max(end, getPrintableSubtreeEnd(child));
   }
 
-  if (!value) return null;
+  return end;
+}
 
-  const normalized = value.trim().toLowerCase();
-  switch (normalized) {
-    case "prettier-ignore":
-    case "format-ignore":
-      return "ignore";
-    case "prettier-ignore-start":
-    case "format-ignore-start":
-      return "ignore-start";
-    case "prettier-ignore-end":
-    case "format-ignore-end":
-      return "ignore-end";
-    default:
-      return null;
-  }
+export function getChildPrintSegments(children: readonly WrappedNode[]): ChildPrintSegment[] {
+  return children.map((child, index) => ({
+    startIndex: index,
+    endIndex: index,
+    first: child,
+    last: child,
+    sourceStart: child.start,
+    sourceEnd: getPrintableSubtreeEnd(child),
+  }));
 }
 
 export function getAttributeName(node: WrappedNode): string {

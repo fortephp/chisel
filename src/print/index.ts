@@ -47,7 +47,7 @@ function genericPrint(
     case NodeKind.Root: {
       const children = printChildren(path, print, options);
       if (children.length === 0) return "";
-      return [group(children), hardline];
+      return shouldPreserveIgnoreRangeEof(node) ? group(children) : [group(children), hardline];
     }
 
     case NodeKind.Element:
@@ -56,6 +56,9 @@ function genericPrint(
 
     case NodeKind.Text:
       return printText(node, options);
+
+    case NodeKind.IgnoreRange:
+      return printIgnoreRange(node);
 
     case NodeKind.Echo:
     case NodeKind.RawEcho:
@@ -144,6 +147,10 @@ function printRawBlockNode(node: WrappedNode): string {
   return trimUnterminatedNodeAtEof(node);
 }
 
+function printIgnoreRange(node: WrappedNode): string {
+  return fullText(node);
+}
+
 function printRawDelimitedNode(node: WrappedNode): string {
   return trimUnterminatedNodeAtEof(node);
 }
@@ -207,4 +214,13 @@ function trimTrailingWhitespaceAtEof(node: WrappedNode): string {
     return text;
   }
   return text.replace(/\s+$/u, "");
+}
+
+function shouldPreserveIgnoreRangeEof(node: WrappedNode): boolean {
+  if (node.kind !== NodeKind.Root || node.children.length === 0) {
+    return false;
+  }
+
+  const lastChild = node.children[node.children.length - 1];
+  return lastChild.kind === NodeKind.IgnoreRange && lastChild.end === lastChild.source.length;
 }

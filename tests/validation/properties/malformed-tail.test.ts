@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatWithPasses } from "../../helpers.js";
+import { expectIgnoreRangesUnchanged, formatWithPasses } from "../../helpers.js";
 
 function countOccurrences(haystack: string, needle: string): number {
   if (needle.length === 0) return 0;
@@ -48,5 +48,16 @@ describe("validation/malformed-tail", () => {
     const expected = `<section data-tail-case="${marker}">${marker}</section>\n<button>\n  <?php if ($slot->isNotEmpty()): ?>\n    {{ $slot }}\n  <?php else: ?>\n    <x:selected />\n  <?php endif; ?>\n\n  <?php if ($clearable): ?>\n        <x:btn as="div"\n</div>\n    <x:btn as="div"\n  <?php endif; ?>\n</button>\n<footer>${marker}</footer>\n`;
     expect(output).toBe(expected);
     expect(countOccurrences(output, marker)).toBe(countOccurrences(input, marker));
+  });
+
+  it("stabilizes malformed ignore ranges without absorbing following subtrees", async () => {
+    const input = `@if($x)\n{{-- format-ignore-start --}}<x-slot:foo>{{-- format-ignore-end --}}tail\n<div   class="x"   ></div>\n@endif\n`;
+    const output = await formatWithPasses(input, {}, { passes: 5, assertIdempotent: true });
+    const expected = `@if ($x)\n  {{-- format-ignore-start --}}<x-slot:foo>{{-- format-ignore-end --}}tail\n  <div class="x"></div>\n@endif\n`;
+
+    expect(output).toBe(expected);
+    expect(countOccurrences(output, "format-ignore-start")).toBe(1);
+    expect(countOccurrences(output, "format-ignore-end")).toBe(1);
+    expectIgnoreRangesUnchanged(input, output);
   });
 });
