@@ -6,12 +6,29 @@ import { fileURLToPath } from "node:url";
 import { beforeAll, describe, expect, it } from "vitest";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const prettierBinPath = join(repoRoot, "node_modules", "prettier", "bin", "prettier.cjs");
+const prettierBinPath = join(
+  repoRoot,
+  "node_modules",
+  "prettier",
+  "bin",
+  "prettier.cjs",
+);
 const builtPluginPath = join(repoRoot, "dist", "index.js");
-const tsupBinPath = join(repoRoot, "node_modules", "tsup", "dist", "cli-default.js");
+const tsupBinPath = join(
+  repoRoot,
+  "node_modules",
+  "tsup",
+  "dist",
+  "cli-default.js",
+);
 
 function assertSuccess(
-  result: { status: number | null; stdout: string; stderr: string; error?: Error },
+  result: {
+    status: number | null;
+    stdout: string;
+    stderr: string;
+    error?: Error;
+  },
   context: string,
 ): void {
   const diagnostics = [
@@ -40,15 +57,16 @@ beforeAll(() => {
     encoding: "utf8",
   });
 
-  assertSuccess(build, "expected tsup build to succeed before CLI integration tests");
+  assertSuccess(
+    build,
+    "expected tsup build to succeed before CLI integration tests",
+  );
 }, 30_000);
 
 describe("cli/built-plugin", () => {
-  it(
-    "loads Blade options from .prettierrc.json overrides using dist build",
-    () => {
-      const tempDir = mkdtempSync(join(tmpdir(), "blade-cli-config-"));
-      try {
+  it("loads Blade options from .prettierrc.json overrides using dist build", () => {
+    const tempDir = mkdtempSync(join(tmpdir(), "blade-cli-config-"));
+    try {
       const configPath = join(tempDir, ".prettierrc.json");
       writeFileSync(
         configPath,
@@ -62,6 +80,8 @@ describe("cli/built-plugin", () => {
                   parser: "blade",
                   bladePhpFormatting: "safe",
                   bladeEchoSpacing: "tight",
+                  bladeDirectiveArgSpacing: "none",
+                  bladeDirectiveArgSpacingOverrides: ["blaze=2"],
                 },
               },
             ],
@@ -72,44 +92,57 @@ describe("cli/built-plugin", () => {
       );
 
       const result = runPrettierCli(
-        ["--config", configPath, "--stdin-filepath", join(tempDir, "demo.blade.php")],
-        "{{$a+$b}}\n",
+        [
+          "--config",
+          configPath,
+          "--stdin-filepath",
+          join(tempDir, "demo.blade.php"),
+        ],
+        "{{$a+$b}}\n@blaze(a:1+2)\n",
         tempDir,
       );
 
-      assertSuccess(result, "expected prettier CLI with .prettierrc.json to succeed");
-      expect(result.stdout).toBe("{{$a + $b}}\n");
-      } finally {
-        rmSync(tempDir, { recursive: true, force: true });
-      }
-    },
-    20_000,
-  );
-
-  it(
-    "accepts kebab-case Blade option flags through prettier CLI with dist build",
-    () => {
-      const result = runPrettierCli(
-        [
-          "--plugin",
-          builtPluginPath,
-          "--plugin",
-          "@prettier/plugin-php",
-          "--parser",
-          "blade",
-          "--blade-php-formatting",
-          "safe",
-          "--blade-php-formatting-targets",
-          "echo",
-          "--blade-echo-spacing",
-          "tight",
-        ],
-        "{{$a+$b}}\n@blaze(a:1+2)\n",
+      assertSuccess(
+        result,
+        "expected prettier CLI with .prettierrc.json to succeed",
       );
+      expect(result.stdout).toBe("{{$a + $b}}\n@blaze  (a: 1 + 2)\n");
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  }, 20_000);
 
-      assertSuccess(result, "expected prettier CLI with Blade option flags to succeed");
-      expect(result.stdout).toBe("{{$a + $b}}\n@blaze (a:1+2)\n");
-    },
-    20_000,
-  );
+  it("accepts kebab-case Blade option flags through prettier CLI with dist build", () => {
+    const result = runPrettierCli(
+      [
+        "--plugin",
+        builtPluginPath,
+        "--plugin",
+        "@prettier/plugin-php",
+        "--parser",
+        "blade",
+        "--blade-php-formatting",
+        "safe",
+        "--blade-php-formatting-targets",
+        "echo",
+        "--blade-echo-spacing",
+        "tight",
+        "--blade-directive-arg-spacing",
+        "none",
+        "--blade-directive-arg-spacing-overrides",
+        "if",
+        "--blade-directive-arg-spacing-overrides",
+        "blaze=2",
+      ],
+      "{{$a+$b}}\n@if($x)\n@endif\n@blaze(a:1+2)\n",
+    );
+
+    assertSuccess(
+      result,
+      "expected prettier CLI with Blade option flags to succeed",
+    );
+    expect(result.stdout).toBe(
+      "{{$a + $b}}\n@if ($x)\n@endif\n@blaze  (a:1+2)\n",
+    );
+  }, 20_000);
 });

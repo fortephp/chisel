@@ -55,11 +55,18 @@ const INPUT = `<!doctype html>
 const DOMAINS: Domain[] = [
   { key: "bladePhpFormatting", values: ["off", "safe"] },
   { key: "bladeDirectiveArgSpacing", values: ["none", "space"] },
+  {
+    key: "bladeDirectiveArgSpacingOverrides",
+    values: [undefined, ["if=0", "can", "php=2"]],
+  },
   { key: "bladeEchoSpacing", values: ["preserve", "space", "tight"] },
   { key: "bladeSlotClosingTag", values: ["canonical", "preserve"] },
   { key: "bladeInsertOptionalClosingTags", values: [false, true] },
   { key: "bladeKeepHeadAndBodyAtRoot", values: [false, true] },
-  { key: "bladeInlineIntentElements", values: [["p", "svg", "svg:*"], ["p"], []] },
+  {
+    key: "bladeInlineIntentElements",
+    values: [["p", "svg", "svg:*"], ["p"], []],
+  },
   { key: "singleQuote", values: [false, true] },
   { key: "printWidth", values: [60, 100] },
   { key: "useTabs", values: [false, true] },
@@ -104,7 +111,10 @@ function randomRow(domains: Domain[], rng: Rng): number[] {
 function rowToOptions(row: number[], domains: Domain[]): Options {
   const out: Record<string, unknown> = {};
   for (let i = 0; i < domains.length; i++) {
-    out[String(domains[i].key)] = domains[i].values[row[i]!];
+    const value = domains[i].values[row[i]!];
+    if (value !== undefined) {
+      out[String(domains[i].key)] = value;
+    }
   }
   return out as Options;
 }
@@ -165,7 +175,8 @@ function buildPairwiseRows(domains: Domain[]): Options[] {
 
 function summarizeOptions(options: Options): string {
   return DOMAINS.map(
-    (d) => `${String(d.key)}=${String((options as Record<string, unknown>)[d.key])}`,
+    (d) =>
+      `${String(d.key)}=${String((options as Record<string, unknown>)[d.key])}`,
   ).join(" | ");
 }
 

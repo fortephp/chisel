@@ -99,6 +99,7 @@ function toHtmlReferenceOptions(options: prettier.Options): prettier.Options {
   delete htmlOptions.bladeDirectiveCase;
   delete htmlOptions.bladeDirectiveCaseMap;
   delete htmlOptions.bladeDirectiveArgSpacing;
+  delete htmlOptions.bladeDirectiveArgSpacingOverrides;
   delete htmlOptions.bladeDirectiveBlockStyle;
   delete htmlOptions.bladeBlankLinesAroundDirectives;
   delete htmlOptions.bladeEchoSpacing;

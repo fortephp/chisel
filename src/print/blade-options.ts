@@ -3,12 +3,17 @@ import { getCanonicalDirectiveName } from "../lexer/directives.js";
 
 export type DirectiveCaseMode = "preserve" | "canonical" | "lower";
 export type DirectiveArgSpacingMode = "preserve" | "none" | "space";
+export type DirectiveArgSpacingRule = DirectiveArgSpacingMode | number;
 export type DirectiveBlockStyle = "preserve" | "inline-if-short" | "multiline";
 export type BladeBlankLinesMode = "preserve" | "always";
 export type EchoSpacingMode = "preserve" | "space" | "tight";
 export type SlotClosingTagMode = "canonical" | "preserve";
 
 const directiveCaseMapCache = new WeakMap<object, Map<string, string>>();
+const directiveArgSpacingOverridesCache = new WeakMap<
+  object,
+  Map<string, DirectiveArgSpacingRule>
+>();
 const inlineIntentElementsCache = new WeakMap<object, Set<string>>();
 const bladeComponentPrefixesCache = new WeakMap<object, string[]>();
 
@@ -21,9 +26,35 @@ const DEFAULT_BLADE_COMPONENT_PREFIXES = [
   "livewire",
   "native",
 ] as const;
+export const DEFAULT_DIRECTIVE_ARG_SPACING_OVERRIDE_TOKENS = Object.freeze([
+  "if",
+  "elseif",
+  "unless",
+  "while",
+  "for",
+  "foreach",
+  "forelse",
+  "switch",
+  "case",
+] as const);
+export const DEFAULT_DIRECTIVE_ARG_SPACING_OVERRIDES = Object.freeze({
+  if: "space",
+  elseif: "space",
+  unless: "space",
+  while: "space",
+  for: "space",
+  foreach: "space",
+  forelse: "space",
+  switch: "space",
+  case: "space",
+} satisfies Record<string, DirectiveArgSpacingMode>);
 
 function normalizeDirectiveName(name: string): string {
   return name.startsWith("@") ? name.slice(1) : name;
+}
+
+function normalizeDirectiveLookupName(name: string): string {
+  return normalizeDirectiveName(name.trim()).toLowerCase();
 }
 
 function dedupStrings(items: string[]): string[] {
@@ -125,6 +156,116 @@ export function getDirectiveArgSpacingMode(options: Options): DirectiveArgSpacin
     return value;
   }
   return "space";
+}
+
+function parseDirectiveArgSpacingRule(value: unknown): DirectiveArgSpacingRule | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (/^\d+$/u.test(normalized)) {
+    return Number.parseInt(normalized, 10);
+  }
+  if (normalized === "preserve" || normalized === "none" || normalized === "space") {
+    return normalized;
+  }
+
+  return null;
+}
+
+function parseDirectiveArgSpacingOverrideToken(
+  token: string,
+): [string, DirectiveArgSpacingRule] | null {
+  const trimmed = token.trim();
+  if (!trimmed) return null;
+
+  const separatorIndex = trimmed.indexOf("=");
+  if (separatorIndex === -1) {
+    const key = normalizeDirectiveLookupName(trimmed);
+    return key ? [key, "space"] : null;
+  }
+
+  const key = normalizeDirectiveLookupName(trimmed.slice(0, separatorIndex));
+  const rule = parseDirectiveArgSpacingRule(trimmed.slice(separatorIndex + 1));
+  if (!key || rule === null) return null;
+  return [key, rule];
+}
+
+function parseDirectiveArgSpacingOverridesValue(
+  value: unknown,
+): Map<string, DirectiveArgSpacingRule> {
+  const out = new Map<string, DirectiveArgSpacingRule>();
+
+  if (!Array.isArray(value)) {
+    return out;
+  }
+
+  for (const item of value) {
+    if (typeof item !== "string") continue;
+    const parsed = parseDirectiveArgSpacingOverrideToken(item);
+    if (!parsed) continue;
+    const [key, rule] = parsed;
+    out.set(key, rule);
+  }
+
+  return out;
+}
+
+export function getDirectiveArgSpacingOverrides(
+  options: Options,
+): Map<string, DirectiveArgSpacingRule> {
+  const key = options as unknown as object;
+  const cached = directiveArgSpacingOverridesCache.get(key);
+  if (cached) return cached;
+
+  const rawValue = (options as Record<string, unknown>).bladeDirectiveArgSpacingOverrides;
+  const result =
+    rawValue === undefined || rawValue === null
+      ? parseDirectiveArgSpacingOverridesValue(DEFAULT_DIRECTIVE_ARG_SPACING_OVERRIDE_TOKENS)
+      : parseDirectiveArgSpacingOverridesValue(rawValue);
+
+  directiveArgSpacingOverridesCache.set(key, result);
+  return result;
+}
+
+export function getDirectiveArgSpacingText(
+  authoredSpacing: string,
+  rule: DirectiveArgSpacingRule,
+): string {
+  if (rule === "preserve") {
+    return authoredSpacing;
+  }
+
+  if (rule === "none") {
+    return "";
+  }
+
+  if (rule === "space") {
+    return " ";
+  }
+
+  return " ".repeat(rule);
+}
+
+export function resolveDirectiveArgSpacingRule(
+  directiveName: string,
+  options: Options,
+  inBladeComponentAttribute = false,
+): DirectiveArgSpacingRule {
+  if (inBladeComponentAttribute) {
+    return 0;
+  }
+
+  const normalized = normalizeDirectiveLookupName(directiveName);
+  if (normalized) {
+    const override = getDirectiveArgSpacingOverrides(options).get(normalized);
+    if (override !== undefined) {
+      return override;
+    }
+  }
+
+  return getDirectiveArgSpacingMode(options);
 }
 
 export function getDirectiveBlockStyle(options: Options): DirectiveBlockStyle {

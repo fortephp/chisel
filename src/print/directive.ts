@@ -6,10 +6,14 @@ import { TokenType } from "../lexer/types.js";
 import {
   formatDirectiveNameToken,
   getBladeBlankLinesMode,
-  getDirectiveArgSpacingMode,
+  getDirectiveArgSpacingText,
   getDirectiveBlockStyle,
-  isBladeComponentTagName,
 } from "./blade-options.js";
+import {
+  getDirectiveName,
+  getEffectiveDirectiveArgSpacingRule,
+  isDirectiveInElementOpenTag,
+} from "./directive-spacing-context.js";
 import { trimTrailingHorizontalWhitespace } from "../string-utils.js";
 import { isEchoLike, isTextLikeNode } from "../node-predicates.js";
 import {
@@ -100,7 +104,7 @@ function renderDirectiveTokens(node: WrappedNode, options: Options): string {
   const br = node.buildResult;
   const tc = node.flat.tokenCount;
   let result = "";
-  const argSpacingMode = getEffectiveDirectiveArgSpacingMode(node, options);
+  const argSpacingRule = getEffectiveDirectiveArgSpacingRule(node, options);
   const start = node.flat.tokenStart;
   let sawDirectiveToken = false;
   let sawArgsToken = false;
@@ -115,8 +119,8 @@ function renderDirectiveTokens(node: WrappedNode, options: Options): string {
     if (t.type === TokenType.Directive) {
       result += formatDirectiveNameToken(tokenText, options);
       sawDirectiveToken = true;
-      if (argSpacingMode === "space" && next?.type === TokenType.DirectiveArgs) {
-        result += " ";
+      if (next?.type === TokenType.DirectiveArgs) {
+        result += getDirectiveArgSpacingText("", argSpacingRule);
       }
       continue;
     }
@@ -130,11 +134,7 @@ function renderDirectiveTokens(node: WrappedNode, options: Options): string {
       prev?.type === TokenType.Directive &&
       next?.type === TokenType.DirectiveArgs
     ) {
-      if (argSpacingMode === "preserve") {
-        result += tokenText;
-      } else if (argSpacingMode === "space" && !result.endsWith(" ")) {
-        result += " ";
-      }
+      result += getDirectiveArgSpacingText(tokenText, argSpacingRule);
       continue;
     }
 
@@ -163,17 +163,6 @@ function renderDirectiveTokens(node: WrappedNode, options: Options): string {
   }
 
   return result;
-}
-
-function getEffectiveDirectiveArgSpacingMode(
-  node: WrappedNode,
-  options: Options,
-): ReturnType<typeof getDirectiveArgSpacingMode> {
-  if (isDirectiveInBladeComponentAttributeContext(node, options)) {
-    return "none";
-  }
-
-  return getDirectiveArgSpacingMode(options);
 }
 
 function hasUnterminatedDirectiveArgsAtEof(node: WrappedNode): boolean {
@@ -609,33 +598,6 @@ function isInlineDirectiveBlock(node: WrappedNode): boolean {
   return true;
 }
 
-function isDirectiveInElementOpenTag(directive: WrappedNode): boolean {
-  return getAttributeContextElement(directive) !== null;
-}
-
-function isDirectiveInBladeComponentAttributeContext(node: WrappedNode, options: Options): boolean {
-  const element = getAttributeContextElement(node);
-  if (!element) {
-    return false;
-  }
-
-  return isBladeComponentTagName(element.fullName, options);
-}
-
-function getAttributeContextElement(node: WrappedNode): WrappedNode | null {
-  let current = node;
-  while (current.parent?.kind === NodeKind.DirectiveBlock) {
-    current = current.parent;
-  }
-
-  const parent = current.parent;
-  if (!parent || parent.kind !== NodeKind.Element) {
-    return null;
-  }
-
-  return current.end <= parent.openTagEndOffset ? parent : null;
-}
-
 function getSourceBetween(prev: WrappedNode, next: WrappedNode): string {
   if (prev.source !== next.source) {
     return "";
@@ -758,13 +720,11 @@ function isBodyLayoutDirective(node: WrappedNode): boolean {
     return false;
   }
 
-  const directiveToken = findFirstToken(node, TokenType.Directive);
-  if (!directiveToken) {
+  const name = getDirectiveName(node);
+  if (name === null) {
     return false;
   }
 
-  const raw = node.source.slice(directiveToken.start, directiveToken.end);
-  const name = raw.startsWith("@") ? raw.slice(1).toLowerCase() : raw.toLowerCase();
   return BODY_BLANK_LINE_LAYOUT_DIRECTIVES.has(name);
 }
 
@@ -782,18 +742,4 @@ function isContainerLikeBodySibling(node: WrappedNode): boolean {
 
 function isComponentLikeElement(node: WrappedNode): boolean {
   return node.tagName.includes("-") || node.fullName.includes(":");
-}
-
-function findFirstToken(node: WrappedNode, type: TokenType) {
-  const start = node.flat.tokenStart;
-  const end = start + node.flat.tokenCount;
-  const tokens = node.buildResult.tokens;
-
-  for (let i = start; i < end; i++) {
-    if (tokens[i].type === type) {
-      return tokens[i];
-    }
-  }
-
-  return null;
 }

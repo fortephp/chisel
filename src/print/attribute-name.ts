@@ -9,9 +9,10 @@ import {
 } from "./utils.js";
 import {
   formatDirectiveNameToken,
-  getDirectiveArgSpacingMode,
   getEchoSpacingMode,
+  getDirectiveArgSpacingText,
   isBladeComponentTagName,
+  resolveDirectiveArgSpacingRule,
 } from "./blade-options.js";
 
 function getEchoDelimiters(part: AttributeNamePart): { open: string; close: string } | null {
@@ -76,20 +77,18 @@ function formatDirectivePart(part: AttributeNamePart, node: WrappedNode, options
   const spacing = beforeArgs.slice(trimmedName.length);
   const args = part.text.slice(argsStart);
   const formattedName = formatDirectiveNameToken(trimmedName, options);
-  const spacingMode = isComponentAttributeName(node, options)
-    ? "none"
-    : getDirectiveArgSpacingMode(options);
+  const spacingRule = resolveDirectiveArgSpacingRule(
+    trimmedName,
+    options,
+    isComponentAttributeName(node, options),
+  );
 
-  if (spacingMode === "preserve") {
+  if (spacingRule === "preserve") {
     return `${formattedName}${spacing}${args}`;
   }
 
   const normalizedArgs = args.trimStart();
-  if (spacingMode === "none") {
-    return `${formattedName}${normalizedArgs}`;
-  }
-
-  return `${formattedName} ${normalizedArgs}`;
+  return `${formattedName}${getDirectiveArgSpacingText("", spacingRule)}${normalizedArgs}`;
 }
 
 function formatAttributeNamePart(
