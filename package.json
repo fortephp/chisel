@@ -1,6 +1,6 @@
 {
   "name": "prettier-plugin-blade",
-  "version": "3.1.4",
+  "version": "3.1.5",
   "description": "Prettier plugin for Laravel Blade templates",
   "type": "module",
   "main": "./dist/index.cjs",
