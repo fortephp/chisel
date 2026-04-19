@@ -178,6 +178,36 @@ describe("options/bound-attribute-delegation", () => {
     expect(output).toContain(':title="{{ $label }}"');
   });
 
+  it("skips delegated formatting for :bound attrs containing Blade raw echoes", async () => {
+    const input = '<x-card :title="{!! $raw !!}"></x-card>\n';
+    const output = await format(input, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+    });
+
+    expect(output).toContain(':title="{!! $raw !!}"');
+  });
+
+  it("skips delegated formatting for :bound attrs containing Blade comments", async () => {
+    const input = '<x-card :title="{{-- cmt --}}"></x-card>\n';
+    const output = await format(input, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+    });
+
+    expect(output).toContain(':title="{{-- cmt --}}"');
+  });
+
+  it("leaves bound attrs containing Blade @directives untouched (PHP-parser rejection)", async () => {
+    const input = `<x-card :title="@if($a) 'x' @else 'y' @endif"></x-card>\n`;
+    const output = await format(input, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+    });
+
+    expect(output).toContain(`:title="@if($a) 'x' @else 'y' @endif"`);
+  });
+
   it("is idempotent across nesting depth for mixed Blade/non-Blade :bound attrs", async () => {
     const fixture =
       '<x-card :title="$user->name??$fallback"><div :title="foo===null?bar:baz"></div></x-card>';
@@ -342,6 +372,97 @@ describe("options/bound-attribute-delegation", () => {
     // wrapper and escape the embedded `"` characters.
     expect(output).toContain(`&quot;`);
     expect(output).toContain(`:title="`);
+  });
+
+  it("converges pre-escaped &quot; in source to clean single-quoted PHP literals", async () => {
+    const input = `<x-ui.image :src="$article[&quot;image&quot;]" />\n`;
+
+    const output = await format(input, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+      singleQuote: false,
+    });
+
+    expect(output).not.toContain("&quot;");
+    expect(output).toContain(`:src="$article['image']"`);
+  });
+
+  it("handles multiple :bound attrs with mixed quote shapes on one element", async () => {
+    const input = `<x-card :a="$x['y']" :b='"Hi $n"' :c="$m" />\n`;
+
+    const output = await format(input, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+      singleQuote: false,
+    });
+
+    expect(output).toContain(`:a="$x['y']"`);
+    expect(output).toContain(`:b='"Hi $n"'`);
+    expect(output).toContain(`:c="$m"`);
+  });
+
+  it("treats v-bind: as an alias of : on Blade components (PHP formatting)", async () => {
+    const input = `<x-card v-bind:title="$user->name??'x'" />\n`;
+
+    const output = await format(input, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+    });
+
+    expect(output).toContain(`v-bind:title="$user->name ?? 'x'"`);
+  });
+
+  it("treats v-bind: as an alias of : on non-Blade elements (JS formatting)", async () => {
+    const input = `<div v-bind:title="foo===null?bar:baz"></div>\n`;
+
+    const output = await format(input, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+      singleQuote: true,
+    });
+
+    expect(output).toContain(`v-bind:title="foo === null ? bar : baz"`);
+  });
+
+  it("applies the wrapper-swap rule to v-bind: PHP interpolated strings", async () => {
+    const input = `<x-div v-bind:label='"Hello $name"'></x-div>\n`;
+
+    const output = await format(input, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+      singleQuote: false,
+    });
+
+    expect(output).not.toContain("&quot;");
+    expect(output).toContain(`v-bind:label='"Hello $name"'`);
+  });
+
+  it("skips delegated formatting for v-bind: attrs containing Blade interpolation", async () => {
+    const input = '<x-card v-bind:title="{{ $label }}"></x-card>\n';
+
+    const output = await format(input, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+    });
+
+    expect(output).toContain('v-bind:title="{{ $label }}"');
+  });
+
+  it("preserves Vue v-bind: and : modifier syntax (e.g. .sync)", async () => {
+    const vbindInput = `<x-card v-bind:title.sync="$user->name??'x'" />\n`;
+    const colonInput = `<x-card :title.sync="$user->name??'x'" />\n`;
+
+    const vbindOutput = await format(vbindInput, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+    });
+    const colonOutput = await format(colonInput, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+    });
+
+    expect(vbindOutput).toContain(`v-bind:title.sync="$user->name ?? 'x'"`);
+    expect(colonOutput).toContain(`:title.sync="$user->name ?? 'x'"`);
   });
 
   it("keeps wrapped array-style PHP :bound attrs idempotent across nesting depth", async () => {

@@ -26,8 +26,10 @@ import { isBladeComponentTagName, shouldPreserveInlineIntentAttributes } from ".
 
 const { group, join, line, ifBreak } = doc.builders;
 
-function hasMustacheInterpolation(node: WrappedNode): boolean {
-  return fullText(node).includes("{{");
+function hasBladeValueSyntax(node: WrappedNode): boolean {
+  const text = fullText(node);
+  // {{ ... }}, {{-- comment --}}, and {!! raw !!} all start with these prefixes.
+  return text.includes("{{") || text.includes("{!!");
 }
 
 function isSyntaxError(error: unknown): boolean {
@@ -40,8 +42,11 @@ function isSyntaxError(error: unknown): boolean {
   );
 }
 
+const VUE_BIND_PREFIX = "v-bind:";
+
 function isColonBoundAttributeName(name: string): boolean {
-  return name.trimStart().startsWith(":");
+  const trimmed = name.trimStart();
+  return trimmed.startsWith(":") || trimmed.toLowerCase().startsWith(VUE_BIND_PREFIX);
 }
 
 function isBladeComponentElement(node: WrappedNode | null, options: Options): boolean {
@@ -384,7 +389,7 @@ const isStyle: AttrPredicate = (path, options) => {
   return (
     name === "style" &&
     !(options as Record<string, unknown>).parentParser &&
-    !hasMustacheInterpolation(node)
+    !hasBladeValueSyntax(node)
   );
 };
 
@@ -427,7 +432,7 @@ const isEventHandler: AttrPredicate = (path, options) => {
   return (
     isHtmlEventAttribute(name) &&
     !(options as Record<string, unknown>).parentParser &&
-    !hasMustacheInterpolation(node)
+    !hasBladeValueSyntax(node)
   );
 };
 
@@ -455,7 +460,7 @@ const isColonBoundAttribute: AttrPredicate = (path, options) => {
   const node = path.node;
   if (!isStaticAttributeName(node)) return false;
   if (!isStaticAttributeValue(node)) return false;
-  if (hasMustacheInterpolation(node)) return false;
+  if (hasBladeValueSyntax(node)) return false;
 
   const name = getAttributeNameRaw(node);
   if (!name) return false;
@@ -517,7 +522,7 @@ const isClassNames: AttrPredicate = (path, options) => {
   return (
     (name === "class" || name === "classname") &&
     !(options as Record<string, unknown>).parentParser &&
-    !hasMustacheInterpolation(node)
+    !hasBladeValueSyntax(node)
   );
 };
 
@@ -541,7 +546,7 @@ const isPermissionsPolicy: AttrPredicate = (path, options) => {
     !(options as Record<string, unknown>).parentParser &&
     node.parent !== null &&
     node.parent.fullName.toLowerCase() === "iframe" &&
-    !hasMustacheInterpolation(node)
+    !hasBladeValueSyntax(node)
   );
 };
 

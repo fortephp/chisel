@@ -82,4 +82,10 @@ describe("html/alpine", () => {
 
     await formatEqual(input, expected);
   });
+
+  it("skips Alpine directive formatting when value contains Blade raw echo", async () => {
+    const input = `<div x-data="{!! $raw !!}"></div>\n`;
+
+    await formatEqual(input, input);
+  });
 });
