@@ -257,6 +257,114 @@ describe("options/bound-attribute-delegation", () => {
     expectWrappedBreadcrumbsIndentation(output);
   });
 
+  it("does not emit &quot; inside :bound PHP attr values when singleQuote is false (issue #150)", async () => {
+    const imageInput = `<x-ui.image :src="$article['image']" />\n`;
+    const divInput = `<x-div :title="__('Hello')"></x-div>\n`;
+
+    const imageOutput = await format(imageInput, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+      singleQuote: false,
+    });
+    const divOutput = await format(divInput, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+      singleQuote: false,
+    });
+
+    expect(imageOutput).not.toContain("&quot;");
+    expect(divOutput).not.toContain("&quot;");
+    expect(imageOutput).toContain(`:src="$article['image']"`);
+    expect(divOutput).toContain(`:title="__('Hello')"`);
+  });
+
+  it("formats :bound PHP attr values correctly when singleQuote is true (issue #150)", async () => {
+    const imageInput = `<x-ui.image :src="$article['image']" />\n`;
+    const divInput = `<x-div :title="__('Hello')"></x-div>\n`;
+
+    const imageOutput = await format(imageInput, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+      singleQuote: true,
+    });
+    const divOutput = await format(divInput, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+      singleQuote: true,
+    });
+
+    expect(imageOutput).not.toContain("&quot;");
+    expect(divOutput).not.toContain("&quot;");
+    expect(imageOutput).toContain(`:src="$article['image']"`);
+    expect(divOutput).toContain(`:title="__('Hello')"`);
+  });
+
+  it("produces the same :bound PHP attr output regardless of singleQuote setting (issue #150)", async () => {
+    const cases = [
+      `<x-ui.image :src="$article['image']" />\n`,
+      `<x-div :title="__('Hello')"></x-div>\n`,
+    ];
+
+    for (const input of cases) {
+      const withSingle = await format(input, {
+        plugins: [bladePlugin, phpPlugin],
+        bladePhpFormatting: "safe",
+        singleQuote: true,
+      });
+      const withDouble = await format(input, {
+        plugins: [bladePlugin, phpPlugin],
+        bladePhpFormatting: "safe",
+        singleQuote: false,
+      });
+
+      expect(withDouble).toBe(withSingle);
+      expect(withDouble).not.toContain("&quot;");
+    }
+  });
+
+  it("normalizes author-written double quotes to single quotes inside :bound PHP attrs (issue #150)", async () => {
+    const input = `<x-ui.image :src='$article["image"]' />\n`;
+
+    const output = await format(input, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+      singleQuote: false,
+    });
+
+    expect(output).not.toContain("&quot;");
+    expect(output).toContain(`:src="$article['image']"`);
+  });
+
+  it("swaps to single-quoted wrapper for PHP interpolated strings inside :bound attrs (issue #150)", async () => {
+    const input = `<x-div :title='"Hello $name"'></x-div>\n`;
+
+    const output = await format(input, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+      singleQuote: false,
+    });
+
+    // PHP interpolation requires double quotes, so the outer attribute wrapper
+    // swaps to single quotes to avoid escaping the inner `"..."` to &quot;.
+    expect(output).not.toContain("&quot;");
+    expect(output).toContain(`:title='"Hello $name"'`);
+  });
+
+  it("falls back to double-quoted wrapper with &quot; when value contains both quote kinds", async () => {
+    const input = `<x-div :title='"He said \\'hi\\' to $name"'></x-div>\n`;
+
+    const output = await format(input, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+      singleQuote: false,
+    });
+
+    // Both `"` and `'` appear in the value, so we keep the default `"..."`
+    // wrapper and escape the embedded `"` characters.
+    expect(output).toContain(`&quot;`);
+    expect(output).toContain(`:title="`);
+  });
+
   it("keeps wrapped array-style PHP :bound attrs idempotent across nesting depth", async () => {
     const fixture = `<x-tw::page-header :breadcrumbs="[
             [

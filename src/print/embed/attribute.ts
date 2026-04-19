@@ -74,6 +74,10 @@ function createPhpAttributeOptions(options: Options, plugins: unknown[]): Option
     baseOptions.phpVersion = "8.4";
   }
 
+  // The bound attribute wrapper is always "...", so prefer single quotes inside
+  // the PHP expression to minimize &quot; escaping of nested literals.
+  baseOptions.singleQuote = true;
+
   return {
     ...baseOptions,
     parser: "php",
@@ -566,40 +570,75 @@ const printPermissionsPolicy: AttrPrint = (_textToDoc, _print, path) => {
   );
 };
 
-const rawPrinters: Array<{ test: AttrPredicate; print: AttrPrint }> = [
+interface RawPrinter {
+  test: AttrPredicate;
+  print: AttrPrint;
+  allowSingleQuoteWrapper?: boolean;
+}
+
+const rawPrinters: RawPrinter[] = [
   { test: isSrcset, print: printSrcset },
   { test: isStyle, print: printStyle },
   { test: isEventHandler, print: printEventHandler },
-  { test: isColonBoundAttribute, print: printColonBoundAttribute },
+  {
+    test: isColonBoundAttribute,
+    print: printColonBoundAttribute,
+    allowSingleQuoteWrapper: true,
+  },
   { test: isClassNames, print: printClassNames },
   { test: isPermissionsPolicy, print: printPermissionsPolicy },
   ...alpineAttributePrinters,
 ];
 
+function collectDocStringContent(d: Doc): string {
+  let result = "";
+  doc.utils.mapDoc(d, (sub) => {
+    if (typeof sub === "string") {
+      result += sub;
+    }
+    return sub;
+  });
+  return result;
+}
+
 /**
  * Wrap a value printer to handle quoting and &quot; escaping.
  */
-function createAttributePrinter(printValue: AttrPrint): AttrPrint {
+function createAttributePrinter(
+  printValue: AttrPrint,
+  { allowSingleQuoteWrapper = false }: { allowSingleQuoteWrapper?: boolean } = {},
+): AttrPrint {
   return async (textToDoc, print, path, options) => {
     let valueDoc = await printValue(textToDoc, print, path, options);
     if (!valueDoc) return undefined;
+
+    const rawName = formatAttributeNameForPrint(path.node, options);
+    const name = isStaticAttributeName(path.node)
+      ? normalizeAttributeName(rawName, path.node.parent)
+      : rawName;
+
+    // Swap outer wrapper to single quotes when the value contains double
+    // quotes but no single quotes (e.g. PHP interpolated strings like
+    // "Hello $name"). Keeps output readable instead of escaping to &quot;.
+    if (allowSingleQuoteWrapper) {
+      const content = collectDocStringContent(valueDoc as Doc);
+      if (content.includes('"') && !content.includes("'")) {
+        return [name, "='", group(valueDoc as Doc), "'"];
+      }
+    }
 
     // Escape double quotes in string parts of the doc
     valueDoc = doc.utils.mapDoc(valueDoc as Doc, (d) =>
       typeof d === "string" ? d.replaceAll('"', "&quot;") : d,
     );
 
-    const rawName = formatAttributeNameForPrint(path.node, options);
-    const name = isStaticAttributeName(path.node)
-      ? normalizeAttributeName(rawName, path.node.parent)
-      : rawName;
     return [name, '="', group(valueDoc), '"'];
   };
 }
 
-const printers: AttrPrinter[] = rawPrinters.map(({ test, print: p }) => ({
+const printers: AttrPrinter[] = rawPrinters.map(({ test, print: p, allowSingleQuoteWrapper }) => ({
   test,
-  print: createAttributePrinter(p),
+  print: createAttributePrinter(p, { allowSingleQuoteWrapper }),
 }));
 
 /**
