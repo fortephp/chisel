@@ -278,6 +278,27 @@ describe("options/bound-attribute-delegation", () => {
     expect(divOutput).toContain(`:title="__('Hello')"`);
   });
 
+  it("formats :bound PHP attr values correctly when singleQuote is true (issue #150)", async () => {
+    const imageInput = `<x-ui.image :src="$article['image']" />\n`;
+    const divInput = `<x-div :title="__('Hello')"></x-div>\n`;
+
+    const imageOutput = await format(imageInput, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+      singleQuote: true,
+    });
+    const divOutput = await format(divInput, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+      singleQuote: true,
+    });
+
+    expect(imageOutput).not.toContain("&quot;");
+    expect(divOutput).not.toContain("&quot;");
+    expect(imageOutput).toContain(`:src="$article['image']"`);
+    expect(divOutput).toContain(`:title="__('Hello')"`);
+  });
+
   it("produces the same :bound PHP attr output regardless of singleQuote setting (issue #150)", async () => {
     const cases = [
       `<x-ui.image :src="$article['image']" />\n`,
