@@ -16,7 +16,11 @@ import {
 import { resolveBladeSyntaxPlugins } from "../../plugins/runtime.js";
 import { NodeKind } from "../../tree/types.js";
 import { fullText } from "../utils.js";
-import { getEchoSpacingMode, getDirectiveArgSpacingText } from "../blade-options.js";
+import {
+  getEchoSpacingMode,
+  getDirectiveArgSpacingText,
+  isBladeComponentTagName,
+} from "../blade-options.js";
 import {
   getDirectiveName,
   getEffectiveDirectiveArgSpacingRule,
@@ -113,6 +117,18 @@ export function isPhpBlockNode(node: WrappedNode): boolean {
 }
 
 export const isEchoNode = isEchoLike;
+
+// Standalone echoes inside the open tag of a Blade component compile into a
+// double-quoted PHP string by Laravel's ComponentTagCompiler, so emitting
+// double quotes inside the echo would terminate that outer string. Force
+// single quotes when the parent element is a registered Blade component.
+function isInBladeComponentOpenTag(node: WrappedNode, options: Options): boolean {
+  const parent = node.parent;
+  if (!parent || parent.kind !== NodeKind.Element) return false;
+  if (parent.openTagEndOffset === 0) return false;
+  if (node.end > parent.openTagEndOffset) return false;
+  return isBladeComponentTagName(parent.fullName, options);
+}
 
 export function isDirectiveWithArgsNode(node: WrappedNode): boolean {
   if (node.kind !== NodeKind.Directive) return false;
@@ -450,6 +466,7 @@ function getPhpFormatCacheKey(
   mode: PhpFormattingMode,
   options: Options,
   trailingCommaPHPOverride?: boolean,
+  singleQuoteOverride?: boolean,
 ): string {
   const opts = options as Record<string, unknown>;
   const optionsKey = safeSerialize({
@@ -457,7 +474,7 @@ function getPhpFormatCacheKey(
     printWidth: opts.printWidth,
     tabWidth: opts.tabWidth,
     useTabs: opts.useTabs,
-    singleQuote: opts.singleQuote,
+    singleQuote: singleQuoteOverride === undefined ? opts.singleQuote : singleQuoteOverride,
     semi: opts.semi,
     trailingComma: opts.trailingComma,
     bracketSpacing: opts.bracketSpacing,
@@ -484,6 +501,7 @@ function createPhpFormatOptions(
   options: Options,
   plugins: unknown[],
   trailingCommaPHPOverride?: boolean,
+  singleQuoteOverride?: boolean,
 ): Options {
   const baseOptions = {
     ...(options as Record<string, unknown>),
@@ -515,6 +533,10 @@ function createPhpFormatOptions(
     baseOptions.trailingCommaPHP = trailingCommaPHPOverride;
   }
 
+  if (singleQuoteOverride !== undefined) {
+    baseOptions.singleQuote = singleQuoteOverride;
+  }
+
   return {
     ...baseOptions,
     parser: "php",
@@ -527,11 +549,18 @@ async function formatPhpSnippet(
   options: Options,
   mode: PhpFormattingMode,
   trailingCommaPHPOverride?: boolean,
+  singleQuoteOverride?: boolean,
 ): Promise<string | null> {
   const plugins = await resolvePhpPlugins(options);
   if (!plugins) return null;
 
-  const cacheKey = getPhpFormatCacheKey(snippet, mode, options, trailingCommaPHPOverride);
+  const cacheKey = getPhpFormatCacheKey(
+    snippet,
+    mode,
+    options,
+    trailingCommaPHPOverride,
+    singleQuoteOverride,
+  );
   if (phpFormatCache.has(cacheKey)) {
     return phpFormatCache.get(cacheKey) ?? null;
   }
@@ -539,7 +568,7 @@ async function formatPhpSnippet(
   try {
     const formatted = await prettierFormat(
       snippet,
-      createPhpFormatOptions(options, plugins, trailingCommaPHPOverride),
+      createPhpFormatOptions(options, plugins, trailingCommaPHPOverride, singleQuoteOverride),
     );
     const normalized = normalizeLineEndingsToLf(trimFinalLineBreak(formatted));
     setCachedPhpFormatResult(cacheKey, normalized);
@@ -884,7 +913,14 @@ export async function formatEchoNode(node: WrappedNode, options: Options): Promi
   const delegatedOptions = shouldCompensateInlineEchoPrintWidth(node)
     ? withCompensatedInlineEchoPrintWidth(wrapped, options)
     : options;
-  const formatted = await formatPhpSnippet(wrapped, delegatedOptions, mode);
+  const singleQuoteOverride = isInBladeComponentOpenTag(node, options) ? true : undefined;
+  const formatted = await formatPhpSnippet(
+    wrapped,
+    delegatedOptions,
+    mode,
+    undefined,
+    singleQuoteOverride,
+  );
   if (!formatted) return null;
 
   const extracted = getTextBetweenMarkers(formatted);
