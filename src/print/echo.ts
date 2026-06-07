@@ -6,7 +6,8 @@ import { NodeKind } from "../tree/types.js";
 import { isScriptLikeTag } from "../node-predicates.js";
 import { getEchoSpacingMode } from "./blade-options.js";
 import { replaceEndOfLine } from "./doc-utils.js";
-import { dedentString, fullText } from "./utils.js";
+import { getEchoDelimiters, normalizeMultilineEchoIndentText } from "./echo-normalization.js";
+import { fullText } from "./utils.js";
 
 const { hardline } = doc.builders;
 
@@ -17,7 +18,7 @@ export function printEcho(node: WrappedNode, options: Options): Doc {
       ? trimTrailingWhitespace(fullText(node))
       : fullText(node);
     return shouldNormalizeMultilineEchoIndent(node, options)
-      ? replaceEndOfLine(normalizeMultilineEchoIndent(node, raw, options), hardline)
+      ? replaceEndOfLine(normalizeMultilineEchoIndentText(node, raw, options), hardline)
       : raw;
   }
 
@@ -27,7 +28,7 @@ export function printEcho(node: WrappedNode, options: Options): Doc {
   }
 
   const trimmed = content.trim();
-  const { open, close } = getEchoDelimiters(node);
+  const { open, close } = getEchoDelimiters(node) ?? { open: "{{", close: "}}" };
 
   if (trimmed.length === 0) {
     return spacing === "tight" ? `${open}${close}` : `${open} ${close}`;
@@ -61,18 +62,6 @@ function getEchoContent(node: WrappedNode): string | null {
   return parts.join("");
 }
 
-function getEchoDelimiters(node: WrappedNode): { open: string; close: string } {
-  switch (node.kind) {
-    case NodeKind.RawEcho:
-      return { open: "{!!", close: "!!}" };
-    case NodeKind.TripleEcho:
-      return { open: "{{{", close: "}}}" };
-    case NodeKind.Echo:
-    default:
-      return { open: "{{", close: "}}" };
-  }
-}
-
 function shouldNormalizeMultilineEchoIndent(node: WrappedNode, options: Options): boolean {
   const raw = fullText(node);
   return (
@@ -80,53 +69,6 @@ function shouldNormalizeMultilineEchoIndent(node: WrappedNode, options: Options)
     isScriptLikeTag(node.parent, options) &&
     (raw.includes("\n") || raw.includes("\r"))
   );
-}
-
-function getIndentUnit(options: Options): string {
-  const raw = (options as Record<string, unknown>).tabWidth;
-  const tabWidth = typeof raw === "number" && Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : 2;
-  return (options as Record<string, unknown>).useTabs === true ? "\t" : " ".repeat(tabWidth);
-}
-
-function stripBoundaryLineBreaks(value: string): string {
-  let next = value;
-
-  if (next.startsWith("\r\n")) {
-    next = next.slice(2);
-  } else if (next.startsWith("\n")) {
-    next = next.slice(1);
-  }
-
-  if (next.endsWith("\r\n")) {
-    next = next.slice(0, -2);
-  } else if (next.endsWith("\n")) {
-    next = next.slice(0, -1);
-  }
-
-  return next;
-}
-
-function normalizeMultilineEchoIndent(node: WrappedNode, value: string, options: Options): string {
-  const normalized = value.replace(/\r\n?/gu, "\n").trim();
-  const { open, close } = getEchoDelimiters(node);
-  if (!normalized.startsWith(open) || !normalized.endsWith(close)) {
-    return value;
-  }
-
-  const inner = stripBoundaryLineBreaks(
-    normalized.slice(open.length, normalized.length - close.length),
-  ).replace(/\n[^\S\r\n]*$/u, "");
-  if (inner.trim().length === 0) {
-    return `${open}\n${close}`;
-  }
-
-  const indentUnit = getIndentUnit(options);
-  const body = dedentString(inner)
-    .split("\n")
-    .map((line) => (line.trim().length === 0 ? "" : `${indentUnit}${line}`))
-    .join("\n");
-
-  return `${open}\n${body}\n${close}`;
 }
 
 function isUnterminatedEchoAtEof(node: WrappedNode): boolean {

@@ -18,6 +18,7 @@ import {
 } from "../tag.js";
 import { printDirective } from "../directive.js";
 import { printEcho } from "../echo.js";
+import { normalizeMultilineEchoIndentText } from "../echo-normalization.js";
 import { replaceEndOfLine } from "../doc-utils.js";
 import { isBladeConstructChild, parentContainsBladeSyntax } from "../blade-syntax.js";
 import {
@@ -136,58 +137,17 @@ function getPlaceholderKind(node: LeafConstructNode): PlaceholderKind {
   }
 }
 
-function getIndentUnit(options: Options): string {
-  const raw = (options as Record<string, unknown>).tabWidth;
-  const tabWidth = typeof raw === "number" && Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : 2;
-  return (options as Record<string, unknown>).useTabs === true ? "\t" : " ".repeat(tabWidth);
-}
-
-function getEchoDelimiters(node: LeafConstructNode): { open: string; close: string } | null {
-  switch (node.kind) {
-    case NodeKind.RawEcho:
-      return { open: "{!!", close: "!!}" };
-    case NodeKind.TripleEcho:
-      return { open: "{{{", close: "}}}" };
-    case NodeKind.Echo:
-      return { open: "{{", close: "}}" };
-    default:
-      return null;
-  }
-}
-
-function normalizeMultilineEchoReplacementText(
-  node: LeafConstructNode,
-  value: string,
-  options: Options,
-): string {
-  if (!value.includes("\n") && !value.includes("\r")) {
-    return value;
+function isMultilineEchoConstruct(node: LeafConstructNode): boolean {
+  if (
+    node.kind !== NodeKind.Echo &&
+    node.kind !== NodeKind.RawEcho &&
+    node.kind !== NodeKind.TripleEcho
+  ) {
+    return false;
   }
 
-  const delimiters = getEchoDelimiters(node);
-  if (delimiters === null) {
-    return value;
-  }
-
-  const normalized = normalizeLineEndingsToLf(value).trim();
-  if (!normalized.startsWith(delimiters.open) || !normalized.endsWith(delimiters.close)) {
-    return value;
-  }
-
-  const inner = stripBoundaryLineBreaks(
-    normalized.slice(delimiters.open.length, normalized.length - delimiters.close.length),
-  ).replace(/\n[^\S\r\n]*$/u, "");
-  if (inner.trim().length === 0) {
-    return `${delimiters.open}\n${delimiters.close}`;
-  }
-
-  const indentUnit = getIndentUnit(options);
-  const body = dedentString(inner)
-    .split("\n")
-    .map((line) => (line.trim().length === 0 ? "" : `${indentUnit}${line}`))
-    .join("\n");
-
-  return `${delimiters.open}\n${body}\n${delimiters.close}`;
+  const raw = fullText(node);
+  return raw.includes("\n") || raw.includes("\r");
 }
 
 function isStyleParser(parser: string): boolean {
@@ -358,10 +318,9 @@ async function getConstructReplacementText(
     case NodeKind.RawEcho:
     case NodeKind.TripleEcho: {
       const formatted = await formatEchoNode(node, options);
-      if (formatted !== null)
-        return normalizeMultilineEchoReplacementText(node, formatted, options);
+      if (formatted !== null) return normalizeMultilineEchoIndentText(node, formatted, options);
       const rendered = docToFlatString(printEcho(node, options));
-      return normalizeMultilineEchoReplacementText(node, rendered ?? fullText(node), options);
+      return normalizeMultilineEchoIndentText(node, rendered ?? fullText(node), options);
     }
     case NodeKind.Directive: {
       const formatted = await formatDirectiveNodeArgs(node, options);
@@ -1723,6 +1682,16 @@ export function shouldUseMixedRawContentEmbedding(node: WrappedNode, options: Op
     if (
       constructs.some(
         (child) =>
+          isMultilineEchoConstruct(child) &&
+          !isConstructInsideScriptLiteralOrComment(child, node.source, range.start, range.end),
+      )
+    ) {
+      return true;
+    }
+
+    if (
+      constructs.some(
+        (child) =>
           child.kind === NodeKind.PhpBlock ||
           child.kind === NodeKind.PhpTag ||
           (child.kind === NodeKind.Directive &&
@@ -1891,6 +1860,15 @@ function isDirectiveInsideScriptLiteralOrComment(
     return false;
   }
 
+  return isConstructInsideScriptLiteralOrComment(node, source, contentStart, contentEnd);
+}
+
+function isConstructInsideScriptLiteralOrComment(
+  node: LeafConstructNode,
+  source: string,
+  contentStart: number,
+  contentEnd: number,
+): boolean {
   const replacementRange = getReplacementRange(node);
   if (replacementRange.start < contentStart || replacementRange.end > contentEnd) {
     return false;
