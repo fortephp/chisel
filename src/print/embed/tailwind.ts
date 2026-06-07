@@ -4,6 +4,7 @@ import { safeSerialize } from "../../string-utils.js";
 type TailwindHtmlParser = {
   parse: (text: string, options: Options) => Promise<unknown> | unknown;
 };
+type TailwindHtmlParserEntry = TailwindHtmlParser | (() => Promise<unknown> | unknown);
 
 const MAX_CLASS_SORT_CACHE_SIZE = 500;
 const parserIds = new WeakMap<object, number>();
@@ -29,30 +30,63 @@ function hasTailwindOptionShape(plugin: Record<string, unknown>): boolean {
   );
 }
 
-function getHtmlParserFromPlugin(plugin: Record<string, unknown>): TailwindHtmlParser | null {
+function isTailwindHtmlParser(value: unknown): value is TailwindHtmlParser {
+  return (
+    !!value &&
+    typeof value === "object" &&
+    typeof (value as { parse?: unknown }).parse === "function"
+  );
+}
+
+function getHtmlParserEntryFromPlugin(
+  plugin: Record<string, unknown>,
+): TailwindHtmlParserEntry | null {
   const parsers = plugin.parsers;
   if (!parsers || typeof parsers !== "object") return null;
 
   const htmlParser = (parsers as Record<string, unknown>).html;
-  if (!htmlParser || typeof htmlParser !== "object") return null;
+  if (isTailwindHtmlParser(htmlParser)) return htmlParser;
+  if (typeof htmlParser === "function") return htmlParser as TailwindHtmlParserEntry;
+  return null;
+}
 
-  return typeof (htmlParser as { parse?: unknown }).parse === "function"
-    ? (htmlParser as TailwindHtmlParser)
-    : null;
+async function resolveHtmlParserEntry(
+  entry: TailwindHtmlParserEntry,
+): Promise<TailwindHtmlParser | null> {
+  if (isTailwindHtmlParser(entry)) return entry;
+
+  try {
+    const loaded = await entry();
+    return isTailwindHtmlParser(loaded) ? loaded : null;
+  } catch {
+    return null;
+  }
+}
+
+async function resolveHtmlParserEntryFromPlugin(
+  plugin: Record<string, unknown>,
+): Promise<TailwindHtmlParser | null> {
+  const entry = getHtmlParserEntryFromPlugin(plugin);
+  return entry ? resolveHtmlParserEntry(entry) : null;
 }
 
 function isTailwindPlugin(plugin: Record<string, unknown>): boolean {
   return plugin.name === "prettier-plugin-tailwindcss" || hasTailwindOptionShape(plugin);
 }
 
-function findTailwindParserInLoadedPlugins(options: Options): TailwindHtmlParser | null {
+async function findTailwindParserInLoadedPlugins(
+  options: Options,
+): Promise<TailwindHtmlParser | null> {
   for (const plugin of getPlugins(options)) {
     if (!plugin || typeof plugin !== "object") continue;
 
     const pluginRecord = plugin as Record<string, unknown>;
     if (!isTailwindPlugin(pluginRecord)) continue;
 
-    const htmlParser = getHtmlParserFromPlugin(pluginRecord);
+    const parserEntry = getHtmlParserEntryFromPlugin(pluginRecord);
+    if (!parserEntry) continue;
+
+    const htmlParser = await resolveHtmlParserEntry(parserEntry);
     if (htmlParser) return htmlParser;
   }
 
@@ -86,12 +120,12 @@ async function loadTailwindParserFromModule(): Promise<TailwindHtmlParser | null
         const mod = await import(tailwindModuleId);
         const moduleRecord = mod as Record<string, unknown>;
 
-        const directParser = getHtmlParserFromPlugin(moduleRecord);
+        const directParser = await resolveHtmlParserEntryFromPlugin(moduleRecord);
         if (directParser) return directParser;
 
         const defaultExport = moduleRecord.default;
         if (!defaultExport || typeof defaultExport !== "object") return null;
-        return getHtmlParserFromPlugin(defaultExport as Record<string, unknown>);
+        return resolveHtmlParserEntryFromPlugin(defaultExport as Record<string, unknown>);
       } catch {
         return null;
       }
@@ -102,7 +136,7 @@ async function loadTailwindParserFromModule(): Promise<TailwindHtmlParser | null
 }
 
 async function resolveTailwindParser(options: Options): Promise<TailwindHtmlParser | null> {
-  const loadedParser = findTailwindParserInLoadedPlugins(options);
+  const loadedParser = await findTailwindParserInLoadedPlugins(options);
   if (loadedParser) return loadedParser;
 
   if (!hasTailwindPluginReference(options)) return null;
