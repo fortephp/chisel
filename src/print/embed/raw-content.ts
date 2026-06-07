@@ -20,6 +20,7 @@ import { printDirective } from "../directive.js";
 import { printEcho } from "../echo.js";
 import { normalizeMultilineEchoIndentText } from "../echo-normalization.js";
 import { replaceEndOfLine } from "../doc-utils.js";
+import { getEchoSpacingMode } from "../blade-options.js";
 import { isBladeConstructChild, parentContainsBladeSyntax } from "../blade-syntax.js";
 import {
   formatDirectiveNodeArgs,
@@ -138,6 +139,15 @@ function getPlaceholderKind(node: LeafConstructNode): PlaceholderKind {
 }
 
 function isMultilineEchoConstruct(node: LeafConstructNode): boolean {
+  if (!isEchoConstruct(node)) {
+    return false;
+  }
+
+  const raw = fullText(node);
+  return raw.includes("\n") || raw.includes("\r");
+}
+
+function isEchoConstruct(node: LeafConstructNode): boolean {
   if (
     node.kind !== NodeKind.Echo &&
     node.kind !== NodeKind.RawEcho &&
@@ -146,8 +156,7 @@ function isMultilineEchoConstruct(node: LeafConstructNode): boolean {
     return false;
   }
 
-  const raw = fullText(node);
-  return raw.includes("\n") || raw.includes("\r");
+  return true;
 }
 
 function isBladeOrPhpFallbackConstruct(node: LeafConstructNode): boolean {
@@ -1692,6 +1701,17 @@ export function shouldUseMixedRawContentEmbedding(node: WrappedNode, options: Op
     const constructs = collectLeafConstructs(node, range.start, range.end);
     if (constructs.length === 0) {
       return false;
+    }
+
+    if (
+      getEchoSpacingMode(options) !== "preserve" &&
+      constructs.some(
+        (child) =>
+          isEchoConstruct(child) &&
+          !isConstructInsideScriptLiteralOrComment(child, node.source, range.start, range.end),
+      )
+    ) {
+      return true;
     }
 
     if (

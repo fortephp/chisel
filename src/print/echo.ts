@@ -35,7 +35,10 @@ export function printEcho(node: WrappedNode, options: Options): Doc {
   }
 
   if (trimmed.includes("\n")) {
-    return `${open}\n${trimmed}\n${close}`;
+    const raw = `${open}\n${trimmed}\n${close}`;
+    return shouldNormalizeMultilineEchoIndent(node, options)
+      ? replaceEndOfLine(normalizeMultilineEchoIndentText(node, raw, options), hardline)
+      : raw;
   }
 
   if (spacing === "tight") {

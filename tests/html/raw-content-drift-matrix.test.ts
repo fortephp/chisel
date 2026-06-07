@@ -8,6 +8,22 @@ const profiles = [
     name: "php-off-tabs",
     options: { bladePhpFormatting: "off" as const, useTabs: true, tabWidth: 2 },
   },
+  {
+    name: "embedded-off",
+    options: { embeddedLanguageFormatting: "off" as const, bladePhpFormatting: "off" as const },
+  },
+  {
+    name: "strict-php-safe",
+    options: {
+      htmlWhitespaceSensitivity: "strict" as const,
+      bladePhpFormatting: "safe" as const,
+      singleQuote: true,
+    },
+  },
+  {
+    name: "echo-space",
+    options: { bladeEchoSpacing: "space" as const, bladePhpFormatting: "off" as const },
+  },
 ] as const;
 
 const fixtures = [
