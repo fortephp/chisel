@@ -28,7 +28,7 @@ export function printText(node: WrappedNode, options?: Options): Doc {
     return [replaceEndOfLine(value), hasTrailingNewline ? hardline : ""];
   }
 
-  const prefix = printOpeningTagPrefix(node);
+  const prefix = printOpeningTagPrefix(node, options);
   const suffix = printClosingTagSuffix(node, options);
 
   // Three-way branch from getTextValueParts:
