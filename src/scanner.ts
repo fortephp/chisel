@@ -29,6 +29,23 @@ function isAlpha(ch: number): boolean {
   return (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122);
 }
 
+function isDigit(ch: number): boolean {
+  return ch >= 48 && ch <= 57;
+}
+
+function isAlnum(ch: number): boolean {
+  return isAlpha(ch) || isDigit(ch);
+}
+
+function canStartBladeDirective(src: string, pos: number, len: number): boolean {
+  if (src.charCodeAt(pos) !== 64 /* @ */) return false;
+  if (pos + 1 >= len || !isAlpha(src.charCodeAt(pos + 1))) return false;
+
+  if (pos === 0) return true;
+  const prev = src.charCodeAt(pos - 1);
+  return !isAlnum(prev) && prev !== 64 /* @ */;
+}
+
 function isWhitespace(ch: number): boolean {
   return ch === 32 || ch === 9 || ch === 10 || ch === 13;
 }
@@ -167,11 +184,7 @@ export function scan(source: string): Token[] {
       continue;
     }
 
-    if (
-      source.charCodeAt(pos) === 64 /* @ */ &&
-      pos + 1 < len &&
-      isAlpha(source.charCodeAt(pos + 1))
-    ) {
+    if (canStartBladeDirective(source, pos, len)) {
       if (pos > textStart) {
         tokens.push({ type: TokenType.Text, start: textStart, end: pos });
       }
@@ -433,7 +446,7 @@ function scanAttributes(src: string, pos: number, len: number, tokens: Token[]):
       break;
     }
 
-    if (ch === 64 /* @ */ && pos + 1 < len && isAlpha(src.charCodeAt(pos + 1))) {
+    if (canStartBladeDirective(src, pos, len)) {
       const end = scanBladeDirective(src, pos, len);
       tokens.push({ type: TokenType.BladeDirective, start: pos, end });
       pos = end;
@@ -617,7 +630,7 @@ export function hasBladeInRawContent(source: string, token: Token): boolean {
   for (let i = 0; i < content.length; i++) {
     const ch = content.charCodeAt(i);
     // @directive
-    if (ch === 64 /* @ */ && i + 1 < content.length && isAlpha(content.charCodeAt(i + 1))) {
+    if (canStartBladeDirective(content, i, content.length)) {
       return true;
     }
     // {{ or {!!

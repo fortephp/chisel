@@ -22,6 +22,20 @@ describe("scanner — text", () => {
   it("returns empty array for empty string", () => {
     expect(scan("")).toEqual([]);
   });
+
+  it("keeps directive-like email domains as text", () => {
+    for (const email of [
+      "user@example.com",
+      "test@if.com",
+      "test@foreach.dev",
+      "test@endforeach.test",
+      "test@php.net",
+      "first.last+tag@sub.exam-ple.co.uk",
+      "(test@exam-ple.com), test@example.com.",
+    ]) {
+      expect(tokenize(email)).toEqual([{ type: TokenType.Text, content: email }]);
+    }
+  });
 });
 
 describe("scanner — blade echo", () => {
@@ -126,6 +140,13 @@ describe("scanner — blade directive", () => {
     const t = tokenize("@{{ $thing }}");
     // Tokenization remains lossless here; escape semantics are resolved later.
     expect(t.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("does not scan directive-like email domains as directives", () => {
+    expect(types("test@if.com")).toEqual([TokenType.Text]);
+    expect(types("test@foreach.dev")).toEqual([TokenType.Text]);
+    expect(types("test@endforeach.test")).toEqual([TokenType.Text]);
+    expect(types("test@php.net")).toEqual([TokenType.Text]);
   });
 });
 
@@ -355,6 +376,15 @@ describe("scanner — raw content tags", () => {
     const input = "<script>var x = 1;</script>";
     const tokens = scan(input);
     const raw = tokens.find((t) => t.type === TokenType.RawContent);
+    expect(raw).toBeDefined();
+    expect(hasBladeInRawContent(input, raw!)).toBe(false);
+  });
+
+  it("does not detect directive-like email domains as blade in raw content", () => {
+    const input = '<script>const email = "test@if.com"; // test@foreach.dev</script>';
+    const tokens = scan(input);
+    const raw = tokens.find((t) => t.type === TokenType.RawContent);
+
     expect(raw).toBeDefined();
     expect(hasBladeInRawContent(input, raw!)).toBe(false);
   });
