@@ -36,6 +36,44 @@ describe("html/embedded-blade-raw-content", () => {
     await formatEqual(input, expected, phpSafe);
   });
 
+  it("stably formats multiline Blade echoes inside JavaScript array spreads when PHP formatting is off", async () => {
+    const input = `<script>
+    let myArray = [...{{
+        Js::from($array)
+    }}];
+</script>
+`;
+
+    const expected = `<script>
+  let myArray = [...{{
+    Js::from($array)
+  }}];
+</script>
+`;
+
+    await formatEqual(input, expected, { bladePhpFormatting: "off" }, 4);
+  });
+
+  it("stably formats multiline Blade echoes inside JavaScript array spreads with PHP formatting", async () => {
+    const input = `<script>
+    let myArray = [...{{
+        Js::from($array)
+    }}];
+</script>
+`;
+
+    const expected = `<script>
+  let myArray = [...{{
+    Js::from(
+      $array,
+    )
+  }}];
+</script>
+`;
+
+    await formatEqual(input, expected, phpSafe, 4);
+  });
+
   it("stably formats script directive loops when bladePhpFormatting is off", async () => {
     const input = `<script>
 @foreach ($stuff as $thing)

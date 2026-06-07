@@ -136,6 +136,60 @@ function getPlaceholderKind(node: LeafConstructNode): PlaceholderKind {
   }
 }
 
+function getIndentUnit(options: Options): string {
+  const raw = (options as Record<string, unknown>).tabWidth;
+  const tabWidth = typeof raw === "number" && Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : 2;
+  return (options as Record<string, unknown>).useTabs === true ? "\t" : " ".repeat(tabWidth);
+}
+
+function getEchoDelimiters(node: LeafConstructNode): { open: string; close: string } | null {
+  switch (node.kind) {
+    case NodeKind.RawEcho:
+      return { open: "{!!", close: "!!}" };
+    case NodeKind.TripleEcho:
+      return { open: "{{{", close: "}}}" };
+    case NodeKind.Echo:
+      return { open: "{{", close: "}}" };
+    default:
+      return null;
+  }
+}
+
+function normalizeMultilineEchoReplacementText(
+  node: LeafConstructNode,
+  value: string,
+  options: Options,
+): string {
+  if (!value.includes("\n") && !value.includes("\r")) {
+    return value;
+  }
+
+  const delimiters = getEchoDelimiters(node);
+  if (delimiters === null) {
+    return value;
+  }
+
+  const normalized = normalizeLineEndingsToLf(value).trim();
+  if (!normalized.startsWith(delimiters.open) || !normalized.endsWith(delimiters.close)) {
+    return value;
+  }
+
+  const inner = stripBoundaryLineBreaks(
+    normalized.slice(delimiters.open.length, normalized.length - delimiters.close.length),
+  ).replace(/\n[^\S\r\n]*$/u, "");
+  if (inner.trim().length === 0) {
+    return `${delimiters.open}\n${delimiters.close}`;
+  }
+
+  const indentUnit = getIndentUnit(options);
+  const body = dedentString(inner)
+    .split("\n")
+    .map((line) => (line.trim().length === 0 ? "" : `${indentUnit}${line}`))
+    .join("\n");
+
+  return `${delimiters.open}\n${body}\n${delimiters.close}`;
+}
+
 function isStyleParser(parser: string): boolean {
   return parser === "css" || parser === "scss" || parser === "less";
 }
@@ -304,9 +358,10 @@ async function getConstructReplacementText(
     case NodeKind.RawEcho:
     case NodeKind.TripleEcho: {
       const formatted = await formatEchoNode(node, options);
-      if (formatted !== null) return formatted;
+      if (formatted !== null)
+        return normalizeMultilineEchoReplacementText(node, formatted, options);
       const rendered = docToFlatString(printEcho(node, options));
-      return rendered ?? fullText(node);
+      return normalizeMultilineEchoReplacementText(node, rendered ?? fullText(node), options);
     }
     case NodeKind.Directive: {
       const formatted = await formatDirectiveNodeArgs(node, options);
