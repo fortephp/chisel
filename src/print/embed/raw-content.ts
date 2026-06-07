@@ -150,6 +150,21 @@ function isMultilineEchoConstruct(node: LeafConstructNode): boolean {
   return raw.includes("\n") || raw.includes("\r");
 }
 
+function isBladeOrPhpFallbackConstruct(node: LeafConstructNode): boolean {
+  switch (node.kind) {
+    case NodeKind.Directive:
+    case NodeKind.Echo:
+    case NodeKind.RawEcho:
+    case NodeKind.TripleEcho:
+    case NodeKind.PhpBlock:
+    case NodeKind.PhpTag:
+    case NodeKind.BladeComment:
+      return true;
+    default:
+      return false;
+  }
+}
+
 function isStyleParser(parser: string): boolean {
   return parser === "css" || parser === "scss" || parser === "less";
 }
@@ -1776,6 +1791,50 @@ export function shouldUseMixedRawContentEmbedding(node: WrappedNode, options: Op
   return parentContainsBladeSyntax(node, "style");
 }
 
+export function shouldUseUnparsedRawContentEmbedding(node: WrappedNode, options: Options): boolean {
+  const range = getElementContentRange(node);
+  const constructs = collectLeafConstructs(node, range.start, range.end);
+  const hasMultilineEcho = constructs.some(isMultilineEchoConstruct);
+
+  const parser = inferElementParser(node, options);
+  if (!parser) {
+    return constructs.some(isBladeOrPhpFallbackConstruct);
+  }
+
+  if (!hasMultilineEcho) {
+    return false;
+  }
+
+  return (
+    node.tagName === "script" &&
+    constructs.some(
+      (child) =>
+        isMultilineEchoConstruct(child) &&
+        isConstructInsideScriptComment(child, node.source, range.start, range.end),
+    )
+  );
+}
+
+export function embedUnparsedRawContentElement(
+  path: AstPath<WrappedNode>,
+  options: Options,
+  print: EmbedPrint,
+): Doc {
+  const node = path.node;
+  const range = getElementContentRange(node);
+  const rawValue = node.source.slice(range.start, range.end);
+  const fallback = normalizeEmbeddedRawContentFallback(rawValue);
+
+  return buildScriptLikeElementDoc(
+    path,
+    node,
+    options,
+    print,
+    replaceEndOfLine(fallback, hardline),
+    rawValue,
+  );
+}
+
 function isStructuralScriptDirective(node: WrappedNode): boolean {
   if (node.kind !== NodeKind.Directive) {
     return false;
@@ -1875,6 +1934,20 @@ function isConstructInsideScriptLiteralOrComment(
   }
 
   return isLikelyInsideScriptLiteralOrComment(source, contentStart, replacementRange.start);
+}
+
+function isConstructInsideScriptComment(
+  node: LeafConstructNode,
+  source: string,
+  contentStart: number,
+  contentEnd: number,
+): boolean {
+  const replacementRange = getReplacementRange(node);
+  if (replacementRange.start < contentStart || replacementRange.end > contentEnd) {
+    return false;
+  }
+
+  return isLikelyInsideScriptComment(source, contentStart, replacementRange.start);
 }
 
 function isDirectiveInsideStyleLiteralOrComment(
@@ -2057,21 +2130,39 @@ function isInlineStyleDirectiveExpression(
   return before.trim().length > 0 || after.trim().length > 0;
 }
 
+type ScriptScanState =
+  | "code"
+  | "single"
+  | "double"
+  | "template"
+  | "lineComment"
+  | "blockComment"
+  | "regex"
+  | "regexClass";
+
 function isLikelyInsideScriptLiteralOrComment(
   source: string,
   contentStart: number,
   offset: number,
 ): boolean {
-  type ScanState =
-    | "code"
-    | "single"
-    | "double"
-    | "template"
-    | "lineComment"
-    | "blockComment"
-    | "regex"
-    | "regexClass";
-  let state: ScanState = "code";
+  return getScriptScanStateAtOffset(source, contentStart, offset) !== "code";
+}
+
+function isLikelyInsideScriptComment(
+  source: string,
+  contentStart: number,
+  offset: number,
+): boolean {
+  const state = getScriptScanStateAtOffset(source, contentStart, offset);
+  return state === "lineComment" || state === "blockComment";
+}
+
+function getScriptScanStateAtOffset(
+  source: string,
+  contentStart: number,
+  offset: number,
+): ScriptScanState {
+  let state: ScriptScanState = "code";
   const templateExpressionDepthStack: number[] = [];
 
   for (let i = contentStart; i < offset; i++) {
@@ -2207,7 +2298,7 @@ function isLikelyInsideScriptLiteralOrComment(
     }
   }
 
-  return state !== "code";
+  return state;
 }
 
 function isLikelyInsideStyleLiteralOrComment(
