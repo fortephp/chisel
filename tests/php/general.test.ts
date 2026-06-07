@@ -17,8 +17,7 @@ describe("php/general", () => {
 
   it("formats shorthand and standard php tags", async () => {
     const input = "<?= $a+$b ?>\n<?php for($i=0;$i<3;$i++){echo $i;} ?>\n";
-    const expected =
-      "<?= $a + $b ?>\n<?php for ($i = 0; $i < 3; $i++) {\n  echo $i;\n} ?>\n";
+    const expected = "<?= $a + $b ?>\n<?php for ($i = 0; $i < 3; $i++) {\n  echo $i;\n} ?>\n";
 
     await formatEqual(input, expected, withPhp);
   });
@@ -43,6 +42,69 @@ describe("php/general", () => {
 `;
 
     await formatEqual(input, expected, withPhp);
+  });
+
+  it("preserves source-authored trailing commas in directive array args", async () => {
+    const input = `@props ([
+    'type' => 'button',
+    'size' => 'base',
+    'style' => 'tertiary',
+    'href' => '#',
+])
+`;
+    const expected = `@props ([
+  "type" => "button",
+  "size" => "base",
+  "style" => "tertiary",
+  "href" => "#",
+])
+`;
+
+    await formatEqual(input, expected, {
+      ...withPhp,
+      trailingComma: "all",
+    });
+  });
+
+  it("allows trailingCommaPHP=false to remove directive array trailing commas", async () => {
+    const input = `@props ([
+    'type' => 'button',
+    'size' => 'base',
+    'style' => 'tertiary',
+    'href' => '#',
+])
+`;
+    const expected = `@props ([
+  "type" => "button",
+  "size" => "base",
+  "style" => "tertiary",
+  "href" => "#"
+])
+`;
+
+    await formatEqual(input, expected, {
+      ...withPhp,
+      trailingComma: "all",
+      trailingCommaPHP: false,
+    });
+  });
+
+  it("does not add directive array trailing commas when the source omitted them", async () => {
+    const input = `@props ([
+    'type' => 'button',
+    'href' => '#'
+])
+`;
+    const expected = `@props ([
+  "type" => "button",
+  "href" => "#"
+])
+`;
+
+    await formatEqual(input, expected, {
+      ...withPhp,
+      trailingComma: "all",
+    });
   });
 
   it("preserves wrapped multiline @if directive args layout while formatting php", async () => {
