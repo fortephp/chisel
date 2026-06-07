@@ -1,3 +1,9 @@
+import {
+  canStartBladeDirectiveAt,
+  isAsciiAlnum,
+  isAsciiAlpha,
+} from "./lexer/scan-primitives.js";
+
 export const enum TokenType {
   Text,
   HtmlOpenTagStart, // "<div" - includes tag name
@@ -25,25 +31,10 @@ export interface Token {
 
 const RAW_TAGS = new Set(["script", "style", "pre", "textarea"]);
 
-function isAlpha(ch: number): boolean {
-  return (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122);
-}
-
-function isDigit(ch: number): boolean {
-  return ch >= 48 && ch <= 57;
-}
-
-function isAlnum(ch: number): boolean {
-  return isAlpha(ch) || isDigit(ch);
-}
-
 function canStartBladeDirective(src: string, pos: number, len: number): boolean {
   if (src.charCodeAt(pos) !== 64 /* @ */) return false;
-  if (pos + 1 >= len || !isAlpha(src.charCodeAt(pos + 1))) return false;
-
-  if (pos === 0) return true;
-  const prev = src.charCodeAt(pos - 1);
-  return !isAlnum(prev) && prev !== 64 /* @ */;
+  if (pos + 1 >= len || !isAsciiAlpha(src.charCodeAt(pos + 1))) return false;
+  return canStartBladeDirectiveAt(src, pos);
 }
 
 function isWhitespace(ch: number): boolean {
@@ -53,8 +44,7 @@ function isWhitespace(ch: number): boolean {
 function isTagNameChar(ch: number): boolean {
   // a-z A-Z 0-9 - . : (for x-component, alpine :class, namespaced tags)
   return (
-    isAlpha(ch) ||
-    (ch >= 48 && ch <= 57) ||
+    isAsciiAlnum(ch) ||
     ch === 45 /* - */ ||
     ch === 46 /* . */ ||
     ch === 58 /* : */
@@ -64,8 +54,7 @@ function isTagNameChar(ch: number): boolean {
 function isAttrNameChar(ch: number): boolean {
   // Attribute names: a-z A-Z 0-9 - _ . : @ (for alpine, vue, blade shorthands)
   return (
-    isAlpha(ch) ||
-    (ch >= 48 && ch <= 57) ||
+    isAsciiAlnum(ch) ||
     ch === 45 /* - */ ||
     ch === 95 /* _ */ ||
     ch === 46 /* . */ ||
@@ -247,7 +236,7 @@ export function scan(source: string): Token[] {
     if (
       source.charCodeAt(pos) === 60 /* < */ &&
       pos + 1 < len &&
-      isAlpha(source.charCodeAt(pos + 1))
+      isAsciiAlpha(source.charCodeAt(pos + 1))
     ) {
       if (pos > textStart) {
         tokens.push({ type: TokenType.Text, start: textStart, end: pos });
@@ -330,7 +319,7 @@ function scanBladeDirective(src: string, start: number, len: number): number {
   let pos = start + 1; // skip @
 
   // Scan directive name
-  while (pos < len && (isAlpha(src.charCodeAt(pos)) || src.charCodeAt(pos) === 95) /* _ */) {
+  while (pos < len && (isAsciiAlpha(src.charCodeAt(pos)) || src.charCodeAt(pos) === 95) /* _ */) {
     pos++;
   }
 
