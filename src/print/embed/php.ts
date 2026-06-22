@@ -40,7 +40,7 @@ const phpFormatCache = new Map<string, string | null>();
 const BROWSER_DEFAULT_PHP_VERSION = "8.4";
 const PHP_INLINE_WRAPPER_PRINT_WIDTH_MARGIN = 8;
 const FORCED_DIRECTIVE_ARG_TRAILING_COMMA = false;
-const DIRECTIVE_ARG_FINAL_ARRAY_TRAILING_COMMA_ALLOWED_DIRECTIVES = new Set(["props"]);
+const DIRECTIVE_ARG_FINAL_ARRAY_TRAILING_COMMA_ALLOWED_DIRECTIVES = new Set(["aware", "props"]);
 
 function getMode(options: Options): PhpFormattingMode {
   const rawOptions = options as Record<string, unknown>;

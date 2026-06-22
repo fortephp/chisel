@@ -66,6 +66,22 @@ describe("php/general", () => {
     });
   });
 
+  it("preserves source-authored trailing commas in @aware array args", async () => {
+    const input = `@aware ([
+    'color' => 'gray',
+])
+`;
+    const expected = `@aware ([
+  "color" => "gray",
+])
+`;
+
+    await formatEqual(input, expected, {
+      ...withPhp,
+      trailingComma: "all",
+    });
+  });
+
   it("allows trailingCommaPHP=false to remove directive array trailing commas", async () => {
     const input = `@props ([
     'type' => 'button',
