@@ -113,7 +113,7 @@ stuff
     <p>Hello world`;
 
     const expected = `@if ($this->author(""))
-  <p>Hello world
+<p>Hello world
 `;
 
     await formatEqual(input, expected);
@@ -124,7 +124,7 @@ stuff
     <p>Hello world`;
 
     const expected = `@if ($this->author(''))
-  <p>Hello world
+<p>Hello world
 `;
 
     await formatEqual(input, expected, {

@@ -128,6 +128,31 @@ export class Directives {
     return d.terminators;
   }
 
+  /** @internal */
+  getRegisteredDirectives(): DiscoveredDirective[] {
+    return [...this.directives.values()];
+  }
+
+  /** @internal */
+  getOpenersForTerminators(terminators: readonly string[]): string[] {
+    if (terminators.length === 0) {
+      return [];
+    }
+
+    const terminatorSet = new Set(terminators.map((name) => name.toLowerCase()));
+    const openers: string[] = [];
+    for (const directive of this.directives.values()) {
+      if (directive.role !== StructureRole.Opening) {
+        continue;
+      }
+      if (directive.terminators.some((terminator) => terminatorSet.has(terminator))) {
+        openers.push(directive.name.toLowerCase());
+      }
+    }
+
+    return openers;
+  }
+
   getBranches(name: string): string[] {
     const d = this.directives.get(name.toLowerCase());
     if (!d || !d.isCondition) return [];

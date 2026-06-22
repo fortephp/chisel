@@ -181,7 +181,7 @@ function renderDirectiveTokens(node: WrappedNode, options: Options): string {
     return "";
   }
 
-  if (hasUnterminatedDirectiveArgsAtEof(node)) {
+  if (hasUnterminatedDirectiveArgs(node)) {
     // Recovery mode: keep malformed args content, but trim trailing whitespace
     // so root-level hardline emission stays idempotent across passes.
     return result.replace(/\s+$/u, "");
@@ -190,7 +190,7 @@ function renderDirectiveTokens(node: WrappedNode, options: Options): string {
   return result;
 }
 
-function hasUnterminatedDirectiveArgsAtEof(node: WrappedNode): boolean {
+function hasUnterminatedDirectiveArgs(node: WrappedNode): boolean {
   const start = node.flat.tokenStart;
   const end = start + node.flat.tokenCount;
   const tokens = node.buildResult.tokens;
@@ -198,7 +198,6 @@ function hasUnterminatedDirectiveArgsAtEof(node: WrappedNode): boolean {
   for (let i = start; i < end; i++) {
     const token = tokens[i];
     if (token.type !== TokenType.DirectiveArgs) continue;
-    if (token.end < node.source.length) return false;
 
     const text = node.source.slice(token.start, token.end);
     if (!text.startsWith("(")) return false;
