@@ -231,4 +231,52 @@ describe("html/css", () => {
 `;
     await formatEqual(input, expected);
   });
+
+  it("preserves closing tags when php blocks appear in style values", async () => {
+    const input = `<html>
+<body>
+<p>{{ $name }}</p>
+<style>
+.brand { color: @php echo $brand; @endphp; }
+</style>
+</body>
+</html>
+`;
+    const expected = `<html>
+    <body>
+        <p>{{ $name }}</p>
+        <style>
+            .brand {
+                color: @php echo $brand; @endphp;
+            }
+        </style>
+    </body>
+</html>
+`;
+    await formatEqual(input, expected, {
+      singleQuote: true,
+      htmlWhitespaceSensitivity: "css",
+      printWidth: 120,
+      tabWidth: 4,
+      bladePhpFormatting: "safe",
+      bladePhpFormattingTargets: ["directiveArgs", "phpBlock", "phpTag"],
+      bladeDirectiveArgSpacing: "none",
+      bladeEchoSpacing: "space",
+    });
+  });
+
+  it("preserves declarations after php blocks in style values", async () => {
+    const input = `<style>
+.brand { color: @php echo $brand; @endphp; background: red; }
+</style>
+`;
+    const expected = `<style>
+  .brand {
+    color: @php echo $brand; @endphp;
+    background: red;
+  }
+</style>
+`;
+    await formatEqual(input, expected);
+  });
 });
