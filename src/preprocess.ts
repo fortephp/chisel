@@ -649,6 +649,10 @@ export function preprocess(ast: WrappedNode, options: Options): WrappedNode {
       run: () => addSiblings(ast),
       validateSiblings: true,
     },
+    {
+      name: "addSpaceSensitivity:postPromoteOpeningTagChildrenToAttrs",
+      run: () => addSpaceSensitivity(ast, options),
+    },
   ];
 
   executePreprocessStages(ast, stages, {

@@ -37,7 +37,7 @@ describe("validation/malformed-tail", () => {
   it("stabilizes malformed trailing closing-marker fragments at eof", async () => {
     const input = `<div {{ $attributes->class('[:where(&)]:relative') }}> {{ $slot }} </\n`;
     const output = await formatWithPasses(input, {}, { passes: 5, assertIdempotent: true });
-    const expected = `<div {{ $attributes->class('[:where(&)]:relative') }}> {{ $slot }} </\n`;
+    const expected = `<div {{ $attributes->class('[:where(&)]:relative') }}>{{ $slot }} </\n`;
     expect(output).toBe(expected);
   });
 

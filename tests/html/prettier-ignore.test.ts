@@ -219,7 +219,6 @@ A super long string that has been marked as ignore because it was probably gener
     const expected = `<!-- prettier-ignore -->
 <p>
 # Hello world!
-
 <div>
 `;
     await formatEqual(input, expected);

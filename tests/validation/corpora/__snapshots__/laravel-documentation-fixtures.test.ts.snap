@@ -622,7 +622,7 @@ exports[`validation/laravel-documentation-fixtures > formats docs_75.blade.php (
 `;
 
 exports[`validation/laravel-documentation-fixtures > formats docs_76.blade.php (snapshot + idempotent + no-loss) 1`] = `
-"<button {{ $attributes->merge(['type' => 'button']) }}> {{ $slot }}</button>
+"<button {{ $attributes->merge(['type' => 'button']) }}>{{ $slot }}</button>
 "
 `;
 
@@ -760,7 +760,7 @@ exports[`validation/laravel-documentation-fixtures > formats docs_96.blade.php (
 ])
 
 <div {{ $attributes->class(['border']) }}>
-  <h1 {{ $heading->attributes->class(['text-lg']) }}> {{ $heading }}</h1>
+  <h1 {{ $heading->attributes->class(['text-lg']) }}>{{ $heading }}</h1>
 
   {{ $slot }}
 
@@ -1487,7 +1487,7 @@ exports[`validation/laravel-documentation-fixtures > formats docs_174.blade.php 
 `;
 
 exports[`validation/laravel-documentation-fixtures > formats docs_175.blade.php (snapshot + idempotent + no-loss) 1`] = `
-"<div {!! when($condition, 'wire:poll="calculate"') !!}> ...</div>
+"<div {!! when($condition, 'wire:poll="calculate"') !!}>...</div>
 "
 `;
 

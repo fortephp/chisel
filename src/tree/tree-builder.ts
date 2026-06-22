@@ -349,7 +349,7 @@ export class TreeBuilder {
     }
   }
 
-  private autoCloseElementsForSibling(newTag: string): void {
+  private autoCloseElementsForSibling(newTag: string, closeAtToken: number): void {
     if (newTag === "") return;
 
     const conditions = OptionalTags.getClosingConditions(newTag);
@@ -358,16 +358,20 @@ export class TreeBuilder {
         conditions.autoCloseAtParentEnd as string[],
       );
       if (containerIndex >= 0) {
-        this.autoCloseElementsBetween(containerIndex, newTag);
+        this.autoCloseElementsBetween(containerIndex, newTag, closeAtToken);
         return;
       }
       return;
     }
 
-    this.autoCloseImmediateParent(newTag);
+    this.autoCloseImmediateParent(newTag, closeAtToken);
   }
 
-  private autoCloseElementsBetween(containerIndex: number, newTag: string): void {
+  private autoCloseElementsBetween(
+    containerIndex: number,
+    newTag: string,
+    closeAtToken: number,
+  ): void {
     let closeUpToIndex = -1;
 
     for (let i = this.openElements.length - 1; i > containerIndex; i--) {
@@ -387,12 +391,13 @@ export class TreeBuilder {
     if (closeUpToIndex >= 0) {
       while (this.openElements.length > closeUpToIndex) {
         const popped = this.openElements.pop()!;
+        this.finalizeImplicitlyClosedElement(popped, closeAtToken);
         this.cleanupTagNameStack(popped);
       }
     }
   }
 
-  private autoCloseImmediateParent(newTag: string): void {
+  private autoCloseImmediateParent(newTag: string, closeAtToken: number): void {
     if (this.openElements.length <= 1) return;
 
     const currentIdx = this.openElements[this.openElements.length - 1];
@@ -407,7 +412,17 @@ export class TreeBuilder {
 
     if (OptionalTags.shouldAutoCloseElement(currentTagName, newTag, parentTagName, false)) {
       this.openElements.pop();
+      this.finalizeImplicitlyClosedElement(currentIdx, closeAtToken);
       this.cleanupTagNameStack(currentIdx);
+    }
+  }
+
+  private finalizeImplicitlyClosedElement(elementIdx: number, closeAtToken: number): void {
+    if (this.nodes[elementIdx].kind !== NodeKind.Element) return;
+
+    const tokenCount = Math.max(0, closeAtToken - this.nodes[elementIdx].tokenStart);
+    if (tokenCount > this.nodes[elementIdx].tokenCount) {
+      this.nodes[elementIdx].tokenCount = tokenCount;
     }
   }
 
@@ -420,8 +435,13 @@ export class TreeBuilder {
       if (tagName === "") continue;
 
       if (validParents.includes(tagName)) return i;
+      if (this.isOptionalTagContainerBoundary(tagName)) return -1;
     }
     return -1;
+  }
+
+  private isOptionalTagContainerBoundary(tagName: string): boolean {
+    return tagName === "template";
   }
 
   private parentTagNameOf(idx: number): string | null {
@@ -1017,7 +1037,7 @@ export class TreeBuilder {
     const lowerNewTag = staticTagName.toLowerCase();
 
     if (!isDynamicTagName) {
-      this.autoCloseElementsForSibling(lowerNewTag);
+      this.autoCloseElementsForSibling(lowerNewTag, startPos);
     }
 
     const elementIdx = this.addChild(createFlatNode(NodeKind.Element, 0, startPos, 0));
