@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import * as prettier from "prettier";
+import plugin from "../../src/index.js";
 import { format, formatEqual, formatWithPasses, wrapInDiv } from "../helpers.js";
 
 describe("html/embedded-blade-raw-content", () => {
@@ -72,6 +74,35 @@ describe("html/embedded-blade-raw-content", () => {
 `;
 
     await formatEqual(input, expected, phpSafe, 4);
+  });
+
+  it("stably formats issue #160 with package defaults", async () => {
+    const input = `<script>
+    let myArray = [...{{
+        Js::from($array)
+    }}];
+</script>
+`;
+
+    const expected = `<script>
+  let myArray = [...{{
+    Js::from(
+      $array,
+    )
+  }}];
+</script>
+`;
+
+    const options = { parser: "blade" as const, plugins: [plugin] };
+
+    let output = await prettier.format(input, options);
+    expect(output).toBe(expected);
+
+    for (let pass = 2; pass <= 4; pass++) {
+      const next = await prettier.format(output, options);
+      expect(next, `not idempotent on pass ${pass}`).toBe(output);
+      output = next;
+    }
   });
 
   it("stably formats multiline echo variants in native script printing", async () => {
