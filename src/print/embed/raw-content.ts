@@ -109,6 +109,31 @@ function extractDirectiveName(node: WrappedNode): string | null {
   return null;
 }
 
+function hasDirectiveArgsToken(node: WrappedNode): boolean {
+  if (node.kind !== NodeKind.Directive) return false;
+
+  const tokenStart = node.flat.tokenStart;
+  const tokenEnd = tokenStart + node.flat.tokenCount;
+  const tokens = node.buildResult.tokens;
+
+  for (let i = tokenStart; i < tokenEnd; i++) {
+    if (tokens[i].type === TokenType.DirectiveArgs) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function isPhpDirectiveWithArgs(node: WrappedNode): boolean {
+  return extractDirectiveName(node) === "php" && hasDirectiveArgsToken(node);
+}
+
+function isExpressionDirective(node: WrappedNode): boolean {
+  const name = extractDirectiveName(node);
+  return name !== null && (EXPRESSION_DIRECTIVES.has(name) || isPhpDirectiveWithArgs(node));
+}
+
 function isKnownBladeDirective(node: WrappedNode): boolean {
   const name = extractDirectiveName(node);
   if (!name) {
@@ -128,8 +153,7 @@ function getPlaceholderKind(node: LeafConstructNode): PlaceholderKind {
     case NodeKind.PhpBlock:
       return "expr";
     case NodeKind.Directive: {
-      const name = extractDirectiveName(node);
-      return name && EXPRESSION_DIRECTIVES.has(name) ? "expr" : "stmt";
+      return isExpressionDirective(node) ? "expr" : "stmt";
     }
     default:
       return "stmt";
@@ -988,7 +1012,7 @@ function normalizeStyleStructuralDirectiveSemicolons(value: string): string {
 
     if (ch === ";") {
       const directiveMatch = lineCode.match(/@([A-Za-z_][A-Za-z0-9_]*)(?:\s*\([^)]*\))?\s*$/u);
-      if (directiveMatch) {
+      if (directiveMatch && lineCode.trimStart().startsWith("@")) {
         const name = directiveMatch[1].toLowerCase();
         if (
           STYLE_DIRECTIVE_BLOCK_OPENERS.has(name) ||
@@ -1789,8 +1813,7 @@ function isExpressionScriptDirective(node: WrappedNode): boolean {
     return false;
   }
 
-  const name = extractDirectiveName(node);
-  return name !== null && EXPRESSION_DIRECTIVES.has(name);
+  return isExpressionDirective(node);
 }
 
 function isStandaloneScriptDirective(
