@@ -61,11 +61,7 @@ describe("php/php-plugin-resolver", () => {
 
     const resolved = await resolvePhpPlugins(asOptions([phpPlugin]));
     expect(resolved).not.toBeNull();
-    expect(
-      resolved?.some(
-        (plugin) => plugin === phpPlugin.default,
-      ),
-    ).toBe(true);
+    expect(resolved?.some((plugin) => plugin === phpPlugin.default)).toBe(true);
   });
 
   it("loads php plugin from known module ids when options.plugins is empty", async () => {
@@ -74,8 +70,7 @@ describe("php/php-plugin-resolver", () => {
     expect(
       resolved?.some((plugin) => {
         if (!plugin || typeof plugin !== "object") return false;
-        const parser = (plugin as { parsers?: Record<string, unknown> }).parsers
-          ?.php;
+        const parser = (plugin as { parsers?: Record<string, unknown> }).parsers?.php;
         return !!parser;
       }),
     ).toBe(true);

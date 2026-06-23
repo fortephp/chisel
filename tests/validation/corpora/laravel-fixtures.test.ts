@@ -1,17 +1,9 @@
 import { join } from "node:path";
 import type * as prettier from "prettier";
-import {
-  readFixture,
-} from "../support/fixture-suite.js";
+import { readFixture } from "../support/fixture-suite.js";
 import { defineCorpusFixtureSuite } from "../support/corpus-suite.js";
 
-const FIXTURE_DIR = join(
-  process.cwd(),
-  "tests",
-  "fixtures",
-  "validation",
-  "laravel",
-);
+const FIXTURE_DIR = join(process.cwd(), "tests", "fixtures", "validation", "laravel");
 
 const FIXTURE_FILES = ["welcome.blade.php"];
 

@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
-import bladePlugin, {
-  options as declaredPluginOptions,
-} from "../../src/index.js";
+import bladePlugin, { options as declaredPluginOptions } from "../../src/index.js";
 import * as phpPlugin from "@prettier/plugin-php";
 import { DEFAULT_DIRECTIVE_ARG_SPACING_OVERRIDE_TOKENS } from "../../src/print/blade-options.js";
 import { format, hasLoneLf } from "../helpers.js";
@@ -49,16 +47,13 @@ const pluginOptionScenarios: Record<string, () => Promise<void>> = {
     expect(output).toContain("<?php $y=2+3; ?>");
   },
   bladeSyntaxPlugins: async () => {
-    const input =
-      "@antlers\n<div>{{$x}}</div>\n@if($ready)\n@endantlers\n<div>{{$y}}</div>\n";
+    const input = "@antlers\n<div>{{$x}}</div>\n@if($ready)\n@endantlers\n<div>{{$y}}</div>\n";
     const output = await format(input, {
       bladeEchoSpacing: "space",
       bladeSyntaxPlugins: ["statamic"],
     });
 
-    expect(output).toContain(
-      "@antlers\n<div>{{$x}}</div>\n@if($ready)\n@endantlers",
-    );
+    expect(output).toContain("@antlers\n<div>{{$x}}</div>\n@if($ready)\n@endantlers");
     expect(output).toContain("<div>{{ $y }}</div>");
 
     const sageInput = "@istrue($ready)<div>{{$title}}</div>@endistrue\n";
@@ -189,14 +184,10 @@ const pluginOptionScenarios: Record<string, () => Promise<void>> = {
     );
     expect(wrap).toContain("<svg>");
     expect(wrap).toContain("<path\n");
-    expect(
-      (rootOnly.match(/<path\b[\s\S]*?>/u)?.[0] ?? "").includes("\n"),
-    ).toBe(true);
+    expect((rootOnly.match(/<path\b[\s\S]*?>/u)?.[0] ?? "").includes("\n")).toBe(true);
     expect(rootOnly).toContain("<svg><path");
     expect(childrenOnly).toContain("<svg>\n");
-    expect(
-      (childrenOnly.match(/<path\b[\s\S]*?>/u)?.[0] ?? "").includes("\n"),
-    ).toBe(false);
+    expect((childrenOnly.match(/<path\b[\s\S]*?>/u)?.[0] ?? "").includes("\n")).toBe(false);
     expect(preserveParagraph.trimEnd()).toBe(
       '<p id="alpha" data-one="1" data-two="2" data-three="3" data-four="4" data-five="5" data-six="6" data-seven="7" data-eight="8">Hello {{ $name }} this is a long inline paragraph that should remain on one line.</p>',
     );
@@ -205,10 +196,8 @@ const pluginOptionScenarios: Record<string, () => Promise<void>> = {
   bladeComponentPrefixes: async () => {
     const dashInput = '<widget-card :title="$user->name??$fallback" />\n';
     const colonInput = '<widget:card :title="$user->name??$fallback" />\n';
-    const directiveDashInput =
-      "<widget-card @if($enabled) disabled @endif />\n";
-    const directiveColonInput =
-      "<widget:card @if($enabled) disabled @endif />\n";
+    const directiveDashInput = "<widget-card @if($enabled) disabled @endif />\n";
+    const directiveColonInput = "<widget:card @if($enabled) disabled @endif />\n";
 
     const defaultDashOutput = await formatWithPhp(dashInput, {
       bladePhpFormatting: "safe",
@@ -261,12 +250,8 @@ const pluginOptionScenarios: Record<string, () => Promise<void>> = {
       bladeKeepHeadAndBodyAtRoot: true,
     });
 
-    expect(defaultOutput).toContain(
-      "<html>\n  <head></head>\n  <body></body>\n</html>\n",
-    );
-    expect(rootOutput).toContain(
-      "<html>\n<head></head>\n<body></body>\n</html>\n",
-    );
+    expect(defaultOutput).toContain("<html>\n  <head></head>\n  <body></body>\n</html>\n");
+    expect(rootOutput).toContain("<html>\n<head></head>\n<body></body>\n</html>\n");
   },
 };
 
@@ -287,8 +272,7 @@ const delegatedCoreOptionScenarios: Record<string, () => Promise<void>> = {
     expect(noSemi).not.toContain("const x = 1;");
   },
   trailingComma: async () => {
-    const input =
-      "<script>run({ alpha: 1, beta: 2, gamma: 3, longKey: 4 })</script>\n";
+    const input = "<script>run({ alpha: 1, beta: 2, gamma: 3, longKey: 4 })</script>\n";
     const withTrailing = await format(input, {
       printWidth: 40,
       trailingComma: "all",
@@ -321,8 +305,7 @@ const delegatedCoreOptionScenarios: Record<string, () => Promise<void>> = {
     expect(consistent).toContain('"foo": 1, "bar-baz": 2');
   },
   jsxSingleQuote: async () => {
-    const input =
-      '<script type="text/jsx">const node=<Comp title="hello" />;</script>\n';
+    const input = '<script type="text/jsx">const node=<Comp title="hello" />;</script>\n';
     const single = await format(input, { jsxSingleQuote: true });
     const double = await format(input, { jsxSingleQuote: false });
     expect(single).toContain("title='hello'");
@@ -334,9 +317,7 @@ const delegatedCoreOptionScenarios: Record<string, () => Promise<void>> = {
     const narrow = await format(input, { printWidth: 40 });
     const wide = await format(input, { printWidth: 120 });
     expect(narrow).toContain("someFunction(\n");
-    expect(wide).toContain(
-      "const value = someFunction(alpha, beta, gamma, delta, epsilon, zeta);",
-    );
+    expect(wide).toContain("const value = someFunction(alpha, beta, gamma, delta, epsilon, zeta);");
   },
   tabWidth: async () => {
     const input = "<script>if (x) {\nconsole.log(1)\n}</script>\n";
@@ -381,8 +362,7 @@ const delegatedCoreOptionScenarios: Record<string, () => Promise<void>> = {
     expect(output).toContain('\n  data-c="3"\n');
   },
   bracketSameLine: async () => {
-    const input =
-      '<div very_long_attribute_name="value_value_value_value_value_value"></div>\n';
+    const input = '<div very_long_attribute_name="value_value_value_value_value_value"></div>\n';
     const output = await format(input, {
       printWidth: 40,
       bracketSameLine: true,
@@ -401,27 +381,19 @@ describe("options/option-definitions/blade-options", () => {
   it("declares the shipped defaults", () => {
     expect(declaredPluginOptions.bladePhpFormatting.default).toBe("safe");
     expect(declaredPluginOptions.bladeKeepHeadAndBodyAtRoot.default).toBe(true);
-    expect(declaredPluginOptions.bladeDirectiveArgSpacingOverrides.type).toBe(
-      "string",
-    );
-    expect(declaredPluginOptions.bladeDirectiveArgSpacingOverrides.array).toBe(
-      true,
-    );
-    expect(
-      declaredPluginOptions.bladeDirectiveArgSpacingOverrides.default,
-    ).toEqual([{ value: [...DEFAULT_DIRECTIVE_ARG_SPACING_OVERRIDE_TOKENS] }]);
-    expect(declaredPluginOptions.bladeSyntaxPlugins.default).toEqual([
-      { value: ["statamic"] },
+    expect(declaredPluginOptions.bladeDirectiveArgSpacingOverrides.type).toBe("string");
+    expect(declaredPluginOptions.bladeDirectiveArgSpacingOverrides.array).toBe(true);
+    expect(declaredPluginOptions.bladeDirectiveArgSpacingOverrides.default).toEqual([
+      { value: [...DEFAULT_DIRECTIVE_ARG_SPACING_OVERRIDE_TOKENS] },
     ]);
+    expect(declaredPluginOptions.bladeSyntaxPlugins.default).toEqual([{ value: ["statamic"] }]);
     expect(declaredPluginOptions.bladeVoidElementSlash.default).toBe("always");
     expect(declaredPluginOptions.bladeComponentPrefixes.default).toEqual([
       { value: ["x", "s", "statamic", "flux", "livewire", "native"] },
     ]);
   });
 
-  for (const [optionName, runScenario] of Object.entries(
-    pluginOptionScenarios,
-  )) {
+  for (const [optionName, runScenario] of Object.entries(pluginOptionScenarios)) {
     it(`covers ${optionName}`, async () => {
       await runScenario();
     });
@@ -429,9 +401,7 @@ describe("options/option-definitions/blade-options", () => {
 });
 
 describe("options/option-definitions/delegated-options", () => {
-  for (const [optionName, runScenario] of Object.entries(
-    delegatedCoreOptionScenarios,
-  )) {
+  for (const [optionName, runScenario] of Object.entries(delegatedCoreOptionScenarios)) {
     it(`passes ${optionName} through delegated formatters`, async () => {
       await runScenario();
     });

@@ -40,8 +40,7 @@ describe("php/blocks", () => {
 
   it("formats multiline @php blocks in safe and aggressive modes", async () => {
     const input = "@php\n$x=1+2;\nif($x){$y=$x*3;}\n@endphp\n";
-    const expected =
-      "@php\n  $x = 1 + 2;\n  if ($x) {\n    $y = $x * 3;\n  }\n@endphp\n";
+    const expected = "@php\n  $x = 1 + 2;\n  if ($x) {\n    $y = $x * 3;\n  }\n@endphp\n";
 
     await formatEqual(input, expected, {
       ...withPhp,
@@ -56,8 +55,7 @@ describe("php/blocks", () => {
 
   it("indents multiline @php blocks correctly inside HTML", async () => {
     const input = "<div>\n@php\nif($x){$y=2;}\n@endphp\n</div>\n";
-    const expected =
-      "<div>\n  @php\n    if ($x) {\n      $y = 2;\n    }\n  @endphp\n</div>\n";
+    const expected = "<div>\n  @php\n    if ($x) {\n      $y = 2;\n    }\n  @endphp\n</div>\n";
 
     await formatEqual(input, expected, {
       ...withPhp,

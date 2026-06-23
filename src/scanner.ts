@@ -1,8 +1,4 @@
-import {
-  canStartBladeDirectiveAt,
-  isAsciiAlnum,
-  isAsciiAlpha,
-} from "./lexer/scan-primitives.js";
+import { canStartBladeDirectiveAt, isAsciiAlnum, isAsciiAlpha } from "./lexer/scan-primitives.js";
 
 export const enum TokenType {
   Text,
@@ -43,12 +39,7 @@ function isWhitespace(ch: number): boolean {
 
 function isTagNameChar(ch: number): boolean {
   // a-z A-Z 0-9 - . : (for x-component, alpine :class, namespaced tags)
-  return (
-    isAsciiAlnum(ch) ||
-    ch === 45 /* - */ ||
-    ch === 46 /* . */ ||
-    ch === 58 /* : */
-  );
+  return isAsciiAlnum(ch) || ch === 45 /* - */ || ch === 46 /* . */ || ch === 58 /* : */;
 }
 
 function isAttrNameChar(ch: number): boolean {

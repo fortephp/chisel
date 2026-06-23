@@ -86,11 +86,7 @@ export function defineCorpusFixtureSuite(config: CorpusSuiteConfig): void {
       for (const entry of optionMatrix) {
         it(`formats ${fileName} with ${entry.name}`, async () => {
           const input = config.readFixture(fileName);
-          const output = await formatForCorpusSuite(
-            input,
-            entry.options,
-            config.formatMode,
-          );
+          const output = await formatForCorpusSuite(input, entry.options, config.formatMode);
 
           const context = `${fileName} (${entry.name})`;
           expectCoreConstructDelimiterSafety(input, output, context);

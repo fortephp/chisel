@@ -183,36 +183,24 @@ describe("php/options", () => {
   });
 
   it("supports bladePhpFormattingTargets=none", async () => {
-    await formatEqual(
-      "{{$a+$b}}\n@blaze(a:1+2)\n",
-      "{{$a+$b}}\n@blaze (a:1+2)\n",
-      {
-        ...withPhp,
-        bladePhpFormattingTargets: [],
-      },
-    );
+    await formatEqual("{{$a+$b}}\n@blaze(a:1+2)\n", "{{$a+$b}}\n@blaze (a:1+2)\n", {
+      ...withPhp,
+      bladePhpFormattingTargets: [],
+    });
   });
 
   it("supports bladePhpFormattingTargets=echo", async () => {
-    await formatEqual(
-      "{{$a+$b}}\n@blaze(a:1+2)\n",
-      "{{ $a + $b }}\n@blaze (a:1+2)\n",
-      {
-        ...withPhp,
-        bladePhpFormattingTargets: ["echo"],
-      },
-    );
+    await formatEqual("{{$a+$b}}\n@blaze(a:1+2)\n", "{{ $a + $b }}\n@blaze (a:1+2)\n", {
+      ...withPhp,
+      bladePhpFormattingTargets: ["echo"],
+    });
   });
 
   it("supports bladePhpFormattingTargets=directiveArgs", async () => {
-    await formatEqual(
-      "{{$a+$b}}\n@blaze(a:1+2)\n",
-      "{{$a+$b}}\n@blaze (a: 1 + 2)\n",
-      {
-        ...withPhp,
-        bladePhpFormattingTargets: ["directiveArgs"],
-      },
-    );
+    await formatEqual("{{$a+$b}}\n@blaze(a:1+2)\n", "{{$a+$b}}\n@blaze (a: 1 + 2)\n", {
+      ...withPhp,
+      bladePhpFormattingTargets: ["directiveArgs"],
+    });
   });
 
   it("supports bladePhpFormattingTargets for phpBlock/phpTag", async () => {

@@ -6,21 +6,9 @@ import { fileURLToPath } from "node:url";
 import { beforeAll, describe, expect, it } from "vitest";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const prettierBinPath = join(
-  repoRoot,
-  "node_modules",
-  "prettier",
-  "bin",
-  "prettier.cjs",
-);
+const prettierBinPath = join(repoRoot, "node_modules", "prettier", "bin", "prettier.cjs");
 const builtPluginPath = join(repoRoot, "dist", "index.js");
-const tsupBinPath = join(
-  repoRoot,
-  "node_modules",
-  "tsup",
-  "dist",
-  "cli-default.js",
-);
+const tsupBinPath = join(repoRoot, "node_modules", "tsup", "dist", "cli-default.js");
 
 function assertSuccess(
   result: {
@@ -57,10 +45,7 @@ beforeAll(() => {
     encoding: "utf8",
   });
 
-  assertSuccess(
-    build,
-    "expected tsup build to succeed before CLI integration tests",
-  );
+  assertSuccess(build, "expected tsup build to succeed before CLI integration tests");
 }, 30_000);
 
 describe("cli/built-plugin", () => {
@@ -92,20 +77,12 @@ describe("cli/built-plugin", () => {
       );
 
       const result = runPrettierCli(
-        [
-          "--config",
-          configPath,
-          "--stdin-filepath",
-          join(tempDir, "demo.blade.php"),
-        ],
+        ["--config", configPath, "--stdin-filepath", join(tempDir, "demo.blade.php")],
         "{{$a+$b}}\n@blaze(a:1+2)\n",
         tempDir,
       );
 
-      assertSuccess(
-        result,
-        "expected prettier CLI with .prettierrc.json to succeed",
-      );
+      assertSuccess(result, "expected prettier CLI with .prettierrc.json to succeed");
       expect(result.stdout).toBe("{{$a + $b}}\n@blaze  (a: 1 + 2)\n");
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
@@ -137,12 +114,7 @@ describe("cli/built-plugin", () => {
       "{{$a+$b}}\n@if($x)\n@endif\n@blaze(a:1+2)\n",
     );
 
-    assertSuccess(
-      result,
-      "expected prettier CLI with Blade option flags to succeed",
-    );
-    expect(result.stdout).toBe(
-      "{{$a + $b}}\n@if ($x)\n@endif\n@blaze  (a:1+2)\n",
-    );
+    assertSuccess(result, "expected prettier CLI with Blade option flags to succeed");
+    expect(result.stdout).toBe("{{$a + $b}}\n@if ($x)\n@endif\n@blaze  (a:1+2)\n");
   }, 20_000);
 });

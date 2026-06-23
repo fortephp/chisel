@@ -144,7 +144,9 @@ function blockDirectives(
   result: BuildResult,
   blockNode: { kind: number },
 ): ReturnType<typeof childrenOf> {
-  return childrenOf(result, indexOf(result, blockNode)).filter((c) => c.kind === NodeKind.Directive);
+  return childrenOf(result, indexOf(result, blockNode)).filter(
+    (c) => c.kind === NodeKind.Directive,
+  );
 }
 
 describe("plugins/sage", () => {

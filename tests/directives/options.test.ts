@@ -24,40 +24,24 @@ describe("directives/options", () => {
   });
 
   it("supports bladeDirectiveArgSpacing preserve/none/space", async () => {
-    await formatEqual(
-      "@section($x)\n@endsection\n",
-      "@section($x)\n@endsection\n",
-      {
-        bladeDirectiveArgSpacing: "preserve",
-      },
-    );
+    await formatEqual("@section($x)\n@endsection\n", "@section($x)\n@endsection\n", {
+      bladeDirectiveArgSpacing: "preserve",
+    });
 
-    await formatEqual(
-      "@section ($x)\n@endsection\n",
-      "@section($x)\n@endsection\n",
-      {
-        bladeDirectiveArgSpacing: "none",
-      },
-    );
+    await formatEqual("@section ($x)\n@endsection\n", "@section($x)\n@endsection\n", {
+      bladeDirectiveArgSpacing: "none",
+    });
 
-    await formatEqual(
-      "@section($x)\n@endsection\n",
-      "@section ($x)\n@endsection\n",
-      {
-        bladeDirectiveArgSpacing: "space",
-      },
-    );
+    await formatEqual("@section($x)\n@endsection\n", "@section ($x)\n@endsection\n", {
+      bladeDirectiveArgSpacing: "space",
+    });
   });
 
   it("supports bladeDirectiveArgSpacingOverrides with rule and numeric values", async () => {
-    await formatEqual(
-      "@section($x)\n@endsection\n",
-      "@section ($x)\n@endsection\n",
-      {
-        bladeDirectiveArgSpacing: "none",
-        bladeDirectiveArgSpacingOverrides: ["section=space"],
-      },
-    );
+    await formatEqual("@section($x)\n@endsection\n", "@section ($x)\n@endsection\n", {
+      bladeDirectiveArgSpacing: "none",
+      bladeDirectiveArgSpacingOverrides: ["section=space"],
+    });
 
     await formatEqual("@if($x)\n@endif\n", "@if  ($x)\n@endif\n", {
       bladeDirectiveArgSpacingOverrides: ["if=2"],
@@ -65,23 +49,15 @@ describe("directives/options", () => {
   });
 
   it("supports bladeDirectiveBlockStyle preserve", async () => {
-    await formatEqual(
-      "@if($x) <span>x</span> @endif\n",
-      "@if ($x)\n  <span>x</span>\n@endif\n",
-      {
-        bladeDirectiveBlockStyle: "preserve",
-      },
-    );
+    await formatEqual("@if($x) <span>x</span> @endif\n", "@if ($x)\n  <span>x</span>\n@endif\n", {
+      bladeDirectiveBlockStyle: "preserve",
+    });
   });
 
   it("supports bladeDirectiveBlockStyle multiline", async () => {
-    await formatEqual(
-      "@if($x) <span>x</span> @endif\n",
-      "@if ($x)\n  <span>x</span>\n@endif\n",
-      {
-        bladeDirectiveBlockStyle: "multiline",
-      },
-    );
+    await formatEqual("@if($x) <span>x</span> @endif\n", "@if ($x)\n  <span>x</span>\n@endif\n", {
+      bladeDirectiveBlockStyle: "multiline",
+    });
   });
 
   it("supports bladeDirectiveBlockStyle inline-if-short", async () => {
@@ -94,23 +70,15 @@ describe("directives/options", () => {
     const compact = "@if($x)\n<p>a</p>\n@else\n<p>b</p>\n@endif\n";
     const withBlankLines = "@if($x)\n<p>a</p>\n\n@else\n<p>b</p>\n\n@endif\n";
 
-    await formatEqual(
-      compact,
-      "@if ($x)\n  <p>a</p>\n\n@else\n  <p>b</p>\n\n@endif\n",
-      {
-        bladeDirectiveBlockStyle: "multiline",
-        bladeBlankLinesAroundDirectives: "always",
-      },
-    );
+    await formatEqual(compact, "@if ($x)\n  <p>a</p>\n\n@else\n  <p>b</p>\n\n@endif\n", {
+      bladeDirectiveBlockStyle: "multiline",
+      bladeBlankLinesAroundDirectives: "always",
+    });
 
-    await formatEqual(
-      withBlankLines,
-      "@if ($x)\n  <p>a</p>\n\n@else\n  <p>b</p>\n\n@endif\n",
-      {
-        bladeDirectiveBlockStyle: "multiline",
-        bladeBlankLinesAroundDirectives: "preserve",
-      },
-    );
+    await formatEqual(withBlankLines, "@if ($x)\n  <p>a</p>\n\n@else\n  <p>b</p>\n\n@endif\n", {
+      bladeDirectiveBlockStyle: "multiline",
+      bladeBlankLinesAroundDirectives: "preserve",
+    });
   });
 
   it("does not treat blank lines inside a branch body as separator blank lines", async () => {
@@ -249,21 +217,13 @@ describe("directives/options", () => {
   it("applies bladeEchoSpacing to dynamic attribute values", async () => {
     const input = '<div wire:key="{{ $x }}" data-label="A{{ $y }}B"></div>\n';
 
-    await formatEqual(
-      input,
-      '<div wire:key="{{ $x }}" data-label="A{{ $y }}B"></div>\n',
-      {
-        bladeEchoSpacing: "space",
-      },
-    );
+    await formatEqual(input, '<div wire:key="{{ $x }}" data-label="A{{ $y }}B"></div>\n', {
+      bladeEchoSpacing: "space",
+    });
 
-    await formatEqual(
-      input,
-      '<div wire:key="{{$x}}" data-label="A{{$y}}B"></div>\n',
-      {
-        bladeEchoSpacing: "tight",
-      },
-    );
+    await formatEqual(input, '<div wire:key="{{$x}}" data-label="A{{$y}}B"></div>\n', {
+      bladeEchoSpacing: "tight",
+    });
   });
 
   it("supports bladeSlotClosingTag canonical/preserve", async () => {
@@ -285,20 +245,9 @@ describe("directives/options", () => {
   });
 
   it("normalizes trailing horizontal whitespace inside directive args", async () => {
-    const input = [
-      "@varSet({",
-      '  "logo":    ',
-      "  ",
-      '  "logo",   ',
-      "})",
-      "",
-    ].join("\n");
+    const input = ["@varSet({", '  "logo":    ', "  ", '  "logo",   ', "})", ""].join("\n");
 
-    const output = await formatWithPasses(
-      input,
-      {},
-      { passes: 3, assertIdempotent: true },
-    );
+    const output = await formatWithPasses(input, {}, { passes: 3, assertIdempotent: true });
 
     expect(output).toContain("@varSet ({");
     expect(output).not.toMatch(/[ \t]+$/mu);

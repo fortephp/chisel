@@ -675,11 +675,11 @@ describe("direcitive discovery", () => {
       "@endfield",
       "",
       "@withoption('facebook_url')",
-      '  <a href="@option(\'facebook_url\')">Facebook</a>',
+      "  <a href=\"@option('facebook_url')\">Facebook</a>",
       "@endoption",
       "",
       "@showsub('icon')",
-      '  <i class="fas fa-@sub(\'icon\')"></i>',
+      "  <i class=\"fas fa-@sub('icon')\"></i>",
       "@endsub",
     ].join("\n");
 
@@ -815,9 +815,6 @@ describe("direcitive discovery", () => {
     expect(blocks).toHaveLength(1);
 
     const directives = blockDirectives(r, blocks[0]);
-    expect(directives.map((node) => getDirectiveName(r, node))).toEqual([
-      "unlessdisk",
-      "enddisk",
-    ]);
+    expect(directives.map((node) => getDirectiveName(r, node))).toEqual(["unlessdisk", "enddisk"]);
   });
 });

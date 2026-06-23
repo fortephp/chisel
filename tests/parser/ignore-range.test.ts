@@ -47,7 +47,7 @@ describe("parser/ignore-range", () => {
 
   it("keeps directive-body ignore ranges opaque and resumes normal siblings after them", () => {
     const source =
-      "@if($x){{-- format-ignore-start --}}<span   class=\"x\"   ></span>{{-- format-ignore-end --}}<div class=\"y\"></div>@endif";
+      '@if($x){{-- format-ignore-start --}}<span   class="x"   ></span>{{-- format-ignore-end --}}<div class="y"></div>@endif';
     const root = bladeParser.parse(source, {}) as WrappedNode;
     const block = findNodesByKind(root, NodeKind.DirectiveBlock)[0];
     const openingDirective = block.children[0];
@@ -56,14 +56,11 @@ describe("parser/ignore-range", () => {
     expect(ignoreRanges).toHaveLength(1);
     expect(ignoreRanges[0].children).toHaveLength(0);
     expect(ignoreRanges[0].rawText).toBe(
-      "{{-- format-ignore-start --}}<span   class=\"x\"   ></span>{{-- format-ignore-end --}}",
+      '{{-- format-ignore-start --}}<span   class="x"   ></span>{{-- format-ignore-end --}}',
     );
 
     const childKinds = openingDirective.children.map((child) => child.kind);
-    expect(childKinds).toEqual([
-      NodeKind.IgnoreRange,
-      NodeKind.Element,
-    ]);
+    expect(childKinds).toEqual([NodeKind.IgnoreRange, NodeKind.Element]);
     expect(block.children.map((child) => child.kind)).toEqual([
       NodeKind.Directive,
       NodeKind.Directive,

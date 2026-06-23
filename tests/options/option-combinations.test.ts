@@ -62,10 +62,7 @@ function assertDirectiveArgSpacing(
   expect(output).not.toMatch(/@php\(/u);
 }
 
-function assertEchoSpacing(
-  output: string,
-  echoSpacing: (typeof ECHO_SPACING_MODES)[number],
-): void {
+function assertEchoSpacing(output: string, echoSpacing: (typeof ECHO_SPACING_MODES)[number]): void {
   if (echoSpacing === "tight") {
     expect(output).toMatch(/\{\{\$a(?:\s*\+\s*)\$b\}\}/u);
     expect(output).toMatch(/\{!!\$raw(?:\s*\+\s*)\$c!!\}/u);
@@ -80,10 +77,7 @@ function assertEchoSpacing(
   expect(output).toContain('wire:key="{{ $id }}"');
 }
 
-function assertEndOfLine(
-  output: string,
-  endOfLine: (typeof END_OF_LINE_MODES)[number],
-): void {
+function assertEndOfLine(output: string, endOfLine: (typeof END_OF_LINE_MODES)[number]): void {
   if (endOfLine === "lf") {
     expect(output.includes("\r\n")).toBe(false);
     return;
@@ -130,8 +124,7 @@ describe("options/option-combinations", () => {
                   ...(directiveArgSpacingOverrides.value === undefined
                     ? {}
                     : {
-                        bladeDirectiveArgSpacingOverrides:
-                          directiveArgSpacingOverrides.value,
+                        bladeDirectiveArgSpacingOverrides: directiveArgSpacingOverrides.value,
                       }),
                   bladeEchoSpacing: echoSpacing,
                   endOfLine,

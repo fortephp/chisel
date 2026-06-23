@@ -10,9 +10,7 @@ describe("options/directive-spacing-resolution", () => {
   it("seeds overrides with the built-in directive spacing defaults", () => {
     const overrides = getDirectiveArgSpacingOverrides({} satisfies Options);
 
-    expect(Object.fromEntries(overrides)).toEqual(
-      DEFAULT_DIRECTIVE_ARG_SPACING_OVERRIDES,
-    );
+    expect(Object.fromEntries(overrides)).toEqual(DEFAULT_DIRECTIVE_ARG_SPACING_OVERRIDES);
   });
 
   it("parses array override tokens, normalizes directive names, and ignores invalid entries", () => {
@@ -53,9 +51,7 @@ describe("options/directive-spacing-resolution", () => {
     expect(resolveDirectiveArgSpacingRule("@if", options)).toBe(2);
     expect(resolveDirectiveArgSpacingRule("@switch", options)).toBe("none");
     expect(resolveDirectiveArgSpacingRule("@can", options)).toBe("space");
-    expect(resolveDirectiveArgSpacingRule("@section", options)).toBe(
-      "preserve",
-    );
+    expect(resolveDirectiveArgSpacingRule("@section", options)).toBe("preserve");
     expect(resolveDirectiveArgSpacingRule("@auth", options)).toBe("none");
     expect(resolveDirectiveArgSpacingRule("@section", options, true)).toBe(0);
   });

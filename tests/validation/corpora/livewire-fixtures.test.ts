@@ -1,18 +1,10 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect } from "vitest";
-import {
-  listRecursiveFixtureFiles,
-} from "../support/fixture-suite.js";
+import { listRecursiveFixtureFiles } from "../support/fixture-suite.js";
 import { defineCorpusFixtureSuite } from "../support/corpus-suite.js";
 
-const LIVEWIRE_ROOT = join(
-  process.cwd(),
-  "tests",
-  "fixtures",
-  "validation",
-  "livewire",
-);
+const LIVEWIRE_ROOT = join(process.cwd(), "tests", "fixtures", "validation", "livewire");
 const LIVEWIRE_BLADE_DIRS = [
   "src/Finder/Fixtures",
   "src/Mechanisms/HandleRouting/fixtures",
@@ -38,13 +30,9 @@ defineCorpusFixtureSuite({
   formatMode: "convergence",
   optionSampleSize: OPTION_SAMPLE_SIZE,
   defineExtraAssertions: () => {
+    expect(FIXTURE_FILES.some((file) => file.endsWith("sfc-counter.blade.php"))).toBe(true);
     expect(
-      FIXTURE_FILES.some((file) => file.endsWith("sfc-counter.blade.php")),
-    ).toBe(true);
-    expect(
-      FIXTURE_FILES.some((file) =>
-        file.endsWith("finder-test-single-file-component.blade.php"),
-      ),
+      FIXTURE_FILES.some((file) => file.endsWith("finder-test-single-file-component.blade.php")),
     ).toBe(true);
     expect(
       FIXTURE_FILES.some((file) =>

@@ -19,14 +19,10 @@ function expectNoEchoWrapperArtifacts(output: string): void {
 
 describe("php/nullsafe-echoes", () => {
   it("formats tight nullsafe echoes without leaking wrapper syntax", async () => {
-    const output = await formatEqual(
-      "{{ $user?->name }}\n",
-      "{{$user?->name}}\n",
-      {
-        ...withPhp,
-        bladeEchoSpacing: "tight",
-      },
-    );
+    const output = await formatEqual("{{ $user?->name }}\n", "{{$user?->name}}\n", {
+      ...withPhp,
+      bladeEchoSpacing: "tight",
+    });
     expectNoEchoWrapperArtifacts(output);
   });
 

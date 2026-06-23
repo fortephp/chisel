@@ -110,7 +110,7 @@ const x = @foo($x)
 @endif
 `,
     markers: ["format-ignore-start", "format-ignore-end"],
-    requiredLiterals: ["tail", "<div class=\"x\"></div>"],
+    requiredLiterals: ["tail", '<div class="x"></div>'],
   },
 ] as const;
 

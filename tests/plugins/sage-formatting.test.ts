@@ -42,8 +42,8 @@ describe("plugins/sage formatting", () => {
   it("formats the documented WordPress posts loop pattern", async () => {
     const input = [
       "@posts",
-      "<h2 class=\"entry-title\">@title</h2>",
-      "<div class=\"entry-content\">",
+      '<h2 class="entry-title">@title</h2>',
+      '<div class="entry-content">',
       "@content",
       "</div>",
       "@endposts",
@@ -52,8 +52,8 @@ describe("plugins/sage formatting", () => {
 
     const expected = [
       "@posts",
-      "  <h2 class=\"entry-title\">@title</h2>",
-      "  <div class=\"entry-content\">",
+      '  <h2 class="entry-title">@title</h2>',
+      '  <div class="entry-content">',
       "    @content",
       "  </div>",
       "@endposts",
@@ -65,12 +65,9 @@ describe("plugins/sage formatting", () => {
 
   it("formats helper condition blocks but keeps inline helper calls standalone", async () => {
     const blockInput = ["@istrue($ready)", "<div>{{$title}}</div>", "@endistrue", ""].join("\n");
-    const blockExpected = [
-      "@istrue ($ready)",
-      "  <div>{{ $title }}</div>",
-      "@endistrue",
-      "",
-    ].join("\n");
+    const blockExpected = ["@istrue ($ready)", "  <div>{{ $title }}</div>", "@endistrue", ""].join(
+      "\n",
+    );
 
     await formatEqual(blockInput, blockExpected, SAGE_OPTIONS);
 
@@ -79,9 +76,7 @@ describe("plugins/sage formatting", () => {
 
   it("formats inline @script blocks separately from src-path @script calls", async () => {
     const blockInput = ["@script", "console.log('Hello World')", "@endscript", ""].join("\n");
-    const blockExpected = ["@script", "  console.log('Hello World')", "@endscript", ""].join(
-      "\n",
-    );
+    const blockExpected = ["@script", "  console.log('Hello World')", "@endscript", ""].join("\n");
 
     await formatEqual(blockInput, blockExpected, SAGE_OPTIONS);
     await formatEqual(
@@ -119,7 +114,9 @@ describe("plugins/sage formatting", () => {
     );
 
     await formatEqual(
-      ["@hasfield('image','url',1)", "<span>@field('image','url',1)</span>", "@endfield", ""].join("\n"),
+      ["@hasfield('image','url',1)", "<span>@field('image','url',1)</span>", "@endfield", ""].join(
+        "\n",
+      ),
       [
         "@hasfield ('image', 'url', 1)",
         "  <span>",

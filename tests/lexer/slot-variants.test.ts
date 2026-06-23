@@ -1,10 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  tokenize,
-  TokenType,
-  tokenContent,
-  reconstructFromTokens,
-} from "../../src/lexer/index.js";
+import { tokenize, TokenType, tokenContent, reconstructFromTokens } from "../../src/lexer/index.js";
 
 function tagNames(source: string): string[] {
   const { tokens } = tokenize(source);
@@ -23,8 +18,7 @@ describe("Lexer - Slot Variants", () => {
   });
 
   it("tokenizes repeated same-name shorthand slots deterministically", () => {
-    const source =
-      "<x-card><x-slot:title>A</x-slot><x-slot:title>B</x-slot></x-card>";
+    const source = "<x-card><x-slot:title>A</x-slot><x-slot:title>B</x-slot></x-card>";
     const { tokens } = tokenize(source);
 
     expect(reconstructFromTokens(tokens, source)).toBe(source);

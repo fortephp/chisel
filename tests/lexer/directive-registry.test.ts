@@ -62,9 +62,6 @@ describe("directive registry php wrapper metadata", () => {
 
     expect(getDirectivePhpWrapperKind("disk", context)).toBe("if");
     expect(getDirectivePhpWrapperKind("elsedisk", context)).toBe("if");
-    expect(getDirectivePhpWrapperKinds("disk", "safe", context)).toEqual([
-      "if",
-      "call",
-    ]);
+    expect(getDirectivePhpWrapperKinds("disk", "safe", context)).toEqual(["if", "call"]);
   });
 });

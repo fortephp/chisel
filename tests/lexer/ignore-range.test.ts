@@ -109,9 +109,7 @@ const   x = { foo:  1 };
       "{{-- format-ignore-start --}}<x-slot:foo>{{-- format-ignore-end --}}",
     );
     expect(tokens[ignoreIndex + 1].type).toBe(TokenType.Text);
-    expect(source.slice(tokens[ignoreIndex + 1].start, tokens[ignoreIndex + 1].end)).toBe(
-      "tail",
-    );
+    expect(source.slice(tokens[ignoreIndex + 1].start, tokens[ignoreIndex + 1].end)).toBe("tail");
     expect(tokens[ignoreIndex + 2].type).toBe(TokenType.LessThan);
   });
 });

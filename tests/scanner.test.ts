@@ -55,18 +55,14 @@ describe("scanner — blade echo", () => {
 
   it("handles strings containing closing braces inside echo", () => {
     const t = tokenize("{{ $a ? '}}' : $b }}");
-    expect(t).toEqual([
-      { type: TokenType.BladeEcho, content: "{{ $a ? '}}' : $b }}" },
-    ]);
+    expect(t).toEqual([{ type: TokenType.BladeEcho, content: "{{ $a ? '}}' : $b }}" }]);
   });
 });
 
 describe("scanner — blade raw echo", () => {
   it("scans {!! expr !!}", () => {
     const t = tokenize("{!! $html !!}");
-    expect(t).toEqual([
-      { type: TokenType.BladeRawEcho, content: "{!! $html !!}" },
-    ]);
+    expect(t).toEqual([{ type: TokenType.BladeRawEcho, content: "{!! $html !!}" }]);
   });
 
   it("handles strings inside raw echo", () => {
@@ -83,9 +79,7 @@ describe("scanner — blade raw echo", () => {
 describe("scanner — blade comment", () => {
   it("scans {{-- comment --}}", () => {
     const t = tokenize("{{-- This is a comment --}}");
-    expect(t).toEqual([
-      { type: TokenType.BladeComment, content: "{{-- This is a comment --}}" },
-    ]);
+    expect(t).toEqual([{ type: TokenType.BladeComment, content: "{{-- This is a comment --}}" }]);
   });
 
   it("comment with surrounding text", () => {
@@ -106,9 +100,7 @@ describe("scanner — blade directive", () => {
 
   it("scans directive with params", () => {
     const t = tokenize("@if($show)");
-    expect(t).toEqual([
-      { type: TokenType.BladeDirective, content: "@if($show)" },
-    ]);
+    expect(t).toEqual([{ type: TokenType.BladeDirective, content: "@if($show)" }]);
   });
 
   it("scans directive with nested parens", () => {
@@ -159,10 +151,7 @@ describe("scanner — escaped blade", () => {
 
 describe("scanner — HTML tags", () => {
   it("scans simple open tag", () => {
-    expect(types("<div>")).toEqual([
-      TokenType.HtmlOpenTagStart,
-      TokenType.HtmlOpenTagEnd,
-    ]);
+    expect(types("<div>")).toEqual([TokenType.HtmlOpenTagStart, TokenType.HtmlOpenTagEnd]);
   });
 
   it("scans open tag with tag name content", () => {
@@ -173,10 +162,7 @@ describe("scanner — HTML tags", () => {
 
   it("scans self-closing tag", () => {
     const t = tokenize("<img />");
-    expect(types("<img />")).toEqual([
-      TokenType.HtmlOpenTagStart,
-      TokenType.HtmlOpenTagEnd,
-    ]);
+    expect(types("<img />")).toEqual([TokenType.HtmlOpenTagStart, TokenType.HtmlOpenTagEnd]);
     expect(t[1].content).toBe("/>");
   });
 
@@ -237,9 +223,7 @@ describe("scanner — HTML attributes", () => {
 
   it("scans multiple attributes", () => {
     const t = tokenize('<div class="a" id="b">');
-    const names = t
-      .filter((x) => x.type === TokenType.AttributeName)
-      .map((x) => x.content);
+    const names = t.filter((x) => x.type === TokenType.AttributeName).map((x) => x.content);
     expect(names).toEqual(["class", "id"]);
   });
 
@@ -279,18 +263,18 @@ describe("scanner — HTML attributes", () => {
   });
 
   it("scans blade directive as attribute", () => {
-    const ty = types("<div @if($show) class=\"foo\" @endif>");
+    const ty = types('<div @if($show) class="foo" @endif>');
     expect(ty).toContain(TokenType.BladeDirective);
     expect(ty).toContain(TokenType.AttributeName);
   });
 
   it("scans blade echo as attribute (spread)", () => {
-    const ty = types('<div {{ $attributes }}>');
+    const ty = types("<div {{ $attributes }}>");
     expect(ty).toContain(TokenType.BladeEcho);
   });
 
   it("scans alpine x-data attribute", () => {
-    const t = tokenize("<div x-data=\"{ open: false }\">");
+    const t = tokenize('<div x-data="{ open: false }">');
     const names = t.filter((x) => x.type === TokenType.AttributeName);
     expect(names[0].content).toBe("x-data");
   });
@@ -305,9 +289,7 @@ describe("scanner — HTML attributes", () => {
 describe("scanner — HTML comments", () => {
   it("scans HTML comment", () => {
     const t = tokenize("<!-- hello -->");
-    expect(t).toEqual([
-      { type: TokenType.HtmlComment, content: "<!-- hello -->" },
-    ]);
+    expect(t).toEqual([{ type: TokenType.HtmlComment, content: "<!-- hello -->" }]);
   });
 
   it("scans multiline comment", () => {
@@ -319,16 +301,12 @@ describe("scanner — HTML comments", () => {
 describe("scanner — HTML doctype", () => {
   it("scans doctype", () => {
     const t = tokenize("<!DOCTYPE html>");
-    expect(t).toEqual([
-      { type: TokenType.HtmlDoctype, content: "<!DOCTYPE html>" },
-    ]);
+    expect(t).toEqual([{ type: TokenType.HtmlDoctype, content: "<!DOCTYPE html>" }]);
   });
 
   it("scans lowercase doctype", () => {
     const t = tokenize("<!doctype html>");
-    expect(t).toEqual([
-      { type: TokenType.HtmlDoctype, content: "<!doctype html>" },
-    ]);
+    expect(t).toEqual([{ type: TokenType.HtmlDoctype, content: "<!doctype html>" }]);
   });
 });
 
@@ -452,6 +430,3 @@ describe("scanner — mixed HTML + Blade", () => {
     expect(tokenContent(input, directives[1])).toBe("@endif");
   });
 });
-
-
-

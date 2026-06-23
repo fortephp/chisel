@@ -88,14 +88,7 @@ const TRACKED_TOKENS: readonly TokenType[] = [
 ];
 
 export function fixtureDir(validationSuiteDir: string): string {
-  return join(
-    process.cwd(),
-    "tests",
-    "fixtures",
-    "validation",
-    "forte",
-    validationSuiteDir,
-  );
+  return join(process.cwd(), "tests", "fixtures", "validation", "forte", validationSuiteDir);
 }
 
 export function listFixtureFiles(
@@ -160,10 +153,9 @@ export function expectNoBladePhpConstructLoss(
   const outputCounts = countTrackedTokens(tokenize(output).tokens);
 
   for (const type of TRACKED_TOKENS) {
-    expect(
-      outputCounts.get(type) ?? 0,
-      `${context}: changed ${tokenLabel(type)} token count`,
-    ).toBe(inputCounts.get(type) ?? 0);
+    expect(outputCounts.get(type) ?? 0, `${context}: changed ${tokenLabel(type)} token count`).toBe(
+      inputCounts.get(type) ?? 0,
+    );
   }
 }
 
@@ -265,10 +257,7 @@ export function expectCoreConstructDelimiterSafety(
   for (const marker of markers) {
     const inputCount = input.split(marker).length - 1;
     const outputCount = output.split(marker).length - 1;
-    expect(
-      outputCount,
-      `${context}: changed core delimiter count for ${marker}`,
-    ).toBe(inputCount);
+    expect(outputCount, `${context}: changed core delimiter count for ${marker}`).toBe(inputCount);
   }
 }
 
@@ -383,10 +372,7 @@ function firstTrailingWhitespaceLine(output: string): number | null {
   return null;
 }
 
-export function expectNoUnexpectedTrailingWhitespace(
-  output: string,
-  context: string,
-): void {
+export function expectNoUnexpectedTrailingWhitespace(output: string, context: string): void {
   const line = firstTrailingWhitespaceLine(output);
   expect(
     line,
@@ -398,9 +384,7 @@ export function expectRespectsFormattingInvariants(
   output: string,
   options: prettier.Options,
   context: string,
-  {
-    checkTrailingWhitespace = true,
-  }: { checkTrailingWhitespace?: boolean } = {},
+  { checkTrailingWhitespace = true }: { checkTrailingWhitespace?: boolean } = {},
 ): void {
   const endOfLine = (options as Record<string, unknown>).endOfLine;
   if (endOfLine === "lf") {
@@ -424,10 +408,7 @@ export function expectRespectsFormattingInvariants(
   }
 }
 
-export function pickDeterministicSample(
-  files: readonly string[],
-  sampleSize: number,
-): string[] {
+export function pickDeterministicSample(files: readonly string[], sampleSize: number): string[] {
   if (files.length <= sampleSize) {
     return [...files];
   }
@@ -446,7 +427,5 @@ export function pickDeterministicSample(
     }
   }
 
-  return [...selected]
-    .sort((a, b) => a - b)
-    .map((index) => files[index]);
+  return [...selected].sort((a, b) => a - b).map((index) => files[index]);
 }

@@ -1,9 +1,5 @@
 import { describe, test, expect } from "vitest";
-import {
-  tokenize,
-  TokenType,
-  reconstructFromTokens,
-} from "../../src/lexer/index.js";
+import { tokenize, TokenType, reconstructFromTokens } from "../../src/lexer/index.js";
 
 describe("Lexer - Compound Element Names", () => {
   test("tokenizes static + echo element names", () => {
@@ -53,8 +49,7 @@ describe("Lexer - Compound Element Names", () => {
   });
 
   test("tokenizes mixed echo + php-tag names", () => {
-    const source =
-      "<{{ $a }}-<?php echo $b; ?>></{{ $a }}-<?php echo $b; ?>>";
+    const source = "<{{ $a }}-<?php echo $b; ?>></{{ $a }}-<?php echo $b; ?>>";
     const result = tokenize(source);
 
     expect(result.errors).toHaveLength(0);

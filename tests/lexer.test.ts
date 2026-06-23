@@ -13,12 +13,9 @@ function types(input: string) {
   return tokenize(input).tokens.map((t) => tokenLabel(t.type));
 }
 
-
 describe("lexer — text", () => {
   it("plain text → single Text token", () => {
-    expect(tok("hello world")).toEqual([
-      { type: "Text", content: "hello world" },
-    ]);
+    expect(tok("hello world")).toEqual([{ type: "Text", content: "hello world" }]);
   });
 
   it("empty string → no tokens", () => {
@@ -43,7 +40,6 @@ describe("lexer — text", () => {
   });
 });
 
-
 describe("lexer — blade echo", () => {
   it("scans {{ expr }}", () => {
     expect(tok("{{ $var }}")).toEqual([
@@ -55,7 +51,11 @@ describe("lexer — blade echo", () => {
 
   it("echo with surrounding text", () => {
     expect(types("hello {{ $name }} world")).toEqual([
-      "Text", "EchoStart", "EchoContent", "EchoEnd", "Text",
+      "Text",
+      "EchoStart",
+      "EchoContent",
+      "EchoEnd",
+      "Text",
     ]);
   });
 
@@ -65,7 +65,6 @@ describe("lexer — blade echo", () => {
     expect(t[t.length - 1].type).toBe("EchoEnd");
   });
 });
-
 
 describe("lexer — blade raw echo", () => {
   it("scans {!! expr !!}", () => {
@@ -83,7 +82,6 @@ describe("lexer — blade raw echo", () => {
   });
 });
 
-
 describe("lexer — triple echo", () => {
   it("scans {{{ expr }}}", () => {
     expect(tok("{{{ $val }}}")).toEqual([
@@ -93,7 +91,6 @@ describe("lexer — triple echo", () => {
     ]);
   });
 });
-
 
 describe("lexer — blade comment", () => {
   it("scans {{-- comment --}}", () => {
@@ -106,17 +103,18 @@ describe("lexer — blade comment", () => {
 
   it("comment with surrounding text", () => {
     expect(types("before {{-- x --}} after")).toEqual([
-      "Text", "BladeCommentStart", "Text", "BladeCommentEnd", "Text",
+      "Text",
+      "BladeCommentStart",
+      "Text",
+      "BladeCommentEnd",
+      "Text",
     ]);
   });
 });
 
-
 describe("lexer — blade directive", () => {
   it("scans directive without params", () => {
-    expect(tok("@csrf")).toEqual([
-      { type: "Directive", content: "@csrf" },
-    ]);
+    expect(tok("@csrf")).toEqual([{ type: "Directive", content: "@csrf" }]);
   });
 
   it("scans directive with params", () => {
@@ -155,7 +153,6 @@ describe("lexer — blade directive", () => {
   });
 });
 
-
 describe("lexer — escaped blade", () => {
   it("@@ emits AtSign then text", () => {
     const t = tok("@@if($show)");
@@ -168,7 +165,6 @@ describe("lexer — escaped blade", () => {
   });
 });
 
-
 describe("lexer — verbatim", () => {
   it("@verbatim ... @endverbatim treats content as text", () => {
     const t = tok("@verbatim {{ $x }} @endverbatim");
@@ -179,7 +175,6 @@ describe("lexer — verbatim", () => {
   });
 });
 
-
 describe("lexer — php block", () => {
   it("@php ... @endphp wraps PHP content", () => {
     const t = tok("@php $x = 1; @endphp");
@@ -189,12 +184,9 @@ describe("lexer — php block", () => {
   });
 });
 
-
 describe("lexer — HTML tags", () => {
   it("scans simple open tag", () => {
-    expect(types("<div>")).toEqual([
-      "LessThan", "TagName", "GreaterThan",
-    ]);
+    expect(types("<div>")).toEqual(["LessThan", "TagName", "GreaterThan"]);
   });
 
   it("scans tag name content", () => {
@@ -203,22 +195,23 @@ describe("lexer — HTML tags", () => {
   });
 
   it("scans self-closing tag", () => {
-    expect(types("<img />")).toEqual([
-      "LessThan", "TagName", "Whitespace", "Slash", "GreaterThan",
-    ]);
+    expect(types("<img />")).toEqual(["LessThan", "TagName", "Whitespace", "Slash", "GreaterThan"]);
   });
 
   it("scans close tag", () => {
-    expect(types("</div>")).toEqual([
-      "LessThan", "Slash", "TagName", "GreaterThan",
-    ]);
+    expect(types("</div>")).toEqual(["LessThan", "Slash", "TagName", "GreaterThan"]);
   });
 
   it("scans element with text content", () => {
     expect(types("<div>hello</div>")).toEqual([
-      "LessThan", "TagName", "GreaterThan",
+      "LessThan",
+      "TagName",
+      "GreaterThan",
       "Text",
-      "LessThan", "Slash", "TagName", "GreaterThan",
+      "LessThan",
+      "Slash",
+      "TagName",
+      "GreaterThan",
     ]);
   });
 
@@ -233,12 +226,14 @@ describe("lexer — HTML tags", () => {
   });
 });
 
-
 describe("lexer — HTML attributes", () => {
   it("scans boolean attribute", () => {
     expect(types("<input disabled>")).toEqual([
-      "LessThan", "TagName", "Whitespace",
-      "AttributeName", "GreaterThan",
+      "LessThan",
+      "TagName",
+      "Whitespace",
+      "AttributeName",
+      "GreaterThan",
     ]);
   });
 
@@ -246,9 +241,15 @@ describe("lexer — HTML attributes", () => {
     const t = tok('<div class="foo">');
     const ty = types('<div class="foo">');
     expect(ty).toEqual([
-      "LessThan", "TagName", "Whitespace",
-      "AttributeName", "Equals", "Quote",
-      "AttributeValue", "Quote", "GreaterThan",
+      "LessThan",
+      "TagName",
+      "Whitespace",
+      "AttributeName",
+      "Equals",
+      "Quote",
+      "AttributeValue",
+      "Quote",
+      "GreaterThan",
     ]);
     const names = t.filter((x) => x.type === "AttributeName");
     expect(names[0].content).toBe("class");
@@ -264,9 +265,7 @@ describe("lexer — HTML attributes", () => {
 
   it("scans multiple attributes", () => {
     const t = tok('<div class="a" id="b">');
-    const names = t
-      .filter((x) => x.type === "AttributeName")
-      .map((x) => x.content);
+    const names = t.filter((x) => x.type === "AttributeName").map((x) => x.content);
     expect(names).toEqual(["class", "id"]);
   });
 
@@ -280,16 +279,10 @@ describe("lexer — HTML attributes", () => {
     const input =
       '<a href="mailto:test@exam-ple.com" data-email="test@if.com" data-alt=test@foreach.dev>';
     const t = tok(input);
-    const vals = t
-      .filter((x) => x.type === "AttributeValue")
-      .map((x) => x.content);
+    const vals = t.filter((x) => x.type === "AttributeValue").map((x) => x.content);
 
     expect(types(input)).not.toContain("Directive");
-    expect(vals).toEqual([
-      "mailto:test@exam-ple.com",
-      "test@if.com",
-      "test@foreach.dev",
-    ]);
+    expect(vals).toEqual(["mailto:test@exam-ple.com", "test@if.com", "test@foreach.dev"]);
   });
 
   it("scans blade echo inside attribute value", () => {
@@ -342,7 +335,7 @@ describe("lexer — HTML attributes", () => {
   });
 
   it("scans :$name as ShorthandAttribute", () => {
-    const t = tok('<div :$color>');
+    const t = tok("<div :$color>");
     const shorthand = t.filter((x) => x.type === "ShorthandAttribute");
     expect(shorthand[0].content).toBe(":$color");
   });
@@ -354,12 +347,9 @@ describe("lexer — HTML attributes", () => {
   });
 });
 
-
 describe("lexer — HTML comments", () => {
   it("scans HTML comment", () => {
-    expect(types("<!-- hello -->")).toEqual([
-      "CommentStart", "Text", "CommentEnd",
-    ]);
+    expect(types("<!-- hello -->")).toEqual(["CommentStart", "Text", "CommentEnd"]);
   });
 
   it("scans multiline comment", () => {
@@ -369,11 +359,13 @@ describe("lexer — HTML comments", () => {
   });
 });
 
-
 describe("lexer — doctype", () => {
   it("scans doctype", () => {
     expect(types("<!DOCTYPE html>")).toEqual([
-      "DoctypeStart", "Whitespace", "Doctype", "DoctypeEnd",
+      "DoctypeStart",
+      "Whitespace",
+      "Doctype",
+      "DoctypeEnd",
     ]);
   });
 
@@ -382,7 +374,6 @@ describe("lexer — doctype", () => {
     expect(t[0].type).toBe("DoctypeStart");
   });
 });
-
 
 describe("lexer — raw content tags", () => {
   it("scans script with raw content", () => {
@@ -440,7 +431,6 @@ describe("lexer — raw content tags", () => {
     expect(ty).not.toContain("Directive");
   });
 });
-
 
 describe("lexer — mixed HTML + Blade", () => {
   it("scans a full blade template", () => {

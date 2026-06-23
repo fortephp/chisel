@@ -93,7 +93,7 @@ Roster on {{$date->format('d-m-Y')}}
     source: `<span>{{-- prettier-ignore-start --}}@csrf('item'){{ $label }}*{{-- prettier-ignore-end --}}</span>
 <div   class="x"   ></div>
 `,
-    requiredLiterals: ["<div class=\"x\"></div>"],
+    requiredLiterals: ['<div class="x"></div>'],
   },
   {
     name: "ignore-range-mixed-wrapper-html",
@@ -104,7 +104,7 @@ Roster on {{$date->format('d-m-Y')}}
 {{-- format-ignore-end --}}
 <section   class="q"   ></section>
 `,
-    requiredLiterals: ["<section class=\"q\"></section>"],
+    requiredLiterals: ['<section class="q"></section>'],
   },
 ] as const;
 
@@ -171,10 +171,9 @@ function assertIgnoredSlicesPresent(
   for (const [index, slice] of collectIgnoreRangeSlices(input, options)
     .map(normalizeEol)
     .entries()) {
-    expect(
-      normalizedOutput,
-      `${context}: missing preserved ignore slice ${index}`,
-    ).toContain(slice);
+    expect(normalizedOutput, `${context}: missing preserved ignore slice ${index}`).toContain(
+      slice,
+    );
   }
 }
 

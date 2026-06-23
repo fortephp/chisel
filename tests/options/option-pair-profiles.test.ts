@@ -175,8 +175,7 @@ function buildPairwiseRows(domains: Domain[]): Options[] {
 
 function summarizeOptions(options: Options): string {
   return DOMAINS.map(
-    (d) =>
-      `${String(d.key)}=${String((options as Record<string, unknown>)[d.key])}`,
+    (d) => `${String(d.key)}=${String((options as Record<string, unknown>)[d.key])}`,
   ).join(" | ");
 }
 

@@ -1,8 +1,4 @@
-import {
-  fixtureDir,
-  listRecursiveFixtureFiles,
-  readFixture,
-} from "../support/fixture-suite.js";
+import { fixtureDir, listRecursiveFixtureFiles, readFixture } from "../support/fixture-suite.js";
 import { defineCorpusFixtureSuite } from "../support/corpus-suite.js";
 
 const FIXTURE_DIR = fixtureDir("wpt-parsing");
