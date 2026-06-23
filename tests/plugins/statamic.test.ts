@@ -6,7 +6,7 @@ import { NodeKind } from "../../src/tree/types.js";
 import { buildTree } from "../../src/tree/tree-builder.js";
 import { Directives as TreeDirectives } from "../../src/tree/directives.js";
 import { resolveBladeSyntaxProfile } from "../../src/plugins/runtime.js";
-import { formatEqual } from "../helpers.js";
+import { formatEqual, formatWithPasses } from "../helpers.js";
 
 describe("plugins/statamic", () => {
   it("tokenizes @antlers blocks as verbatim spans", () => {
@@ -15,20 +15,12 @@ describe("plugins/statamic", () => {
       bladeSyntaxPlugins: ["statamic"],
     });
 
-    const { tokens } = tokenize(
-      source,
-      LexerDirectives.withDefaults(profile.lexerDirectives),
-      {
-        verbatimStartDirectives: profile.verbatimStartDirectives,
-        verbatimEndDirectives: profile.verbatimEndDirectives,
-      },
-    );
+    const { tokens } = tokenize(source, LexerDirectives.withDefaults(profile.lexerDirectives), {
+      verbatimStartDirectives: profile.verbatimStartDirectives,
+      verbatimEndDirectives: profile.verbatimEndDirectives,
+    });
 
-    expect(tokens.map((t) => tokenLabel(t.type))).toEqual([
-      "VerbatimStart",
-      "Text",
-      "VerbatimEnd",
-    ]);
+    expect(tokens.map((t) => tokenLabel(t.type))).toEqual(["VerbatimStart", "Text", "VerbatimEnd"]);
   });
 
   it("parses @antlers blocks as Verbatim nodes", () => {
@@ -36,14 +28,10 @@ describe("plugins/statamic", () => {
     const profile = resolveBladeSyntaxProfile({
       bladeSyntaxPlugins: ["statamic"],
     });
-    const { tokens } = tokenize(
-      source,
-      LexerDirectives.withDefaults(profile.lexerDirectives),
-      {
-        verbatimStartDirectives: profile.verbatimStartDirectives,
-        verbatimEndDirectives: profile.verbatimEndDirectives,
-      },
-    );
+    const { tokens } = tokenize(source, LexerDirectives.withDefaults(profile.lexerDirectives), {
+      verbatimStartDirectives: profile.verbatimStartDirectives,
+      verbatimEndDirectives: profile.verbatimEndDirectives,
+    });
     const directives = TreeDirectives.withDefaults(profile.treeDirectives);
     directives.train(tokens, source);
     const result = buildTree(tokens, source, directives);
@@ -56,12 +44,35 @@ describe("plugins/statamic", () => {
 
   it("preserves antlers content while formatting outside nodes", async () => {
     const input = "@antlers\n<div>{{$x}}</div>\n@if($ready)\n@endantlers\n<div>{{$y}}</div>\n";
-    const expected =
-      "@antlers\n<div>{{$x}}</div>\n@if($ready)\n@endantlers\n<div>{{ $y }}</div>\n";
+    const expected = "@antlers\n<div>{{$x}}</div>\n@if($ready)\n@endantlers\n<div>{{ $y }}</div>\n";
 
     await formatEqual(input, expected, {
       bladeEchoSpacing: "space",
       bladeSyntaxPlugins: ["statamic"],
     });
+  });
+
+  it("recovers unclosed antlers raw blocks inside rawtext without swallowing following html", async () => {
+    const input = `<style>
+@antlers .brand { color: {{ brand }}; }
+</style>
+<p>after</p>
+`;
+
+    const output = await formatWithPasses(
+      input,
+      {
+        bladeSyntaxPlugins: ["statamic"],
+      },
+      {
+        passes: 4,
+        assertIdempotent: true,
+      },
+    );
+
+    expect(output).toContain("@antlers");
+    expect(output).toContain("{{ brand }}");
+    expect(output).toContain("</style>");
+    expect(output).toContain("<p>after</p>");
   });
 });

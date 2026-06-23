@@ -111,6 +111,31 @@ function extractDirectiveName(node: WrappedNode): string | null {
   return null;
 }
 
+function hasDirectiveArgsToken(node: WrappedNode): boolean {
+  if (node.kind !== NodeKind.Directive) return false;
+
+  const tokenStart = node.flat.tokenStart;
+  const tokenEnd = tokenStart + node.flat.tokenCount;
+  const tokens = node.buildResult.tokens;
+
+  for (let i = tokenStart; i < tokenEnd; i++) {
+    if (tokens[i].type === TokenType.DirectiveArgs) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function isPhpDirectiveWithArgs(node: WrappedNode): boolean {
+  return extractDirectiveName(node) === "php" && hasDirectiveArgsToken(node);
+}
+
+function isExpressionDirective(node: WrappedNode): boolean {
+  const name = extractDirectiveName(node);
+  return name !== null && (EXPRESSION_DIRECTIVES.has(name) || isPhpDirectiveWithArgs(node));
+}
+
 function isKnownBladeDirective(node: WrappedNode): boolean {
   const name = extractDirectiveName(node);
   if (!name) {
@@ -130,8 +155,7 @@ function getPlaceholderKind(node: LeafConstructNode): PlaceholderKind {
     case NodeKind.PhpBlock:
       return "expr";
     case NodeKind.Directive: {
-      const name = extractDirectiveName(node);
-      return name && EXPRESSION_DIRECTIVES.has(name) ? "expr" : "stmt";
+      return isExpressionDirective(node) ? "expr" : "stmt";
     }
     default:
       return "stmt";
@@ -597,7 +621,13 @@ function normalizeEmbeddedRawContentFallback(value: string): string {
   ]);
 }
 
-function normalizeStyleEmbeddedOutput(value: string): string {
+function getIndentUnit(options: Options): string {
+  return options.useTabs === true ? "\t" : " ".repeat(options.tabWidth ?? 2);
+}
+
+function normalizeStyleEmbeddedOutput(value: string, options: Options): string {
+  const indentUnit = getIndentUnit(options);
+
   return applyTextTransforms(value, [
     normalizeStyleDirectiveBoundaries,
     normalizeStyleBladeValueIndentation,
@@ -609,13 +639,13 @@ function normalizeStyleEmbeddedOutput(value: string): string {
     normalizeStyleStandaloneSemicolonLines,
     repairStyleBrokenCommentClosers,
     normalizeStyleCommentRunLines,
-    normalizeStyleDirectiveSelectorAlignment,
+    (next) => normalizeStyleDirectiveSelectorAlignment(next, indentUnit),
     trimTrailingHorizontalWhitespace,
   ]);
 }
 
-function normalizeEmbeddedOutput(value: string, tagName: string): string {
-  const normalized = tagName === "style" ? normalizeStyleEmbeddedOutput(value) : value;
+function normalizeEmbeddedOutput(value: string, tagName: string, options: Options): string {
+  const normalized = tagName === "style" ? normalizeStyleEmbeddedOutput(value, options) : value;
 
   return applyTextTransforms(normalized, [
     normalizeLineEndingsToLf,
@@ -771,6 +801,40 @@ const UNSTABLE_STYLE_ESCAPED_SLASH_LITERAL = /\/[^\r\n;{}]*\\\s*\/\s*\//u;
 function getDirectiveNameFromLine(trimmedLine: string): string | null {
   const match = trimmedLine.match(/^@([A-Za-z_][A-Za-z0-9_]*)/u);
   return match ? match[1].toLowerCase() : null;
+}
+
+function isStyleDirectiveBoundary(node: WrappedNode): boolean {
+  const name = extractDirectiveName(node);
+  if (name === null) return false;
+  if (STYLE_DIRECTIVE_BRANCHES.has(name) || STYLE_DIRECTIVE_BLOCK_CLOSERS.has(name)) {
+    return true;
+  }
+
+  return (
+    name.startsWith("end") && node.buildResult.directives?.hasSeenDirective(name.slice(3)) === true
+  );
+}
+
+function isConstructInsideStyleLiteralOrComment(
+  node: LeafConstructNode,
+  source: string,
+  contentStart: number,
+  contentEnd: number,
+): boolean {
+  if (node.kind === NodeKind.Directive) {
+    return isDirectiveInsideStyleLiteralOrComment(node, source, contentStart, contentEnd);
+  }
+
+  const replacementRange = getReplacementRange(node);
+  if (replacementRange.start < contentStart || replacementRange.end > contentEnd) {
+    return false;
+  }
+
+  if (isInsideStyleCommentByLineHeuristic(source, contentStart, replacementRange.start)) {
+    return true;
+  }
+
+  return isLikelyInsideStyleLiteralOrComment(source, contentStart, replacementRange.start);
 }
 
 function isStyleCommentLine(trimmedLine: string): boolean {
@@ -1026,7 +1090,7 @@ function normalizeStyleStructuralDirectiveSemicolons(value: string): string {
 
     if (ch === ";") {
       const directiveMatch = lineCode.match(/@([A-Za-z_][A-Za-z0-9_]*)(?:\s*\([^)]*\))?\s*$/u);
-      if (directiveMatch) {
+      if (directiveMatch && lineCode.trimStart().startsWith("@")) {
         const name = directiveMatch[1].toLowerCase();
         if (
           STYLE_DIRECTIVE_BLOCK_OPENERS.has(name) ||
@@ -1417,7 +1481,87 @@ function normalizeStyleCommentRunLines(value: string): string {
   return out.join("\n");
 }
 
-function normalizeStyleDirectiveSelectorAlignment(value: string): string {
+function isStyleStructuralDirectiveLine(trimmedLine: string): boolean {
+  const name = getDirectiveNameFromLine(trimmedLine);
+  return (
+    name !== null &&
+    (STYLE_DIRECTIVE_BLOCK_OPENERS.has(name) ||
+      STYLE_DIRECTIVE_BRANCHES.has(name) ||
+      STYLE_DIRECTIVE_BLOCK_CLOSERS.has(name))
+  );
+}
+
+function isCssContextBlockOpenLine(trimmedLine: string): boolean {
+  return trimmedLine.endsWith("{") && !isStyleStructuralDirectiveLine(trimmedLine);
+}
+
+function isCssContextBlockCloseLine(trimmedLine: string): boolean {
+  return trimmedLine === "}";
+}
+
+function isStyleSelectorLikeLine(trimmedLine: string): boolean {
+  return /^([.#:[*]|[A-Za-z_]).*\{\s*$/u.test(trimmedLine);
+}
+
+// CSS treats the Blade statement marker as an at-rule and can pull it back to
+// the style-root indent. Restore the surrounding CSS block indent afterward.
+function normalizeStyleDirectiveCssContextIndent(value: string, indentUnit: string): string {
+  const lines = value.split(/\r?\n/u);
+
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].trim();
+    if (!isStyleStructuralDirectiveLine(trimmed)) {
+      continue;
+    }
+
+    let prevIndex = i - 1;
+    while (prevIndex >= 0 && lines[prevIndex].trim().length === 0) {
+      prevIndex--;
+    }
+    if (prevIndex < 0) {
+      continue;
+    }
+
+    const previous = lines[prevIndex];
+    const previousTrimmed = previous.trim();
+    const currentIndent = lines[i].match(/^\s*/u)?.[0] ?? "";
+    const previousIndent = previous.match(/^\s*/u)?.[0] ?? "";
+    let nextIndent: string | null = null;
+
+    if (
+      isCssContextBlockCloseLine(previousTrimmed) &&
+      previousIndent.length > currentIndent.length
+    ) {
+      nextIndent = previousIndent;
+    } else if (isCssContextBlockOpenLine(previousTrimmed)) {
+      const nestedIndent = `${previousIndent}${indentUnit}`;
+      if (nestedIndent.length > currentIndent.length) {
+        nextIndent = nestedIndent;
+      }
+    }
+
+    if (nextIndent !== null) {
+      lines[i] = `${nextIndent}${trimmed}`;
+
+      let nextIndex = i + 1;
+      while (nextIndex < lines.length && lines[nextIndex].trim().length === 0) {
+        nextIndex++;
+      }
+
+      if (nextIndex < lines.length) {
+        const nextTrimmed = lines[nextIndex].trim();
+        const nextCurrentIndent = lines[nextIndex].match(/^\s*/u)?.[0] ?? "";
+        if (isStyleSelectorLikeLine(nextTrimmed) && nextCurrentIndent.length < nextIndent.length) {
+          lines[nextIndex] = `${nextIndent}${nextTrimmed}`;
+        }
+      }
+    }
+  }
+
+  return lines.join("\n");
+}
+
+function normalizeStyleDirectiveSelectorAlignment(value: string, indentUnit: string): string {
   const lines = value.split(/\r?\n/u);
   const selectorLikeStartRe = /^([.#:[*]|[A-Za-z_]).*\{\s*$/u;
   for (let iteration = 0; iteration < 4; iteration++) {
@@ -1674,7 +1818,7 @@ function normalizeStyleDirectiveSelectorAlignment(value: string): string {
     }
   }
 
-  const lineAdjusted = lines.join("\n");
+  const lineAdjusted = normalizeStyleDirectiveCssContextIndent(lines.join("\n"), indentUnit);
   const directiveAligned = lineAdjusted.replace(
     /((?:^|\n)([ \t]*)@(?:else|elseif|case|default|endif|endunless|endisset|endempty|endfor|endforeach|endforelse|endwhile|endswitch|endphp|endverbatim)[^\n]*\n)[ \t]+(@(?:if|unless|isset|empty|for|foreach|forelse|while|switch|php|verbatim|else|elseif|case|default|endif|endunless|endisset|endempty|endfor|endforeach|endforelse|endwhile|endswitch|endphp|endverbatim)[^\n]*)(?=\n|$)/gu,
     (_match, prefix: string, indent: string, directiveLine: string) =>
@@ -1892,8 +2036,7 @@ function isExpressionScriptDirective(node: WrappedNode): boolean {
     return false;
   }
 
-  const name = extractDirectiveName(node);
-  return name !== null && EXPRESSION_DIRECTIVES.has(name);
+  return isExpressionDirective(node);
 }
 
 function isStandaloneScriptDirective(
@@ -2628,6 +2771,14 @@ export async function embedMixedRawContentElement(
       return false;
     }
 
+    if (
+      node.tagName === "style" &&
+      !isBladeConstructChild(child, "style") &&
+      !isStyleDirectiveBoundary(child)
+    ) {
+      return false;
+    }
+
     return true;
   });
   const markerSessionKey = createMarkerSessionKey(node.source, range.start, range.end);
@@ -2638,6 +2789,9 @@ export async function embedMixedRawContentElement(
 
   const candidates: PlaceholderCandidate[] = constructs.map((child, index) => {
     const replacementRange = getReplacementRange(child);
+    const insideStyleLiteralOrComment =
+      node.tagName === "style" &&
+      isConstructInsideStyleLiteralOrComment(child, node.source, range.start, range.end);
     let kind = getPlaceholderKind(child);
     if (
       node.tagName === "script" &&
@@ -2658,10 +2812,11 @@ export async function embedMixedRawContentElement(
     const inStyleValueContext =
       isStyleParser(parser) &&
       isInCssValueContext(node.source, replacementRange.start, range.start);
+    const baseReplacementText = insideStyleLiteralOrComment ? fullText(child) : replacements[index];
     const replacementText =
       isStyleParser(parser) && inStyleValueContext
-        ? normalizeStyleValueReplacementText(replacements[index])
-        : replacements[index];
+        ? normalizeStyleValueReplacementText(baseReplacementText)
+        : baseReplacementText;
 
     return {
       node: child,
@@ -2792,7 +2947,7 @@ export async function embedMixedRawContentElement(
     restoredText = restored.text;
   }
 
-  const normalizedOutput = normalizeEmbeddedOutput(restoredText, node.tagName);
+  const normalizedOutput = normalizeEmbeddedOutput(restoredText, node.tagName, options);
 
   return buildScriptLikeElementDoc(
     path,
