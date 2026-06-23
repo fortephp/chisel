@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { tokenize, TokenType, reconstructFromTokens, Directives, ErrorReason } from "../../src/lexer/index.js";
+import { tokenize, TokenType, tokenContent, reconstructFromTokens, Directives, ErrorReason } from "../../src/lexer/index.js";
 
 describe('PHP Blocks', () => {
     it('basic php block', () => {
@@ -39,6 +39,192 @@ describe('PHP Blocks', () => {
 
         const phpContent = source.slice(tokens[1].start, tokens[1].end);
         expect(phpContent).toContain('{{ $user }}');
+    });
+
+    it('closes inline php blocks inside style rawtext', () => {
+        const source = "<style>.brand { color: @php echo $brand; @endphp; }</style><p>after</p>";
+        const result = tokenize(source, Directives.withDefaults());
+
+        expect(result.errors).toHaveLength(0);
+        expect(reconstructFromTokens(result.tokens, source)).toBe(source);
+
+        const endphpIndex = result.tokens.findIndex((token) => token.type === TokenType.PhpBlockEnd);
+        expect(endphpIndex).toBeGreaterThan(0);
+        expect(result.tokens[endphpIndex + 1].type).toBe(TokenType.Text);
+        expect(tokenContent(source, result.tokens[endphpIndex + 1])).toBe("; }");
+        expect(result.tokens[endphpIndex + 2].type).toBe(TokenType.LessThan);
+        expect(result.tokens[endphpIndex + 3].type).toBe(TokenType.Slash);
+        expect(tokenContent(source, result.tokens[endphpIndex + 4])).toBe("style");
+    });
+
+    it('closes inline php blocks inside script rawtext', () => {
+        const source = "<script>const html = @php echo '</script>'; @endphp;</script><p>after</p>";
+        const result = tokenize(source, Directives.withDefaults());
+
+        expect(result.errors).toHaveLength(0);
+        expect(reconstructFromTokens(result.tokens, source)).toBe(source);
+
+        const endphpIndex = result.tokens.findIndex((token) => token.type === TokenType.PhpBlockEnd);
+        expect(endphpIndex).toBeGreaterThan(0);
+        expect(result.tokens[endphpIndex + 1].type).toBe(TokenType.Text);
+        expect(tokenContent(source, result.tokens[endphpIndex + 1])).toBe(";");
+        expect(result.tokens[endphpIndex + 2].type).toBe(TokenType.LessThan);
+        expect(result.tokens[endphpIndex + 3].type).toBe(TokenType.Slash);
+        expect(tokenContent(source, result.tokens[endphpIndex + 4])).toBe("script");
+    });
+
+    it('recovers unclosed no-args php blocks at rawtext closing tags', () => {
+        const cases = [
+            {
+                source: "<style>.brand { color: @php echo $brand; }</style><p>after</p>",
+                closingTag: "style",
+            },
+            {
+                source: "<style>.brand { color: @php echo '</style>'; echo $brand; }</style><p>after</p>",
+                closingTag: "style",
+            },
+            {
+                source: "<script>const brand = @php echo $brand;</script><p>after</p>",
+                closingTag: "script",
+            },
+            {
+                source: "<script>const brand = @php echo '</script>'; echo $brand;</script><p>after</p>",
+                closingTag: "script",
+            },
+        ];
+
+        for (const { source, closingTag } of cases) {
+            const result = tokenize(source, Directives.withDefaults());
+
+            expect(result.errors).toHaveLength(1);
+            expect(result.errors[0].reason).toBe(ErrorReason.UnexpectedEof);
+            expect(reconstructFromTokens(result.tokens, source)).toBe(source);
+            expect(result.tokens.some((token) => token.type === TokenType.PhpBlockStart)).toBe(false);
+            expect(result.tokens.some((token) => token.type === TokenType.PhpBlock)).toBe(false);
+
+            const closingTagIndex = result.tokens.findIndex(
+                (token, index) =>
+                    token.type === TokenType.LessThan &&
+                    result.tokens[index + 1]?.type === TokenType.Slash &&
+                    result.tokens[index + 2] !== undefined &&
+                    tokenContent(source, result.tokens[index + 2]) === closingTag,
+            );
+            expect(closingTagIndex).toBeGreaterThan(0);
+        }
+    });
+
+    it('keeps unclosed no-args rawtext php blocks as php at true EOF', () => {
+        const cases = [
+            "<style>.brand { color: @php echo $brand;",
+            "<script>const brand = @php echo $brand;",
+        ];
+
+        for (const source of cases) {
+            const result = tokenize(source, Directives.withDefaults());
+
+            expect(result.errors).toHaveLength(1);
+            expect(result.errors[0].reason).toBe(ErrorReason.UnexpectedEof);
+            expect(reconstructFromTokens(result.tokens, source)).toBe(source);
+            expect(result.tokens.some((token) => token.type === TokenType.PhpBlockStart)).toBe(true);
+            expect(result.tokens.some((token) => token.type === TokenType.PhpBlock)).toBe(true);
+            expect(result.tokens.some((token) => token.type === TokenType.PhpBlockEnd)).toBe(false);
+        }
+    });
+
+    it('closes rawtext php blocks case-insensitively', () => {
+        const cases = [
+            {
+                source: "<style>.brand { color: @PHP echo $brand; @ENDPHP; }</style><p>after</p>",
+                closingTag: "style",
+            },
+            {
+                source: "<script>const brand = @PhP echo $brand; @EnDpHp;</script><p>after</p>",
+                closingTag: "script",
+            },
+        ];
+
+        for (const { source, closingTag } of cases) {
+            const result = tokenize(source, Directives.withDefaults());
+
+            expect(result.errors).toHaveLength(0);
+            expect(reconstructFromTokens(result.tokens, source)).toBe(source);
+            expect(result.tokens.filter((token) => token.type === TokenType.PhpBlockStart)).toHaveLength(1);
+            expect(result.tokens.filter((token) => token.type === TokenType.PhpBlockEnd)).toHaveLength(1);
+
+            const endphpIndex = result.tokens.findIndex((token) => token.type === TokenType.PhpBlockEnd);
+            expect(endphpIndex).toBeGreaterThan(0);
+            expect(result.tokens[endphpIndex + 2].type).toBe(TokenType.LessThan);
+            expect(result.tokens[endphpIndex + 3].type).toBe(TokenType.Slash);
+            expect(tokenContent(source, result.tokens[endphpIndex + 4])).toBe(closingTag);
+        }
+    });
+
+    it('ignores @endphp-like content inside rawtext php strings and comments', () => {
+        const cases = [
+            {
+                source: '<style>.x{color:@php echo "@endphp"; echo $brand; @endphp;}</style><p>after</p>',
+                closingTag: "style",
+            },
+            {
+                source: "<style>.x{color:@php /* @endphp */ echo '</style>'; echo $brand; @endphp;}</style><p>after</p>",
+                closingTag: "style",
+            },
+            {
+                source: '<script>const x = @php echo "@endphp"; echo "</script>"; @endphp;</script><p>after</p>',
+                closingTag: "script",
+            },
+            {
+                source: "<script>const x = @php // @endphp\n echo '</script>'; @endphp;</script><p>after</p>",
+                closingTag: "script",
+            },
+        ];
+
+        for (const { source, closingTag } of cases) {
+            const result = tokenize(source, Directives.withDefaults());
+
+            expect(result.errors).toHaveLength(0);
+            expect(reconstructFromTokens(result.tokens, source)).toBe(source);
+            expect(result.tokens.filter((token) => token.type === TokenType.PhpBlockEnd)).toHaveLength(1);
+
+            const endphpIndex = result.tokens.findIndex((token) => token.type === TokenType.PhpBlockEnd);
+            expect(endphpIndex).toBeGreaterThan(0);
+            expect(result.tokens[endphpIndex + 2].type).toBe(TokenType.LessThan);
+            expect(result.tokens[endphpIndex + 3].type).toBe(TokenType.Slash);
+            expect(tokenContent(source, result.tokens[endphpIndex + 4])).toBe(closingTag);
+        }
+    });
+
+    it('treats php directives with args in rawtext as directives, not php blocks', () => {
+        const cases = [
+            {
+                source: "<style>.brand { color: @php($brand); }</style><p>after</p>",
+                closingTag: "style",
+            },
+            {
+                source: "<script>const brand = @php($brand);</script><p>after</p>",
+                closingTag: "script",
+            },
+        ];
+
+        for (const { source, closingTag } of cases) {
+            const result = tokenize(source, Directives.withDefaults());
+
+            expect(result.errors).toHaveLength(0);
+            expect(reconstructFromTokens(result.tokens, source)).toBe(source);
+            expect(result.tokens.some((token) => token.type === TokenType.PhpBlockStart)).toBe(false);
+            expect(result.tokens.some((token) => token.type === TokenType.PhpBlockEnd)).toBe(false);
+            expect(result.tokens.filter((token) => token.type === TokenType.Directive)).toHaveLength(1);
+            expect(result.tokens.filter((token) => token.type === TokenType.DirectiveArgs)).toHaveLength(1);
+
+            const closingTagIndex = result.tokens.findIndex(
+                (token, index) =>
+                    token.type === TokenType.LessThan &&
+                    result.tokens[index + 1]?.type === TokenType.Slash &&
+                    result.tokens[index + 2] !== undefined &&
+                    tokenContent(source, result.tokens[index + 2]) === closingTag,
+            );
+            expect(closingTagIndex).toBeGreaterThan(0);
+        }
     });
 
     it('php directive with args', () => {

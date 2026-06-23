@@ -5,7 +5,7 @@ import { TokenType } from "../lexer/types.js";
 import { HTML_ELEMENT_ATTRIBUTES } from "../html-data.js";
 import { hasFrontMatterMark } from "../front-matter.js";
 import { getIgnoreCommentKindFromCommentText, type IgnoreCommentKind } from "../ignore-markers.js";
-import { parentContainsBladeSyntax } from "./blade-syntax.js";
+import { isBladeConstructChild, parentContainsBladeSyntax } from "./blade-syntax.js";
 import { isEchoLike, isScriptLikeTag, isVueNonHtmlBlock } from "../node-predicates.js";
 
 export type AttributeValueKind = "none" | "static_text" | "pure_construct" | "mixed_structured";
@@ -241,12 +241,13 @@ export function shouldPreserveContent(node: WrappedNode, options?: Options): boo
     return true;
   }
 
-  // Blade/PHP constructs inside <style> are not stable under CSS embedding;
-  // preserve raw content to prevent indentation drift across passes.
+  // Blade/PHP constructs inside raw-content elements are not stable when
+  // embedding is bypassed or disabled; preserve raw content to prevent
+  // indentation drift across passes.
   if (
     node.kind === NodeKind.Element &&
-    node.tagName === "style" &&
-    hasBladeLikeSyntaxInElementContent(node)
+    isScriptLikeTag(node, options) &&
+    shouldPreserveRawContentElementWithBlade(node, options)
   ) {
     return true;
   }
@@ -264,8 +265,26 @@ export function shouldPreserveContent(node: WrappedNode, options?: Options): boo
   return false;
 }
 
-function hasBladeLikeSyntaxInElementContent(node: WrappedNode): boolean {
-  return parentContainsBladeSyntax(node, "style");
+function shouldPreserveRawContentElementWithBlade(node: WrappedNode, options?: Options): boolean {
+  const context =
+    node.tagName === "script" ? "script" : node.tagName === "style" ? "style" : "generic";
+
+  if (context === "script") {
+    const hasScriptBladeConstruct = node.children.some(
+      (child) => child.kind !== NodeKind.IgnoreRange && isBladeConstructChild(child, "script"),
+    );
+    if (!hasScriptBladeConstruct) {
+      return false;
+    }
+
+    return (
+      !options ||
+      (options as Record<string, unknown>).embeddedLanguageFormatting === "off" ||
+      inferElementParser(node, options) === undefined
+    );
+  }
+
+  return parentContainsBladeSyntax(node, context);
 }
 
 const HTML_WS_REGEX = /[\t\n\f\r ]+/;

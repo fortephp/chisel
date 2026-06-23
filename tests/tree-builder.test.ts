@@ -311,9 +311,9 @@ describe("paired directives", () => {
 
     expect(blockKids.filter((node) => node.kind === NodeKind.Directive)).toHaveLength(2);
     expect(openingDirective).toBeDefined();
-    expect(childrenOf(r, indexOf(r, openingDirective!)).some((node) => node.kind === NodeKind.Text)).toBe(
-      true,
-    );
+    expect(
+      childrenOf(r, indexOf(r, openingDirective!)).some((node) => node.kind === NodeKind.Text),
+    ).toBe(true);
   });
 
   it("content between paired directives is child of opening directive", () => {
@@ -441,6 +441,37 @@ describe("conditional pairing", () => {
     const blocks = findByKind(r, NodeKind.DirectiveBlock);
     expect(blocks).toHaveLength(1);
   });
+
+  for (const caseEntry of [
+    { name: "paired directive", directiveName: "error", opener: "@error('body')" },
+    { name: "condition directive", directiveName: "if", opener: "@if ($invalid)" },
+    { name: "shared-terminator directive", directiveName: "push", opener: "@push('scripts')" },
+    { name: "switch directive", directiveName: "switch", opener: "@switch($value)" },
+  ]) {
+    it(`does not give children to an unclosed inner ${caseEntry.name}`, () => {
+      const r = parse(`@section('content')
+    <div>
+        ${caseEntry.opener}
+        <input name="z" />
+    </div>
+@endsection
+`);
+      const endsectionDirectives = findByKind(r, NodeKind.Directive).filter((node) => {
+        const token = r.tokens[node.tokenStart];
+        return r.source.slice(token.start, token.end) === "@endsection";
+      });
+      const directiveBlocks = findByKind(r, NodeKind.DirectiveBlock);
+      const innerDirectives = findByKind(r, NodeKind.Directive).filter((node) => {
+        const token = r.tokens[node.tokenStart];
+        return r.source.slice(token.start, token.end) === `@${caseEntry.directiveName}`;
+      });
+
+      expect(endsectionDirectives).toHaveLength(1);
+      expect(directiveBlocks).toHaveLength(1);
+      expect(innerDirectives).toHaveLength(1);
+      expect(childrenOf(r, indexOf(r, innerDirectives[0]))).toHaveLength(0);
+    });
+  }
 });
 describe("optional tag auto-closing", () => {
   it("auto-closes <li> when sibling <li> appears", () => {

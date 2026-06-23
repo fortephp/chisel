@@ -4,9 +4,11 @@ import type { WrappedNode } from "../types.js";
 import { NodeKind } from "../tree/types.js";
 import { TokenType } from "../lexer/types.js";
 import { HTML_TAGS } from "../html-data.js";
+import { VOID_ELEMENTS } from "../tree/void-elements.js";
 import {
   getEchoSpacingMode,
   getSlotClosingTagMode,
+  getVoidElementSlashMode,
   shouldInsertOptionalClosingTags,
   shouldPreserveInlineIntentAttributes,
   shouldPreserveInlineIntentElement,
@@ -100,6 +102,33 @@ function getElementGenericSuffix(node: WrappedNode): string {
   }
 
   return "";
+}
+
+function isStandardHtmlVoidElement(node: WrappedNode): boolean {
+  return node.kind === NodeKind.Element && VOID_ELEMENTS.has(node.fullName.toLowerCase());
+}
+
+function hasAuthoredSelfClosingSlash(node: WrappedNode): boolean {
+  return node.kind === NodeKind.Element && node.flat.data === 1;
+}
+
+function shouldPrintSelfClosingSlash(node: WrappedNode, options?: Options): boolean {
+  if (node.kind !== NodeKind.Element || !node.isSelfClosing) {
+    return false;
+  }
+
+  if (!isStandardHtmlVoidElement(node)) {
+    return true;
+  }
+
+  switch (options ? getVoidElementSlashMode(options) : "always") {
+    case "never":
+      return false;
+    case "preserve":
+      return hasAuthoredSelfClosingSlash(node);
+    case "always":
+      return true;
+  }
 }
 
 function isDynamicTagNameText(name: string): boolean {
@@ -470,7 +499,7 @@ export function printClosingTagEndMarker(node: WrappedNode, options?: Options): 
     case NodeKind.TripleEcho:
       return "}}}";
     case NodeKind.Element:
-      if (node.isSelfClosing) {
+      if (shouldPrintSelfClosingSlash(node, options)) {
         return "/>";
       }
       return ">";
@@ -614,12 +643,13 @@ function printAttributes(
   print: (path: AstPath<WrappedNode>) => Doc,
 ): Doc {
   const node = path.node;
+  const printsSelfClosingSlash = shouldPrintSelfClosingSlash(node, options);
   const bracketSameLine = (options as Record<string, unknown>).bracketSameLine as
     | boolean
     | undefined;
 
   if (node.attrs.length === 0) {
-    return node.isSelfClosing ? " " : "";
+    return printsSelfClosingSlash ? " " : "";
   }
 
   const ignoreAttributeData =
@@ -700,11 +730,11 @@ function printAttributes(
   if (forceMultilineSvgAttributeLayout) {
     parts.push(hardline);
   } else if (forceFlat) {
-    parts.push(node.isSelfClosing ? " " : "");
+    parts.push(printsSelfClosingSlash ? " " : "");
   } else if (bracketSameLine) {
-    parts.push(node.isSelfClosing ? " " : "");
+    parts.push(printsSelfClosingSlash ? " " : "");
   } else {
-    parts.push(node.isSelfClosing ? line : softline);
+    parts.push(printsSelfClosingSlash ? line : softline);
   }
 
   return parts;

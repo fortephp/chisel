@@ -1,17 +1,25 @@
 import type { Doc, Options } from "prettier";
+import { doc } from "prettier";
 import type { WrappedNode } from "../types.js";
 import { TokenType } from "../lexer/types.js";
 import { NodeKind } from "../tree/types.js";
+import { isScriptLikeTag } from "../node-predicates.js";
 import { getEchoSpacingMode } from "./blade-options.js";
+import { replaceEndOfLine } from "./doc-utils.js";
+import { getEchoDelimiters, normalizeMultilineEchoIndentText } from "./echo-normalization.js";
 import { fullText } from "./utils.js";
+
+const { hardline } = doc.builders;
 
 export function printEcho(node: WrappedNode, options: Options): Doc {
   const spacing = getEchoSpacingMode(options);
   if (spacing === "preserve") {
-    if (isUnterminatedEchoAtEof(node)) {
-      return trimTrailingWhitespace(fullText(node));
-    }
-    return fullText(node);
+    const raw = isUnterminatedEchoAtEof(node)
+      ? trimTrailingWhitespace(fullText(node))
+      : fullText(node);
+    return shouldNormalizeMultilineEchoIndent(node, options)
+      ? replaceEndOfLine(normalizeMultilineEchoIndentText(node, raw, options), hardline)
+      : raw;
   }
 
   const content = getEchoContent(node);
@@ -20,14 +28,17 @@ export function printEcho(node: WrappedNode, options: Options): Doc {
   }
 
   const trimmed = content.trim();
-  const { open, close } = getEchoDelimiters(node);
+  const { open, close } = getEchoDelimiters(node) ?? { open: "{{", close: "}}" };
 
   if (trimmed.length === 0) {
     return spacing === "tight" ? `${open}${close}` : `${open} ${close}`;
   }
 
   if (trimmed.includes("\n")) {
-    return `${open}\n${trimmed}\n${close}`;
+    const raw = `${open}\n${trimmed}\n${close}`;
+    return shouldNormalizeMultilineEchoIndent(node, options)
+      ? replaceEndOfLine(normalizeMultilineEchoIndentText(node, raw, options), hardline)
+      : raw;
   }
 
   if (spacing === "tight") {
@@ -54,16 +65,13 @@ function getEchoContent(node: WrappedNode): string | null {
   return parts.join("");
 }
 
-function getEchoDelimiters(node: WrappedNode): { open: string; close: string } {
-  switch (node.kind) {
-    case NodeKind.RawEcho:
-      return { open: "{!!", close: "!!}" };
-    case NodeKind.TripleEcho:
-      return { open: "{{{", close: "}}}" };
-    case NodeKind.Echo:
-    default:
-      return { open: "{{", close: "}}" };
-  }
+function shouldNormalizeMultilineEchoIndent(node: WrappedNode, options: Options): boolean {
+  const raw = fullText(node);
+  return (
+    !!node.parent &&
+    isScriptLikeTag(node.parent, options) &&
+    (raw.includes("\n") || raw.includes("\r"))
+  );
 }
 
 function isUnterminatedEchoAtEof(node: WrappedNode): boolean {

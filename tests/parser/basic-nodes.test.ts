@@ -66,17 +66,14 @@ describe("Basic Nodes", () => {
     const r = parse(source);
     const nodes = rootChildren(r);
 
-    expect(nodes).toHaveLength(2);
+    expect(nodes).toHaveLength(3);
     expect(nodes[0].kind).toBe(NodeKind.Text);
     expect(nodeText(r, nodes[0])).toBe("Start ");
-    // @can is a paired (condition) directive -> DirectiveBlock
-    expect(nodes[1].kind).toBe(NodeKind.DirectiveBlock);
-
-    const blockChildren = childrenOf(r, indexOf(r, nodes[1]));
-    const openDirective = blockChildren[0];
-    expect(openDirective.kind).toBe(NodeKind.Directive);
-    expect(getDirectiveName(r, openDirective)).toBe("can");
-    expect(getDirectiveArgs(r, openDirective)).toBe("('do something')");
+    expect(nodes[1].kind).toBe(NodeKind.Directive);
+    expect(getDirectiveName(r, nodes[1])).toBe("can");
+    expect(getDirectiveArgs(r, nodes[1])).toBe("('do something')");
+    expect(nodes[2].kind).toBe(NodeKind.Text);
+    expect(nodeText(r, nodes[2])).toBe(" End");
     expect(renderDocument(r)).toBe(source);
   });
 

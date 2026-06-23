@@ -24,8 +24,10 @@ import {
 import { resolvePhpPlugins } from "./embed/php-plugin.js";
 import {
   embedMixedRawContentElement,
+  embedUnparsedRawContentElement,
   shouldBypassStyleParserEmbedding,
   shouldUseMixedRawContentEmbedding,
+  shouldUseUnparsedRawContentEmbedding,
 } from "./embed/raw-content.js";
 import { resolveEmbeddedParserPlugins } from "./embed/embedded-parser-plugins.js";
 import { fullText } from "./utils.js";
@@ -78,6 +80,12 @@ function handleElementEmbed(path: AstPath<WrappedNode>, options: Options): Embed
   if (isScriptLikeTag(node, options)) {
     if (shouldBypassStyleParserEmbedding(node, options)) {
       return null;
+    }
+
+    if (shouldUseUnparsedRawContentEmbedding(node, options)) {
+      return (_textToDoc: (text: string, options: Options) => Promise<Doc>, print: EmbedPrint) => {
+        return embedUnparsedRawContentElement(path as AstPath<WrappedNode>, options, print);
+      };
     }
 
     if (shouldUseMixedRawContentEmbedding(node, options)) {

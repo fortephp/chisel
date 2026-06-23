@@ -80,7 +80,7 @@ exports[`validation/conformance/formatter-cases > formats basic_nodes__010 1`] =
 exports[`validation/conformance/formatter-cases > formats can__001 1`] = `
 "{{-- foo.blade.php --}}
 
-@props (['model'])
+@props (['model',])
 
 @can ('update', $model)
   update
@@ -1138,7 +1138,7 @@ exports[`validation/conformance/formatter-cases > formats directives__037 1`] = 
 `;
 
 exports[`validation/conformance/formatter-cases > formats directives__038 1`] = `
-"@props (['navigation'])
+"@props (['navigation',])
 
 <x-something
   ><x-something
@@ -2769,19 +2769,19 @@ exports[`validation/conformance/formatter-cases > formats props_directive__003 1
 "@props ([
   'foo' => true,
   'bar' => false,
-  'bar2' => false
+  'bar2' => false,
 ])
 "
 `;
 
 exports[`validation/conformance/formatter-cases > formats props_directive__004 1`] = `
-"@props (['heading', 'footer'])
+"@props (['heading', 'footer',])
 "
 `;
 
 exports[`validation/conformance/formatter-cases > formats props_directive__005 1`] = `
 "@props ([
-  'foo' => []
+  'foo' => [],
 ])
 "
 `;
@@ -2789,7 +2789,7 @@ exports[`validation/conformance/formatter-cases > formats props_directive__005 1
 exports[`validation/conformance/formatter-cases > formats props_directive__006 1`] = `
 "@props ([
   'foo' => [],
-  'foobarbaz' => false
+  'foobarbaz' => false,
 ])
 "
 `;
@@ -2798,7 +2798,7 @@ exports[`validation/conformance/formatter-cases > formats props_directive__007 1
 "@props ([
   'foobarbaz' => true,
   'bar',
-  'baz' => true
+  'baz' => true,
 ])
 "
 `;
@@ -2807,7 +2807,7 @@ exports[`validation/conformance/formatter-cases > formats props_directive__008 1
 "@props ([
   'foobarbaz' => true,
   'bar',
-  'baz' => true
+  'baz' => true,
 ])
 "
 `;
@@ -2815,7 +2815,7 @@ exports[`validation/conformance/formatter-cases > formats props_directive__008 1
 exports[`validation/conformance/formatter-cases > formats props_directive__009 1`] = `
 "@props ([
   'actions' => [],
-  'url'
+  'url',
 ])
 "
 `;
@@ -2823,7 +2823,7 @@ exports[`validation/conformance/formatter-cases > formats props_directive__009 1
 exports[`validation/conformance/formatter-cases > formats props_directive__010 1`] = `
 "@props ([
   'actions' => [],
-  'url'
+  'url',
 ])
 "
 `;
