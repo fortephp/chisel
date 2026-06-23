@@ -8200,7 +8200,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
 `;
 
 exports[`validation/filament-fixtures > formats support_resources_views_components_button_group.blade.php (snapshot + converges + delimiter-safe) 1`] = `
-"<div {{ $attributes->class(['fi-btn-group']) }}> {{ $slot }}</div>
+"<div {{ $attributes->class(['fi-btn-group']) }}>{{ $slot }}</div>
 "
 `;
 
@@ -8549,7 +8549,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
 `;
 
 exports[`validation/filament-fixtures > formats support_resources_views_components_dropdown_list_index.blade.php (snapshot + converges + delimiter-safe) 1`] = `
-"<div {{ $attributes->class(['fi-dropdown-list']) }}> {{ $slot }}</div>
+"<div {{ $attributes->class(['fi-dropdown-list']) }}>{{ $slot }}</div>
 "
 `;
 
@@ -9453,12 +9453,12 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
 `;
 
 exports[`validation/filament-fixtures > formats support_resources_views_components_modal_description.blade.php (snapshot + converges + delimiter-safe) 1`] = `
-"<p {{ $attributes->class(['fi-modal-description']) }}> {{ $slot }}</p>
+"<p {{ $attributes->class(['fi-modal-description']) }}>{{ $slot }}</p>
 "
 `;
 
 exports[`validation/filament-fixtures > formats support_resources_views_components_modal_heading.blade.php (snapshot + converges + delimiter-safe) 1`] = `
-"<h2 {{ $attributes->class(['fi-modal-heading']) }}> {{ $slot }}</h2>
+"<h2 {{ $attributes->class(['fi-modal-heading']) }}>{{ $slot }}</h2>
 "
 `;
 
@@ -9984,12 +9984,12 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
 `;
 
 exports[`validation/filament-fixtures > formats support_resources_views_components_section_description.blade.php (snapshot + converges + delimiter-safe) 1`] = `
-"<p {{ $attributes->class(['fi-section-header-description']) }}> {{ $slot }}</p>
+"<p {{ $attributes->class(['fi-section-header-description']) }}>{{ $slot }}</p>
 "
 `;
 
 exports[`validation/filament-fixtures > formats support_resources_views_components_section_heading.blade.php (snapshot + converges + delimiter-safe) 1`] = `
-"<h2 {{ $attributes->class(['fi-section-header-heading']) }}> {{ $slot }}</h2>
+"<h2 {{ $attributes->class(['fi-section-header-heading']) }}>{{ $slot }}</h2>
 "
 `;
 
