@@ -9,6 +9,9 @@ import { Directives } from "./directives.js";
 import { ErrorReason, type LexerError } from "./errors.js";
 import { isFrontendEventStyleAtName } from "../frontend-attribute-names.js";
 import {
+  canStartBladeDirectiveAt,
+  isAsciiAlnum as isAlnum,
+  isAsciiAlpha as isAlpha,
   skipQuotedString,
   skipBacktickString,
   skipBlockComment,
@@ -740,10 +743,7 @@ export class Lexer {
         }
 
         // Check if @ can start a directive
-        const prevChar = this.pos > 0 ? this.src[this.pos - 1] : null;
-        const canStart =
-          this.pos === 0 ||
-          (prevChar !== null && !isAlnum(prevChar.charCodeAt(0)) && prevChar !== "@");
+        const canStart = canStartBladeDirectiveAt(this.src, this.pos);
 
         if (canStart) {
           // Check escape sequences: @@, @{{, @{!!
@@ -3231,11 +3231,8 @@ export class Lexer {
       }
 
       // Directives in rawtext
-      if (byte === "@" && !this.verbatim) {
-        const prevChar = this.pos > 0 ? this.src[this.pos - 1] : null;
-        const canStart =
-          this.pos === 0 ||
-          (prevChar !== null && !isAlnum(prevChar.charCodeAt(0)) && prevChar !== "@");
+      if (byte === "@" && !this.verbatim && !this.phpBlock) {
+        const canStart = canStartBladeDirectiveAt(this.src, this.pos);
 
         if (canStart) {
           const nextPos = this.pos + 1;
@@ -3393,14 +3390,6 @@ export class Lexer {
     this.state = State.RawText;
     this.returnState = State.Data;
   }
-}
-
-function isAlpha(ch: number): boolean {
-  return (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122);
-}
-
-function isAlnum(ch: number): boolean {
-  return isAlpha(ch) || (ch >= 48 && ch <= 57);
 }
 
 function isSpace(ch: number): boolean {
