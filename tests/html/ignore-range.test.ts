@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, it } from "vitest";
 import { expectIgnoreRangesUnchanged, formatEqual } from "../helpers.js";
 
 async function formatRangeEqual(input: string, expected: string, options = {}) {
