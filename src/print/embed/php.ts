@@ -40,6 +40,7 @@ const phpFormatCache = new Map<string, string | null>();
 const BROWSER_DEFAULT_PHP_VERSION = "8.4";
 const PHP_INLINE_WRAPPER_PRINT_WIDTH_MARGIN = 8;
 const FORCED_DIRECTIVE_ARG_TRAILING_COMMA = false;
+const DIRECTIVE_ARG_FINAL_ARRAY_TRAILING_COMMA_ALLOWED_DIRECTIVES = new Set(["aware", "props"]);
 
 function getMode(options: Options): PhpFormattingMode {
   const rawOptions = options as Record<string, unknown>;
@@ -345,6 +346,38 @@ function normalizeTrailingComma(text: string, shouldHaveTrailingComma: boolean):
   }
 
   return `${trimmedEnd.replace(/,\s*$/u, "")}${suffix}`;
+}
+
+function hasFinalArrayTrailingComma(text: string): boolean {
+  return /,\s*\]\s*$/u.test(text);
+}
+
+function shouldPreserveFinalArrayTrailingComma(
+  directiveName: string,
+  argsInner: string,
+  options: Options,
+): boolean {
+  if ((options as Record<string, unknown>).trailingCommaPHP === false) {
+    return false;
+  }
+  return (
+    DIRECTIVE_ARG_FINAL_ARRAY_TRAILING_COMMA_ALLOWED_DIRECTIVES.has(directiveName.toLowerCase()) &&
+    hasFinalArrayTrailingComma(argsInner.trimEnd())
+  );
+}
+
+function normalizeFinalArrayTrailingComma(text: string, shouldHaveTrailingComma: boolean): string {
+  const trimmedEnd = text.replace(/\s+$/u, "");
+  const suffix = text.slice(trimmedEnd.length);
+
+  if (shouldHaveTrailingComma) {
+    if (hasFinalArrayTrailingComma(trimmedEnd)) {
+      return `${trimmedEnd}${suffix}`;
+    }
+    return `${trimmedEnd.replace(/([^\s,])(\s*\])$/u, "$1,$2")}${suffix}`;
+  }
+
+  return `${trimmedEnd.replace(/,\s*(\]\s*)$/u, "$1")}${suffix}`;
 }
 
 function hasWrappedMultilineDirectiveArgs(rawArgs: string): boolean {
@@ -845,6 +878,11 @@ export async function formatDirectiveNodeArgs(
   const originalHadTrailingComma = hasTrailingComma(argsInner.trimEnd());
 
   const directiveName = getDirectiveName(node) ?? "";
+  const shouldPreserveArrayTrailingComma = shouldPreserveFinalArrayTrailingComma(
+    directiveName,
+    argsInner,
+    options,
+  );
   const directiveWrapperContext = getDirectiveWrapperContext(node);
   const formatAttempts = getDirectivePhpFormatAttempts(
     directiveName,
@@ -872,9 +910,12 @@ export async function formatDirectiveNodeArgs(
     if (extracted === null) continue;
 
     const normalizedPayload = normalizePayload(extracted);
-    const payload = normalizeTrailingComma(
-      normalizedPayload,
-      originalHadTrailingComma || hasTrailingComma(normalizedPayload.trimEnd()),
+    const payload = normalizeFinalArrayTrailingComma(
+      normalizeTrailingComma(
+        normalizedPayload,
+        originalHadTrailingComma || hasTrailingComma(normalizedPayload.trimEnd()),
+      ),
+      shouldPreserveArrayTrailingComma,
     );
     const collapsedInlinePayload = originalWasSingleLine
       ? tryCollapseDirectivePayloadSingleLine(payload)
