@@ -64,7 +64,9 @@ export class Lexer {
   private errors: LexerError[] = [];
   private verbatim = false;
   private verbatimReturnState: State | null = null;
+  private verbatimStartTokenIndex: number | null = null;
   private phpBlock = false;
+  private phpBlockStartTokenIndex: number | null = null;
   private phpTag = false;
   private attrPhpDirectiveDepth = 0;
   private rawtextTagName = "";
@@ -215,7 +217,9 @@ export class Lexer {
       inXmlDeclaration: this.inXmlDeclaration,
       verbatim: this.verbatim,
       verbatimReturnState: this.verbatimReturnState,
+      verbatimStartTokenIndex: this.verbatimStartTokenIndex,
       phpBlock: this.phpBlock,
+      phpBlockStartTokenIndex: this.phpBlockStartTokenIndex,
       phpTag: this.phpTag,
       attrPhpDirectiveDepth: this.attrPhpDirectiveDepth,
     };
@@ -231,7 +235,9 @@ export class Lexer {
     this.inXmlDeclaration = resume.inXmlDeclaration;
     this.verbatim = resume.verbatim;
     this.verbatimReturnState = resume.verbatimReturnState;
+    this.verbatimStartTokenIndex = resume.verbatimStartTokenIndex ?? null;
     this.phpBlock = resume.phpBlock;
+    this.phpBlockStartTokenIndex = resume.phpBlockStartTokenIndex ?? null;
     this.phpTag = resume.phpTag;
     this.attrPhpDirectiveDepth = resume.attrPhpDirectiveDepth;
   }
@@ -705,6 +711,16 @@ export class Lexer {
         } else {
           this.pos++;
         }
+      } else if (
+        this.verbatim &&
+        this.verbatimReturnState === State.RawText &&
+        this.rawtextTagName.length > 0 &&
+        byte === "<" &&
+        this.isRawtextClosingTagAt(this.pos, this.rawtextTagName, this.rawtextTagName.length)
+      ) {
+        this.logError(ErrorReason.UnexpectedEof, this.pos);
+        this.recoverUnclosedRawtextVerbatimBlock(start);
+        return;
       } else if (byte === "@") {
         // Verbatim mode: only explicit terminators (e.g. @endverbatim,
         // @endantlers) matter.
@@ -2380,6 +2396,7 @@ export class Lexer {
 
     // @php without args -> PHP block mode
     if (nameLower === "php" && !hasArgs && !inTagAttributeState) {
+      this.phpBlockStartTokenIndex = this.tokens.length;
       this.emit(TokenType.PhpBlockStart, start, pos);
       this.phpBlock = true;
       this.state = this.returnState;
@@ -2400,6 +2417,7 @@ export class Lexer {
       this.emit(TokenType.PhpBlockEnd, start, pos);
       if (this.phpBlock) {
         this.phpBlock = false;
+        this.phpBlockStartTokenIndex = null;
       }
       this.state = this.returnState;
       this.returnState = State.Data;
@@ -2412,6 +2430,7 @@ export class Lexer {
 
     // @verbatim and plugin-provided raw blocks.
     if (this.verbatimStartDirectives.has(nameLower)) {
+      this.verbatimStartTokenIndex = this.tokens.length;
       this.emit(TokenType.VerbatimStart, start, pos);
       this.verbatimReturnState = this.state;
       this.verbatim = true;
@@ -2430,6 +2449,7 @@ export class Lexer {
         this.state = State.Data;
       }
       this.verbatim = false;
+      this.verbatimStartTokenIndex = null;
       this.returnState = State.Data;
       return;
     }
@@ -3096,15 +3116,92 @@ export class Lexer {
       const nextIgnoreRangeStart = this.nextIgnoreRangeStart();
       if (nextIgnoreRangeStart !== null && this.pos === nextIgnoreRangeStart) {
         if (start < this.pos) {
-          this.emit(TokenType.Text, start, this.pos);
+          this.emit(this.phpBlock ? TokenType.PhpBlock : TokenType.Text, start, this.pos);
         }
         return;
       }
 
       const byte = this.src[this.pos];
 
+      if (this.phpBlock) {
+        if (byte === "'" || byte === '"') {
+          this.pos++;
+          this.skipQuotedStringPrim(byte);
+          continue;
+        }
+
+        if (byte === "`") {
+          this.pos++;
+          this.skipBacktickStringPrim();
+          continue;
+        }
+
+        if (byte === "/" && this.pos + 1 < this.len) {
+          const next = this.src[this.pos + 1];
+          if (next === "/") {
+            this.pos += 2;
+            while (this.pos < this.len) {
+              const ch = this.src[this.pos];
+              if (ch === "\n" || ch === "\r") {
+                this.pos++;
+                break;
+              }
+              this.pos++;
+            }
+            continue;
+          }
+          if (next === "*") {
+            this.pos += 2;
+            this.skipBlockCommentPrim();
+            continue;
+          }
+        }
+
+        if (byte === "#") {
+          this.pos++;
+          while (this.pos < this.len) {
+            const ch = this.src[this.pos];
+            if (ch === "\n" || ch === "\r") {
+              this.pos++;
+              break;
+            }
+            this.pos++;
+          }
+          continue;
+        }
+
+        if (byte === "<" && this.isRawtextClosingTagAt(this.pos, tagName, tagNameLen)) {
+          this.logError(ErrorReason.UnexpectedEof, this.pos);
+          this.recoverUnclosedRawtextPhpBlock(start);
+          return;
+        }
+
+        if (
+          byte === "<" &&
+          this.pos + 2 < this.len &&
+          this.src[this.pos + 1] === "<" &&
+          this.src[this.pos + 2] === "<"
+        ) {
+          this.pos += 3;
+          this.skipHeredocPrim();
+          continue;
+        }
+
+        if (byte === "@" && this.isEndphpAt(this.pos)) {
+          if (start < this.pos) {
+            this.emit(TokenType.PhpBlock, start, this.pos);
+          }
+          this.returnState = State.RawText;
+          this.scanDirective();
+          return;
+        }
+
+        this.pos++;
+        continue;
+      }
+
       // Check for Blade constructs
-      if (byte === "{" && !this.verbatim && !this.phpBlock) {
+      if (byte === "{" && !this.verbatim) {
         const next1 = this.peekAhead(1);
 
         if (next1 === "{") {
@@ -3236,9 +3333,62 @@ export class Lexer {
 
     // EOF
     if (start < this.pos) {
-      this.emit(TokenType.Text, start, this.pos);
+      if (this.phpBlock) {
+        this.logError(ErrorReason.UnexpectedEof, this.pos);
+        this.emit(TokenType.PhpBlock, start, this.pos);
+      } else {
+        this.emit(TokenType.Text, start, this.pos);
+      }
     }
     this.rawtextTagName = "";
+  }
+
+  private isRawtextClosingTagAt(pos: number, tagName: string, tagNameLen: number): boolean {
+    if (pos + 2 + tagNameLen > this.len || this.src[pos] !== "<" || this.src[pos + 1] !== "/") {
+      return false;
+    }
+
+    const potentialTagName = this.src.slice(pos + 2, pos + 2 + tagNameLen);
+    if (potentialTagName.toLowerCase() !== tagName) {
+      return false;
+    }
+
+    const afterTagPos = pos + 2 + tagNameLen;
+    if (afterTagPos === this.len) {
+      return true;
+    }
+
+    const afterTagChar = this.src[afterTagPos];
+    return afterTagChar === ">" || isSpace(afterTagChar.charCodeAt(0));
+  }
+
+  private recoverUnclosedRawtextPhpBlock(contentStart: number): void {
+    if (this.phpBlockStartTokenIndex !== null) {
+      this.tokens[this.phpBlockStartTokenIndex].type = TokenType.Text;
+    }
+
+    if (contentStart < this.pos) {
+      this.emit(TokenType.Text, contentStart, this.pos);
+    }
+
+    this.phpBlock = false;
+    this.phpBlockStartTokenIndex = null;
+  }
+
+  private recoverUnclosedRawtextVerbatimBlock(contentStart: number): void {
+    if (this.verbatimStartTokenIndex !== null) {
+      this.tokens[this.verbatimStartTokenIndex].type = TokenType.Text;
+    }
+
+    if (contentStart < this.pos) {
+      this.emit(TokenType.Text, contentStart, this.pos);
+    }
+
+    this.verbatim = false;
+    this.verbatimReturnState = null;
+    this.verbatimStartTokenIndex = null;
+    this.state = State.RawText;
+    this.returnState = State.Data;
   }
 }
 
