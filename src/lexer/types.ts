@@ -128,7 +128,9 @@ export interface IgnoreRangeResumeState {
   inXmlDeclaration: boolean;
   verbatim: boolean;
   verbatimReturnState: State | null;
+  verbatimStartTokenIndex?: number | null;
   phpBlock: boolean;
+  phpBlockStartTokenIndex?: number | null;
   phpTag: boolean;
   attrPhpDirectiveDepth: number;
 }

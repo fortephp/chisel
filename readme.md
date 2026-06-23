@@ -196,6 +196,7 @@ Install the Tailwind CSS plugin and include it in `plugins`:
 | `bladeBlankLinesAroundDirectives` | `choice` | `"preserve"` | `"preserve"`, `"always"` |
 | `bladeEchoSpacing` | `choice` | `"preserve"` | `"preserve"`, `"space"`, `"tight"` |
 | `bladeSlotClosingTag` | `choice` | `"canonical"` | `"canonical"`, `"preserve"` |
+| `bladeVoidElementSlash` | `choice` | `"always"` | `"always"`, `"never"`, `"preserve"` |
 | `bladeInlineIntentElements` | `string[]` | `["p", "svg", "svg:*"]` | elements and namespace wildcards |
 | `bladeComponentPrefixes` | `string[]` | `["x", "s", "statamic", "flux", "livewire", "native"]` | component prefixes |
 | `bladeInsertOptionalClosingTags` | `boolean` | `false` | `true`, `false` |
@@ -216,6 +217,14 @@ Install the Tailwind CSS plugin and include it in `plugins`:
 - Explicit separator tokens are preserved as-is:
   - `x-` matches only dash form tags
   - `x:` matches only colon form tags
+
+`bladeVoidElementSlash` behavior:
+
+- Applies only to standard HTML void elements such as `meta`, `link`, `input`, and `br`.
+- `"always"` prints `<meta />`, matching the current default behavior.
+- `"never"` prints `<meta>`.
+- `"preserve"` keeps the source style for each void element.
+- Non-void self-closing tags and Blade components keep `/>`.
 
 `bladeInlineIntentElements` SVG behavior:
 
@@ -352,6 +361,7 @@ This plugin also respects standard Prettier options, including:
         "bladeBlankLinesAroundDirectives": "preserve",
         "bladeEchoSpacing": "space",
         "bladeSlotClosingTag": "canonical",
+        "bladeVoidElementSlash": "always",
         "bladeInlineIntentElements": ["p", "svg", "svg:*"],
         "bladeComponentPrefixes": ["x", "s", "statamic", "flux", "livewire", "native"],
         "bladeInsertOptionalClosingTags": false,

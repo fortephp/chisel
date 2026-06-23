@@ -2,6 +2,24 @@ export interface PosRef {
   value: number;
 }
 
+export function isAsciiAlpha(ch: number): boolean {
+  return (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122);
+}
+
+export function isAsciiDigit(ch: number): boolean {
+  return ch >= 48 && ch <= 57;
+}
+
+export function isAsciiAlnum(ch: number): boolean {
+  return isAsciiAlpha(ch) || isAsciiDigit(ch);
+}
+
+export function canStartBladeDirectiveAt(source: string, pos: number, boundaryStart = 0): boolean {
+  if (pos <= boundaryStart) return pos === boundaryStart;
+  const prev = source.charCodeAt(pos - 1);
+  return !isAsciiAlnum(prev) && prev !== 64 /* @ */;
+}
+
 export function findLineEnding(src: string, pos: number, len: number): number {
   for (let i = pos; i < len; i++) {
     const ch = src[i];

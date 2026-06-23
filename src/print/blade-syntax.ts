@@ -1,6 +1,7 @@
 import type { WrappedNode } from "../types.js";
 import { NodeKind } from "../tree/types.js";
 import { isFrontendEventStyleAtName } from "../frontend-attribute-names.js";
+import { isAsciiAlnum, isAsciiAlpha } from "../lexer/scan-primitives.js";
 
 type RawContentContext = "style" | "script" | "generic";
 
@@ -63,22 +64,30 @@ function extractDirectiveName(text: string): string | null {
   if (i >= trimmed.length) return null;
 
   const first = trimmed.charCodeAt(i);
-  const startsWithAlphaOrUnderscore =
-    (first >= 65 && first <= 90) || (first >= 97 && first <= 122) || first === 95;
-  if (!startsWithAlphaOrUnderscore) return null;
+  if (!isAsciiAlpha(first) && first !== 95) return null;
 
   while (i < trimmed.length) {
     const code = trimmed.charCodeAt(i);
-    const isAlphaNum =
-      (code >= 65 && code <= 90) ||
-      (code >= 97 && code <= 122) ||
-      (code >= 48 && code <= 57) ||
-      code === 95;
-    if (!isAlphaNum) break;
+    if (!isAsciiAlnum(code) && code !== 95) break;
     i++;
   }
 
   return trimmed.slice(1, i).toLowerCase();
+}
+
+function extractStyleAtRuleNameAt(source: string, pos: number): string | null {
+  if (pos < 0 || pos >= source.length || source[pos] !== "@") return null;
+
+  let i = pos + 1;
+  const start = i;
+  while (i < source.length) {
+    const code = source.charCodeAt(i);
+    if (!isAsciiAlnum(code) && code !== 45 && code !== 95) break;
+    i++;
+  }
+
+  if (i === start) return null;
+  return source.slice(start, i).toLowerCase();
 }
 
 function hasPhpLikeMarkers(text: string): boolean {
@@ -100,13 +109,27 @@ function hasPhpLikeMarkers(text: string): boolean {
   );
 }
 
+function hasDirectiveCallArgs(text: string): boolean {
+  return /@[A-Za-z_][A-Za-z0-9_]*\s*\(/u.test(text);
+}
+
 function isDirectiveNodeBladeLike(node: WrappedNode, context: RawContentContext): boolean {
   const text = node.source.slice(node.start, node.end);
   const name = extractDirectiveName(text);
   if (!name) return false;
 
   if (context === "style") {
-    if (CSS_AT_RULES.has(name) || isFrontendEventStyleAtName(name)) {
+    const styleAtRuleName = extractStyleAtRuleNameAt(node.source, node.start);
+    if (styleAtRuleName && CSS_AT_RULES.has(styleAtRuleName)) {
+      const trainedDirectives = node.buildResult.directives;
+      if (!trainedDirectives?.isDirective(name)) {
+        return false;
+      }
+
+      return styleAtRuleName === name && (hasPhpLikeMarkers(text) || hasDirectiveCallArgs(text));
+    }
+
+    if (isFrontendEventStyleAtName(name)) {
       return hasPhpLikeMarkers(text);
     }
   } else if (isFrontendEventStyleAtName(name)) {

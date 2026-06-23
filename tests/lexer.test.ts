@@ -28,6 +28,19 @@ describe("lexer — text", () => {
   it("user@example.com stays as text (not a directive)", () => {
     expect(types("user@example.com")).toEqual(["Text"]);
   });
+
+  it("directive-like email domains stay as text", () => {
+    for (const email of [
+      "test@if.com",
+      "test@foreach.dev",
+      "test@endforeach.test",
+      "test@php.net",
+      "first.last+tag@sub.exam-ple.co.uk",
+      "(test@exam-ple.com), test@example.com.",
+    ]) {
+      expect(tok(email)).toEqual([{ type: "Text", content: email }]);
+    }
+  });
 });
 
 
@@ -132,6 +145,13 @@ describe("lexer — blade directive", () => {
 
   it("email address treated as text (not directive)", () => {
     expect(types("user@example.com")).toEqual(["Text"]);
+  });
+
+  it("does not treat directive-looking email domains as directives", () => {
+    expect(types("test@if.com")).toEqual(["Text"]);
+    expect(types("test@foreach.dev")).toEqual(["Text"]);
+    expect(types("test@endforeach.test")).toEqual(["Text"]);
+    expect(types("test@php.net")).toEqual(["Text"]);
   });
 });
 
@@ -254,6 +274,22 @@ describe("lexer — HTML attributes", () => {
     const t = tok("<div x-data=something>");
     const vals = t.filter((x) => x.type === "AttributeValue");
     expect(vals[0].content).toBe("something");
+  });
+
+  it("keeps directive-like email domains inside attribute values", () => {
+    const input =
+      '<a href="mailto:test@exam-ple.com" data-email="test@if.com" data-alt=test@foreach.dev>';
+    const t = tok(input);
+    const vals = t
+      .filter((x) => x.type === "AttributeValue")
+      .map((x) => x.content);
+
+    expect(types(input)).not.toContain("Directive");
+    expect(vals).toEqual([
+      "mailto:test@exam-ple.com",
+      "test@if.com",
+      "test@foreach.dev",
+    ]);
   });
 
   it("scans blade echo inside attribute value", () => {
