@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import * as prettier from "prettier";
+import plugin from "../../src/index.js";
 import { format, formatEqual, formatWithPasses, wrapInDiv } from "../helpers.js";
 
 describe("html/embedded-blade-raw-content", () => {
@@ -34,6 +36,190 @@ describe("html/embedded-blade-raw-content", () => {
 `;
 
     await formatEqual(input, expected, phpSafe);
+  });
+
+  it("stably formats multiline Blade echoes inside JavaScript array spreads when PHP formatting is off", async () => {
+    const input = `<script>
+    let myArray = [...{{
+        Js::from($array)
+    }}];
+</script>
+`;
+
+    const expected = `<script>
+  let myArray = [...{{
+    Js::from($array)
+  }}];
+</script>
+`;
+
+    await formatEqual(input, expected, { bladePhpFormatting: "off" }, 4);
+  });
+
+  it("stably formats multiline Blade echoes inside JavaScript array spreads with PHP formatting", async () => {
+    const input = `<script>
+    let myArray = [...{{
+        Js::from($array)
+    }}];
+</script>
+`;
+
+    const expected = `<script>
+  let myArray = [...{{
+    Js::from(
+      $array,
+    )
+  }}];
+</script>
+`;
+
+    await formatEqual(input, expected, phpSafe, 4);
+  });
+
+  it("stably formats issue #160 with package defaults", async () => {
+    const input = `<script>
+    let myArray = [...{{
+        Js::from($array)
+    }}];
+</script>
+`;
+
+    const expected = `<script>
+  let myArray = [...{{
+    Js::from(
+      $array,
+    )
+  }}];
+</script>
+`;
+
+    const options = { parser: "blade" as const, plugins: [plugin] };
+
+    let output = await prettier.format(input, options);
+    expect(output).toBe(expected);
+
+    for (let pass = 2; pass <= 4; pass++) {
+      const next = await prettier.format(output, options);
+      expect(next, `not idempotent on pass ${pass}`).toBe(output);
+      output = next;
+    }
+  });
+
+  it("stably formats multiline echo variants in native script printing", async () => {
+    const snippet = `<script>
+const payload = {
+  plain: {{
+      Js::from($plain)
+  }},
+  raw: {!!
+      Js::from($raw)
+  !!},
+  triple: {{{
+      Js::from($triple)
+  }}},
+}
+</script>
+`;
+
+    for (const options of [
+      { bladePhpFormatting: "off" as const },
+      { bladePhpFormatting: "off" as const, useTabs: true, tabWidth: 2 },
+    ]) {
+      for (let depth = 0; depth <= 3; depth++) {
+        const output = await formatWithPasses(wrapInDiv(snippet, depth), options, {
+          passes: 4,
+          assertIdempotent: true,
+        });
+
+        expect(output).toMatch(/\{\{\n[ \t]+Js::from\(\$plain\)\n[ \t]+\}\}/u);
+        expect(output).toMatch(/\{!!\n[ \t]+Js::from\(\$raw\)\n[ \t]+!!\}/u);
+        expect(output).toMatch(/\{\{\{\n[ \t]+Js::from\(\$triple\)\n[ \t]+\}\}\}/u);
+      }
+    }
+  });
+
+  it("stably formats multiline echo variants in mixed script embedding", async () => {
+    const snippet = `<script>
+const payload = {
+  plain: {{
+      Js::from($plain)
+  }},
+  raw: {!!
+      Js::from($raw)
+  !!},
+  triple: {{{
+      Js::from($triple)
+  }}},
+}
+</script>
+`;
+
+    for (let depth = 0; depth <= 3; depth++) {
+      const output = await formatWithPasses(wrapInDiv(snippet, depth), phpSafe, {
+        passes: 4,
+        assertIdempotent: true,
+      });
+
+      expect(output).toMatch(/\{\{\n[ \t]+Js::from\(\n[ \t]+\$plain,?\n[ \t]+\)\n[ \t]+\}\}/u);
+      expect(output).toMatch(
+        /\{!!(?: Js::from\(\$raw\) |\n[ \t]+Js::from\(\n[ \t]+\$raw,?\n[ \t]+\)\n[ \t]+)!!\}/u,
+      );
+      expect(output).toMatch(/\{\{\{\n[ \t]+Js::from\(\n[ \t]+\$triple,?\n[ \t]+\)\n[ \t]+\}\}\}/u);
+    }
+  });
+
+  it("stably formats multiline echoes when script embedding falls back", async () => {
+    const snippet = `<script>
+const payload = {{
+      Js::from($payload)
+  }}
+%
+</script>
+`;
+
+    for (let depth = 0; depth <= 3; depth++) {
+      const output = await formatWithPasses(wrapInDiv(snippet, depth), phpSafe, {
+        passes: 4,
+        assertIdempotent: true,
+      });
+
+      expect(output).toContain("%");
+      expect(output).toMatch(/\{\{\n[ \t]+Js::from\(\$payload\)\n[ \t]+\}\}/u);
+    }
+  });
+
+  it("stably formats multiline echo variants in style value embedding", async () => {
+    const snippet = `<style>
+.card {
+  color: {{
+      theme_color()
+  }};
+  background: {!!
+      theme_background()
+  !!};
+  border-color: {{{
+      theme_border()
+  }}};
+}
+</style>
+`;
+
+    for (const options of [{ bladePhpFormatting: "off" as const }, phpSafe]) {
+      for (let depth = 0; depth <= 3; depth++) {
+        const output = await formatWithPasses(wrapInDiv(snippet, depth), options, {
+          passes: 4,
+          assertIdempotent: true,
+        });
+
+        expect(output).toMatch(/\{\{(?: theme_color\(\) |\n[ \t]+theme_color\(\)\n[ \t]+)\}\}/u);
+        expect(output).toMatch(
+          /\{!!(?: theme_background\(\) |\n[ \t]+theme_background\(\)\n[ \t]+)!!\}/u,
+        );
+        expect(output).toMatch(
+          /\{\{\{(?: theme_border\(\) |\n[ \t]+theme_border\(\)\n[ \t]+)\}\}\}/u,
+        );
+      }
+    }
   });
 
   it("stably formats script directive loops when bladePhpFormatting is off", async () => {
