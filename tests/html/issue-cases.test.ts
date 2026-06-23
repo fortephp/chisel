@@ -61,6 +61,38 @@ describe("html/issue-cases", () => {
     await formatEqual(input, expected);
   });
 
+  it("keeps template-contained optional tags stable inside deeper nesting", async () => {
+    const input = `<section>
+    <div class="panel">
+        <ul>
+            <li>
+                Outer
+                <template x-if="show">
+                    <li x-text="item"></li>
+                </template>
+            <li>Next
+        </ul>
+    </div>
+</section>
+`;
+
+    const expected = `<section>
+  <div class="panel">
+    <ul>
+      <li>
+        Outer
+        <template x-if="show">
+          <li x-text="item"></li>
+        </template>
+      <li>Next
+    </ul>
+  </div>
+</section>
+`;
+
+    await formatEqual(input, expected);
+  });
+
   it("keeps shared content aligned between conditionally split wrapper tags", async () => {
     const input = `<div class="relative inline-block">
     @unless ($unlinked)
@@ -86,6 +118,44 @@ describe("html/issue-cases", () => {
     </a>
   @endunless
 </div>
+`;
+
+    await formatEqual(input, expected);
+  });
+
+  it("keeps split wrapper recovery aligned inside deeper nesting", async () => {
+    const input = `<section>
+    <div class="stack">
+        <div class="relative inline-block">
+            @unless ($unlinked)
+                <a href="{{ $url }}">
+            @endunless
+
+            <flux:avatar src="{{ $src }}" />
+
+            @unless ($unlinked)
+                </a>
+            @endunless
+        </div>
+    </div>
+</section>
+`;
+
+    const expected = `<section>
+  <div class="stack">
+    <div class="relative inline-block">
+      @unless ($unlinked)
+        <a href="{{ $url }}">
+      @endunless
+
+      <flux:avatar src="{{ $src }}" />
+
+      @unless ($unlinked)
+        </a>
+      @endunless
+    </div>
+  </div>
+</section>
 `;
 
     await formatEqual(input, expected);
@@ -161,6 +231,79 @@ describe("html/issue-cases", () => {
 `;
 
     await formatEqual(input, expected);
+  });
+
+  it("collapses nested dynamic-attribute block content without changing inline padding rules", async () => {
+    const input = `<section>
+    <form>
+        <button type="submit" {{ $attributes }}>
+            {{ $slot }}
+        </button>
+        <span {{ $attributes }}>
+            {{ $label }}
+        </span>
+    </form>
+</section>
+`;
+
+    const expected = `<section>
+  <form>
+    <button type="submit" {{ $attributes }}>{{ $slot }}</button>
+    <span {{ $attributes }}> {{ $label }} </span>
+  </form>
+</section>
+`;
+
+    await formatEqual(input, expected);
+  });
+
+  it("formats dynamic-attribute button content consistently when attributes break", async () => {
+    const input = `<button type="submit" {{ $attributes }}>
+    {{ $slot }}
+</button>
+`;
+
+    const expected = `<button
+  type="submit"
+  {{ $attributes }}
+>
+  {{ $slot }}
+</button>
+`;
+
+    await formatEqual(input, expected, { singleAttributePerLine: true });
+  });
+
+  it("does not preserve one-sided line padding when single-attribute-per-line leaves a dynamic-attribute button flat", async () => {
+    const input = `<button {{ $attributes }}>
+    {{ $slot }}
+</button>
+`;
+
+    const expected = `<button {{ $attributes }}>{{ $slot }}</button>
+`;
+
+    await formatEqual(input, expected, { singleAttributePerLine: true });
+  });
+
+  it("collapses nested dynamic-attribute block content with single-attribute-per-line enabled", async () => {
+    const input = `<section>
+    <form>
+        <button {{ $attributes }}>
+            {{ $slot }}
+        </button>
+    </form>
+</section>
+`;
+
+    const expected = `<section>
+  <form>
+    <button {{ $attributes }}>{{ $slot }}</button>
+  </form>
+</section>
+`;
+
+    await formatEqual(input, expected, { singleAttributePerLine: true });
   });
 
   it("still preserves line padding for dynamic-attribute inline content", async () => {
