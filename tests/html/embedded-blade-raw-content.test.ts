@@ -94,6 +94,197 @@ let model = @entangle('foo')
     await formatEqual(input, expected);
   });
 
+  it("preserves closing tags when php blocks appear in script expressions", async () => {
+    const input = `<html>
+<body>
+<script>
+const brand = @php echo json_encode($brand); @endphp;
+</script>
+<p>Done</p>
+</body>
+</html>
+`;
+
+    const expected = `<html>
+  <body>
+    <script>
+      const brand = @php echo json_encode($brand); @endphp;
+    </script>
+    <p>Done</p>
+  </body>
+</html>
+`;
+
+    await formatEqual(input, expected);
+  });
+
+  it("formats inline php blocks inside style and script rawtext", async () => {
+    const input = `<style>
+.brand { color: @php echo strtoupper(  $brand  ); @endphp; }
+</style>
+<script>
+const brand = @php echo json_encode(  $brand  ); @endphp;
+</script>
+`;
+
+    const expected = `<style>
+  .brand {
+    color: @php echo strtoupper($brand); @endphp;
+  }
+</style>
+<script>
+  const brand = @php echo json_encode($brand); @endphp;
+</script>
+`;
+
+    await formatEqual(input, expected, phpSafe);
+  });
+
+  it("keeps rawtext php blocks idempotent across wrapper depths", async () => {
+    const snippet = `<style>
+.brand { color: @php echo strtoupper(  $brand  ); @endphp; }
+</style>
+<script>
+const brand = @php echo json_encode(  $brand  ); @endphp;
+</script>
+`;
+
+    for (let depth = 0; depth <= 6; depth++) {
+      const output = await formatWithPasses(wrapInDiv(snippet, depth), phpSafe, {
+        passes: 4,
+        assertIdempotent: true,
+      });
+
+      expect(output).toContain("color: @php echo strtoupper($brand); @endphp;");
+      expect(output).toContain("const brand = @php echo json_encode($brand); @endphp;");
+      expect(output).toContain("</style>");
+      expect(output).toContain("</script>");
+    }
+  });
+
+  it("keeps @endphp-like php string and comment content from closing rawtext php blocks", async () => {
+    const input = `<style>
+.brand { content: @php echo "@endphp"; /* @endphp */ echo $brand; @endphp; }
+</style>
+<script>
+const brand = @php echo "@endphp"; // @endphp
+echo json_encode($brand); @endphp;
+</script>
+`;
+
+    const output = await formatWithPasses(input, phpSafe, {
+      passes: 4,
+      assertIdempotent: true,
+    });
+
+    expect(output).toContain('echo "@endphp";');
+    expect(output).toContain("/* @endphp */");
+    expect(output).toContain("// @endphp");
+    expect(output).toContain("echo json_encode($brand);");
+    expect(output).toMatch(/@endphp;/u);
+    expect(output).toContain("</style>");
+    expect(output).toContain("</script>");
+  });
+
+  it("formats php directive args inside style and script rawtext", async () => {
+    const input = `<style>
+.brand { color: @php(  strtoupper(  $brand  )  ); }
+</style>
+<script>
+const brand = @php(  json_encode(  $brand  )  );
+</script>
+`;
+
+    const output = await formatWithPasses(input, phpSafe, {
+      passes: 4,
+      assertIdempotent: true,
+    });
+
+    expect(output).toContain("@php (strtoupper($brand))");
+    expect(output).toContain("@php (json_encode($brand))");
+    expect(output).toContain("</style>");
+    expect(output).toContain("</script>");
+  });
+
+  it("recovers unclosed no-args php rawtext blocks without swallowing following html", async () => {
+    const input = `<style>
+.brand { color: @php echo $brand; }
+</style>
+<script>
+const brand = @php echo $brand;
+</script>
+<p>after</p>
+`;
+
+    const output = await formatWithPasses(input, phpSafe, {
+      passes: 4,
+      assertIdempotent: true,
+    });
+
+    expect(output).toContain("@php echo $brand;");
+    expect(output).toContain("</style>");
+    expect(output).toContain("</script>");
+    expect(output).toContain("<p>after</p>");
+  });
+
+  it("recovers unclosed verbatim rawtext blocks without swallowing following html", async () => {
+    const input = `<style>
+@verbatim .brand { color: @{{ $brand }}; }
+</style>
+<script>
+@verbatim const brand = '{{ $brand }}';
+</script>
+<p>after</p>
+`;
+
+    const output = await formatWithPasses(
+      input,
+      {},
+      {
+        passes: 4,
+        assertIdempotent: true,
+      },
+    );
+
+    expect(output).toContain("@verbatim");
+    expect(output).toContain("@{{ $brand }}");
+    expect(output).toContain("'{{ $brand }}'");
+    expect(output).toContain("</style>");
+    expect(output).toContain("</script>");
+    expect(output).toContain("<p>after</p>");
+  });
+
+  it("keeps regular directive pairs in rawtext from swallowing following html", async () => {
+    const input = `<style>
+.brand { color: @if($brand) red @endif; }
+.loose { color: @if($brand) red; }
+</style>
+<script>
+@if($ready)
+const brand = @json($brand)
+@endif
+@foreach($items as $item) console.log($item);
+</script>
+<p>after</p>
+`;
+
+    const output = await formatWithPasses(
+      input,
+      {},
+      {
+        passes: 4,
+        assertIdempotent: true,
+      },
+    );
+
+    expect(output).toContain("@if");
+    expect(output).toContain("@endif");
+    expect(output).toContain("@foreach");
+    expect(output).toContain("</style>");
+    expect(output).toContain("</script>");
+    expect(output).toContain("<p>after</p>");
+  });
+
   it("keeps unknown script directive expressions stable when bladePhpFormatting is off", async () => {
     const input = `<script>const a = @foo($x)</script>
 `;
