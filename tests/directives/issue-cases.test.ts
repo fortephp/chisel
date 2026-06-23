@@ -30,8 +30,8 @@ class TestAstPath<T extends { children?: T[]; attrs?: T[] }> {
   ) {}
 
   map<R>(callback: (path: TestAstPath<T>, index: number) => R, key = "children"): R[] {
-    return this.getChildren(key).map(
-      (child, index) => callback(new TestAstPath(child, [...this.ancestors, child]), index),
+    return this.getChildren(key).map((child, index) =>
+      callback(new TestAstPath(child, [...this.ancestors, child]), index),
     );
   }
 
@@ -340,6 +340,85 @@ describe("directives/issue-cases", () => {
     await formatEqual(input, expected);
   });
 
+  it("#169: unclosed @error inside @section does not duplicate @endsection", async () => {
+    const input = [
+      "@section('content')",
+      "    <div>",
+      "        @error('body')",
+      '        <input name="z" />',
+      "    </div>",
+      "@endsection",
+      "",
+    ].join("\n");
+    const expected = [
+      "@section ('content')",
+      "  <div>",
+      "    @error ('body')",
+      '    <input name="z" />',
+      "  </div>",
+      "@endsection",
+      "",
+    ].join("\n");
+
+    await formatEqual(input, expected);
+  });
+
+  it("#169: unclosed @error inside @section respects configured indentation", async () => {
+    const input = [
+      "@section('content')",
+      "  <div>",
+      "    @error('body')",
+      '    <input name="z" />',
+      "  </div>",
+      "@endsection",
+      "",
+    ].join("\n");
+    const expected = [
+      "@section ('content')",
+      "    <div>",
+      "        @error ('body')",
+      '        <input name="z" />',
+      "    </div>",
+      "@endsection",
+      "",
+    ].join("\n");
+
+    await formatEqual(input, expected, { tabWidth: 4 });
+  });
+
+  it("#169: unclosed directives in script and style content do not borrow outer closers", async () => {
+    const input = [
+      "@section('content')",
+      "<script>",
+      "    @if( $ready && $user -> active )",
+      "    window.queue.push({ id: {{   $id   }} });",
+      "</script>",
+      "<style>",
+      "    @if($dark)",
+      "    .card{color:red}",
+      "</style>",
+      "@endsection",
+      "",
+    ].join("\n");
+    const expected = [
+      "@section ('content')",
+      "  <script>",
+      "    @if ($ready && $user->active)",
+      "    window.queue.push({ id: {{ $id }} });",
+      "  </script>",
+      "  <style>",
+      "    @if ($dark)",
+      "    .card {",
+      "      color: red;",
+      "    }",
+      "  </style>",
+      "@endsection",
+      "",
+    ].join("\n");
+
+    await formatEqual(input, expected, { bladePhpFormatting: "safe", singleQuote: true });
+  });
+
   it("#131: does not duplicate @endfields when @endsub trains an unrelated inline @sub", async () => {
     const input = [
       "@hasfield('list')",
@@ -355,7 +434,7 @@ describe("directives/issue-cases", () => {
       "@endoption",
       "",
       "@hassub('icon')",
-      '  <i class="fas fa-@sub(\'icon\')"></i>',
+      "  <i class=\"fas fa-@sub('icon')\"></i>",
       "@endsub",
       "",
     ].join("\n");
@@ -375,7 +454,7 @@ describe("directives/issue-cases", () => {
       "@endoption",
       "",
       "@hassub ('icon')",
-      '  <i class="fas fa-@sub(\'icon\')"></i>',
+      "  <i class=\"fas fa-@sub('icon')\"></i>",
       "@endsub",
       "",
     ].join("\n");
@@ -402,7 +481,7 @@ describe("directives/issue-cases", () => {
       "@endoption",
       "",
       "@hassub('icon')",
-      '  <i class="fas fa-@sub(\'icon\')"></i>',
+      "  <i class=\"fas fa-@sub('icon')\"></i>",
       "@endsub",
       "",
     ].join("\n");
@@ -421,7 +500,7 @@ describe("directives/issue-cases", () => {
       "@endoption",
       "",
       "@hassub ('icon')",
-      '<i class="fas fa-@sub(\'icon\')"></i>',
+      "<i class=\"fas fa-@sub('icon')\"></i>",
       "@endsub",
       "",
     ].join("\n");

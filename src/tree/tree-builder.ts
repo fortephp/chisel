@@ -1746,7 +1746,10 @@ export class TreeBuilder {
       return;
     }
 
-    if (this.directives.isPaired(directiveName)) {
+    if (
+      this.directives.isPaired(directiveName) &&
+      this.shouldOpenKnownPairedDirective(directiveName, startPos, tokenCount)
+    ) {
       this.openPairedDirective(directiveName, startPos, tokenCount);
       return;
     }
@@ -1771,9 +1774,9 @@ export class TreeBuilder {
     const { hasAdvisoryCondition, elseName, endName, openers } = family;
     const directiveIndex = this.getDirectiveIndex();
     const directiveStart = startPos + tokenCount;
-    const searchEnd = this.getDiscoveredDirectiveSearchEnd(openers, directiveStart);
 
     if (!hasAdvisoryCondition) {
+      const searchEnd = this.getDirectiveSearchEnd(openers, directiveStart, [endName]);
       if (!this.hasDirectiveInSearchRange(directiveIndex, endName, directiveStart, searchEnd)) {
         return false;
       }
@@ -1803,6 +1806,7 @@ export class TreeBuilder {
       ? genericConditionTerminators
       : [endName, ...genericConditionTerminators];
     const branches = [elseName, "else", "elseif"];
+    const searchEnd = this.getDirectiveSearchEnd(openers, directiveStart, terminators);
     if (
       !this.hasDirectiveInSearchRange(directiveIndex, endName, directiveStart, searchEnd) &&
       !this.hasDirectiveInSearchRange(directiveIndex, elseName, directiveStart, searchEnd) &&
@@ -1903,14 +1907,49 @@ export class TreeBuilder {
       : index.existsBetween(directiveName, minIdx, maxIdxExclusive);
   }
 
-  private getDiscoveredDirectiveSearchEnd(openerNames: string[], startIdx: number): number | null {
+  private shouldOpenKnownPairedDirective(
+    directiveName: string,
+    startPos: number,
+    tokenCount: number,
+  ): boolean {
+    const terminators = this.directives.getTerminators(directiveName);
+    return (
+      terminators.length > 0 &&
+      this.hasMatchingTerminatorInCurrentScope(directiveName, startPos + tokenCount, terminators)
+    );
+  }
+
+  private getDirectiveOpenersForTerminators(
+    directiveName: string,
+    terminators: readonly string[],
+  ): string[] {
+    const openers = this.directives.getOpenersForTerminators(terminators);
+    if (openers.length > 0) {
+      return openers;
+    }
+
+    return directiveName === "" ? [] : [directiveName.toLowerCase()];
+  }
+
+  private getDirectiveSearchEnd(
+    openerNames: string[],
+    startIdx: number,
+    candidateTerminators: readonly string[] = [],
+  ): number | null {
     let searchEnd = this.attributeRegionEnd;
     searchEnd = this.takeEarlierBoundary(searchEnd, this.findOpenElementBoundary(startIdx));
     searchEnd = this.takeEarlierBoundary(
       searchEnd,
-      this.findOpenDirectiveBoundary(openerNames, startIdx),
+      this.findOpenDirectiveBoundary(openerNames, candidateTerminators, startIdx),
     );
-    searchEnd = this.takeEarlierBoundary(searchEnd, this.findOpenSwitchBoundary(startIdx));
+    searchEnd = this.takeEarlierBoundary(
+      searchEnd,
+      this.findOpenConditionBoundary(openerNames, candidateTerminators, startIdx),
+    );
+    searchEnd = this.takeEarlierBoundary(
+      searchEnd,
+      this.findOpenSwitchBoundary(openerNames, candidateTerminators, startIdx),
+    );
 
     return searchEnd;
   }
@@ -1989,34 +2028,29 @@ export class TreeBuilder {
     return false;
   }
 
-  private findOpenDirectiveBoundary(openerNames: string[], startIdx: number): number | null {
+  private findOpenDirectiveBoundary(
+    openerNames: string[],
+    candidateTerminators: readonly string[],
+    startIdx: number,
+  ): number | null {
     if (this.openDirectives.length === 0) {
       return null;
     }
 
-    const index = this.getDirectiveIndex();
     let boundary: number | null = null;
 
     for (const frame of this.openDirectives) {
       if (frame.terminators.length === 0 && frame.branches.length === 0) continue;
-      const initialNesting = this.directiveFamiliesIntersect(frame.openers, openerNames) ? 1 : 0;
-      const boundaryIdx =
-        frame.branches.length > 0
-          ? index.findMatchingBoundaryForOpeners(
-              frame.openers,
-              startIdx,
-              frame.terminators,
-              frame.branches,
-              null,
-              initialNesting,
-            )
-          : index.findMatchingTerminatorForOpeners(
-              frame.openers,
-              startIdx,
-              frame.terminators,
-              null,
-              initialNesting,
-            );
+      const reservesCandidateCloser =
+        this.namesIntersect(frame.openers, openerNames) ||
+        this.namesIntersect(frame.terminators, candidateTerminators);
+      const boundaryIdx = this.findFrameBoundary(
+        frame.openers,
+        startIdx,
+        frame.terminators,
+        frame.branches,
+        reservesCandidateCloser,
+      );
       if (boundaryIdx !== null) {
         boundary = this.takeEarlierBoundary(boundary, boundaryIdx);
       }
@@ -2025,36 +2059,114 @@ export class TreeBuilder {
     return boundary;
   }
 
-  private directiveFamiliesIntersect(left: string[], right: string[]): boolean {
-    if (left[0] === right[0]) {
-      return true;
+  private namesIntersect(left: readonly string[], right: readonly string[]): boolean {
+    if (left.length === 0 || right.length === 0) {
+      return false;
     }
 
-    const leftSecond = left[1];
-    const rightSecond = right[1];
-    return (
-      leftSecond === right[0] ||
-      rightSecond === left[0] ||
-      (leftSecond !== undefined && leftSecond === rightSecond)
-    );
+    const rightSet = new Set(right);
+    return left.some((name) => rightSet.has(name));
   }
 
-  private findOpenSwitchBoundary(startIdx: number): number | null {
+  private findOpenConditionBoundary(
+    openerNames: string[],
+    candidateTerminators: readonly string[],
+    startIdx: number,
+  ): number | null {
+    if (this.openConditions.length === 0) {
+      return null;
+    }
+
+    const terminators = this.directives.getConditionTerminators();
+    const conditionOpeners = this.getDirectiveOpenersForTerminators("", terminators);
+    let boundary: number | null = null;
+
+    for (const frame of this.openConditions) {
+      const reservesCandidateCloser =
+        this.namesIntersect(conditionOpeners, openerNames) ||
+        this.namesIntersect(terminators, candidateTerminators);
+      const boundaryIdx = this.findFrameBoundary(
+        conditionOpeners,
+        startIdx,
+        terminators,
+        this.getConditionBoundaryBranches(frame.name),
+        reservesCandidateCloser,
+      );
+      if (boundaryIdx !== null) {
+        boundary = this.takeEarlierBoundary(boundary, boundaryIdx);
+      }
+    }
+
+    return boundary;
+  }
+
+  private getConditionBoundaryBranches(directiveName: string): string[] {
+    const terminators = new Set(this.directives.getConditionTerminators());
+    return this.directives
+      .getBranches(directiveName)
+      .filter((branchName) => !terminators.has(branchName));
+  }
+
+  private findOpenSwitchBoundary(
+    openerNames: string[],
+    candidateTerminators: readonly string[],
+    startIdx: number,
+  ): number | null {
     if (this.openSwitches.length === 0) {
       return null;
     }
 
-    const index = this.getDirectiveIndex();
     let boundary: number | null = null;
     for (const frame of this.openSwitches) {
-      const boundaries = [...this.directives.getSwitchBranches(frame.name), "endswitch"];
-      const boundaryIdx = index.findMatchingTerminator(frame.name, startIdx, boundaries);
+      const reservesCandidateCloser =
+        openerNames.includes(frame.name) ||
+        this.namesIntersect(["endswitch"], candidateTerminators);
+      const boundaryIdx = this.findFrameBoundary(
+        [frame.name],
+        startIdx,
+        ["endswitch"],
+        this.directives.getSwitchBranches(frame.name),
+        reservesCandidateCloser,
+      );
       if (boundaryIdx !== null) {
         boundary = this.takeEarlierBoundary(boundary, boundaryIdx);
       }
     }
 
     return boundary;
+  }
+
+  private findFrameBoundary(
+    openerNames: string[],
+    startIdx: number,
+    terminators: string[],
+    branches: string[],
+    reservesCandidateCloser: boolean,
+  ): number | null {
+    const index = this.getDirectiveIndex();
+    const find = (initialNesting: number): number | null =>
+      branches.length > 0
+        ? index.findMatchingBoundaryForOpeners(
+            openerNames,
+            startIdx,
+            terminators,
+            branches,
+            null,
+            initialNesting,
+          )
+        : index.findMatchingTerminatorForOpeners(
+            openerNames,
+            startIdx,
+            terminators,
+            null,
+            initialNesting,
+          );
+
+    if (!reservesCandidateCloser) {
+      return find(0);
+    }
+
+    return find(1) ?? find(0);
   }
 
   private isClosingDirective(directiveName: string): boolean {
@@ -2101,7 +2213,8 @@ export class TreeBuilder {
     const directive = this.directives.getDirective(directiveName);
     const terminators = frameMeta?.terminators ?? directive?.terminators ?? [];
     const branches = frameMeta?.branches ?? directive?.conditionLikeBranches ?? [];
-    const openers = frameMeta?.openers ?? [directiveName];
+    const openers =
+      frameMeta?.openers ?? this.getDirectiveOpenersForTerminators(directiveName, terminators);
     this.openDirectives.push({
       blockIdx,
       startDirectiveIdx,
@@ -2143,6 +2256,11 @@ export class TreeBuilder {
       return;
     }
 
+    while (this.openDirectives.length - 1 > matchedIdx) {
+      const unmatchedFrame = this.openDirectives.pop()!;
+      this.closeUnmatchedDirectiveAtBoundary(unmatchedFrame, startPos);
+    }
+
     const frame = this.openDirectives[matchedIdx];
     this.popIfTop(frame.startDirectiveIdx);
     this.popElementsToDepth(frame.elementStackBase + 1);
@@ -2177,22 +2295,33 @@ export class TreeBuilder {
       return;
     }
 
-    for (let i = this.openDirectives.length - 1; i >= matchedIdx; i--) {
-      const frame = this.openDirectives.pop()!;
-      const blockIdx = frame.blockIdx;
-
-      this.popElementsToDepth(frame.elementStackBase + 2);
-      this.popIfTop(frame.startDirectiveIdx);
-
-      this.addChild(createFlatNode(NodeKind.Directive, 0, startPos, tokenCount));
-
-      this.popIfTop(blockIdx);
-
-      const endPos = startPos + tokenCount;
-      this.nodes[blockIdx].tokenCount = endPos - this.nodes[blockIdx].tokenStart;
+    while (this.openDirectives.length - 1 > matchedIdx) {
+      const unmatchedFrame = this.openDirectives.pop()!;
+      this.closeUnmatchedDirectiveAtBoundary(unmatchedFrame, startPos);
     }
 
+    const frame = this.openDirectives.pop()!;
+    this.closeMatchedDirective(frame, startPos, tokenCount);
     this.pos += tokenCount;
+  }
+
+  private closeUnmatchedDirectiveAtBoundary(frame: DirectiveFrame, boundaryPos: number): void {
+    this.popElementsToDepth(frame.elementStackBase + 2);
+    this.popIfTop(frame.startDirectiveIdx);
+    this.popIfTop(frame.blockIdx);
+    this.nodes[frame.blockIdx].tokenCount = boundaryPos - this.nodes[frame.blockIdx].tokenStart;
+  }
+
+  private closeMatchedDirective(frame: DirectiveFrame, startPos: number, tokenCount: number): void {
+    this.popElementsToDepth(frame.elementStackBase + 2);
+    this.popIfTop(frame.startDirectiveIdx);
+
+    this.addChild(createFlatNode(NodeKind.Directive, 0, startPos, tokenCount));
+
+    this.popIfTop(frame.blockIdx);
+
+    const endPos = startPos + tokenCount;
+    this.nodes[frame.blockIdx].tokenCount = endPos - this.nodes[frame.blockIdx].tokenStart;
   }
 
   private createStandaloneDirective(
@@ -2262,11 +2391,27 @@ export class TreeBuilder {
       directive !== null &&
       directive.role === StructureRole.Opening
     ) {
-      this.openCondition(directiveName, startPos, tokenCount, argsContent);
+      if (this.shouldOpenKnownConditionDirective(directiveName, startPos, tokenCount)) {
+        this.openCondition(directiveName, startPos, tokenCount, argsContent);
+      } else {
+        this.createStandaloneDirective(directiveName, startPos, tokenCount, argsContent);
+      }
       return;
     }
 
     this.createStandaloneDirective(directiveName, startPos, tokenCount, argsContent);
+  }
+
+  private shouldOpenKnownConditionDirective(
+    directiveName: string,
+    startPos: number,
+    tokenCount: number,
+  ): boolean {
+    const terminators = this.directives.getConditionTerminators();
+    return (
+      terminators.length > 0 &&
+      this.hasMatchingTerminatorInCurrentScope(directiveName, startPos + tokenCount, terminators)
+    );
   }
 
   private tryHandleConditionDirectiveWithOpenDirective(
@@ -2451,10 +2596,24 @@ export class TreeBuilder {
     } else if (this.openSwitches.length > 0 && this.directives.isSwitchBranch(directiveName)) {
       this.openSwitchCase(directiveName, startPos, tokenCount, argsContent);
     } else if (this.directives.isSwitch(directiveName)) {
-      this.openSwitch(directiveName, startPos, tokenCount, argsContent);
+      if (this.shouldOpenSwitch(directiveName, startPos, tokenCount)) {
+        this.openSwitch(directiveName, startPos, tokenCount, argsContent);
+      } else {
+        this.createStandaloneDirective(directiveName, startPos, tokenCount, argsContent);
+      }
     } else {
       this.createStandaloneDirective(directiveName, startPos, tokenCount, argsContent);
     }
+  }
+
+  private shouldOpenSwitch(directiveName: string, startPos: number, tokenCount: number): boolean {
+    const directiveStart = startPos + tokenCount;
+    return this.hasMatchingTerminatorInCurrentScope(
+      directiveName,
+      directiveStart,
+      ["endswitch"],
+      [directiveName],
+    );
   }
 
   private openSwitch(
@@ -2618,7 +2777,7 @@ export class TreeBuilder {
   ): boolean {
     // @lang with no args or array args -> paired
     if (argsContent === null || startsWithArray(unwrapParentheses(argsContent))) {
-      return this.hasMatchingTerminator(directiveName, startPos + tokenCount);
+      return this.hasMatchingTerminatorInCurrentScope(directiveName, startPos + tokenCount);
     }
     return false;
   }
@@ -2634,7 +2793,7 @@ export class TreeBuilder {
       const argCount = countArguments(unwrapParentheses(argsContent));
       if (argCount >= 2) return false;
     }
-    return this.hasMatchingTerminator(directiveName, startPos + tokenCount);
+    return this.hasMatchingTerminatorInCurrentScope(directiveName, startPos + tokenCount);
   }
 
   private shouldPairNoArgumentsBlock(
@@ -2647,7 +2806,7 @@ export class TreeBuilder {
       return false;
     }
 
-    return this.hasMatchingTerminator(directiveName, startPos + tokenCount);
+    return this.hasMatchingTerminatorInCurrentScope(directiveName, startPos + tokenCount);
   }
 
   private shouldPairSingleArgumentBlock(
@@ -2660,16 +2819,30 @@ export class TreeBuilder {
       return false;
     }
 
-    return this.hasMatchingTerminator(directiveName, startPos + tokenCount);
+    return this.hasMatchingTerminatorInCurrentScope(directiveName, startPos + tokenCount);
   }
 
-  private hasMatchingTerminator(directiveName: string, afterPos: number): boolean {
+  private hasMatchingTerminatorInCurrentScope(
+    directiveName: string,
+    afterPos: number,
+    terminatorsOverride?: readonly string[],
+    openerNames?: string[],
+  ): boolean {
+    const terminators = terminatorsOverride ?? this.directives.getTerminators(directiveName);
+    const searchTerminators = terminators.length > 0 ? terminators : [`end${directiveName}`];
+    const searchOpeners =
+      openerNames ?? this.getDirectiveOpenersForTerminators(directiveName, searchTerminators);
+    const searchEnd = this.getDirectiveSearchEnd(searchOpeners, afterPos, searchTerminators);
     const directiveIndex = this.getDirectiveIndex();
-    const terminators = this.directives.getTerminators(directiveName);
-    if (terminators.length === 0) {
-      terminators.push("end" + directiveName);
-    }
-    return directiveIndex.findMatchingTerminator(directiveName, afterPos, terminators) !== null;
+
+    return (
+      directiveIndex.findMatchingTerminatorForOpeners(
+        searchOpeners,
+        afterPos,
+        [...searchTerminators],
+        searchEnd,
+      ) !== null
+    );
   }
 
   private closeRemainingDirectives(): void {
