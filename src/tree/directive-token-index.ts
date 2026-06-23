@@ -1,10 +1,14 @@
 import { TokenType, type Token } from "../lexer/types.js";
+import { checkDirectiveArgsFast } from "./directive-helper.js";
+
+type BranchBoundaryPredicate = (tokenIdx: number, name: string) => boolean;
 
 export class DirectiveTokenIndex {
   private byName = new Map<string, number[]>();
   private allPositions: number[] = [];
   private allNames: string[] = [];
   private nameSetCache = new Map<string, Set<string>>();
+  private hasArgsByPosition = new Map<number, boolean>();
 
   constructor(tokens: readonly Token[], source: string) {
     for (let i = 0; i < tokens.length; i++) {
@@ -12,6 +16,7 @@ export class DirectiveTokenIndex {
       const name = this.extractName(tokens[i], source);
       this.allPositions.push(i);
       this.allNames.push(name);
+      this.hasArgsByPosition.set(i, checkDirectiveArgsFast(tokens, i + 1, tokens.length).hasArgs);
       let positions = this.byName.get(name);
       if (!positions) {
         positions = [];
@@ -50,6 +55,10 @@ export class DirectiveTokenIndex {
     if (firstIdx === null) return false;
 
     return positions[firstIdx] < maxIdxExclusive;
+  }
+
+  hasArgs(position: number): boolean {
+    return this.hasArgsByPosition.get(position) === true;
   }
 
   findMatchingTerminator(
@@ -136,6 +145,7 @@ export class DirectiveTokenIndex {
     branchNames: string[] = [],
     maxIdxExclusive: number | null = null,
     initialNesting = 0,
+    shouldCountBranch?: BranchBoundaryPredicate,
   ): number | null {
     const firstIdx = this.binarySearchGte(this.allPositions, startIdx);
     if (firstIdx === null) return null;
@@ -158,7 +168,10 @@ export class DirectiveTokenIndex {
 
       if (branchSet.has(name)) {
         if (nesting === 0) {
-          return this.allPositions[i];
+          const position = this.allPositions[i];
+          if (!shouldCountBranch || shouldCountBranch(position, name)) {
+            return position;
+          }
         }
         continue;
       }

@@ -18,6 +18,19 @@ describe("php/blocks", () => {
     });
   });
 
+  it("preserves orphan @endphp after standalone @php(...) shorthand", async () => {
+    const input = `@php($value = "x")
+@endphp
+<span>x</span>
+`;
+    const expected = `@php ($value = "x")
+@endphp
+<span>x</span>
+`;
+
+    await formatEqual(input, expected);
+  });
+
   it("formats @php blocks in safe mode", async () => {
     const input = "@php $x=1+2; @endphp\n";
     const expected = "@php $x = 1 + 2; @endphp\n";

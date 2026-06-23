@@ -419,6 +419,367 @@ describe("directives/issue-cases", () => {
     await formatEqual(input, expected, { bladePhpFormatting: "safe", singleQuote: true });
   });
 
+  it("#176: nested standalone @empty branches preserve all branch content", async () => {
+    const input = [
+      "<div>",
+      "    @if ($step)",
+      "        <div>verify</div>",
+      "    @else",
+      '        <div class="a">',
+      '            <div class="b">',
+      "                @empty($qr)",
+      "                    <div>loading</div>",
+      "                @else",
+      "                    <div>{!! $qr !!}</div>",
+      "                @endempty",
+      "            </div>",
+      "        </div>",
+      "",
+      '        <div class="c">',
+      '            <div class="d">',
+      "                @empty($key)",
+      "                    <div>loading2</div>",
+      "                @else",
+      "                    <div>{{ $key }}</div>",
+      "                    <div>copy</div>",
+      "                @endempty",
+      "            </div>",
+      "        </div>",
+      "    @endif",
+      "</div>",
+      "",
+    ].join("\n");
+
+    const expected = [
+      "<div>",
+      "  @if ($step)",
+      "    <div>verify</div>",
+      "  @else",
+      '    <div class="a">',
+      '      <div class="b">',
+      "        @empty ($qr)",
+      "          <div>loading</div>",
+      "        @else",
+      "          <div>{!! $qr !!}</div>",
+      "        @endempty",
+      "      </div>",
+      "    </div>",
+      '    <div class="c">',
+      '      <div class="d">',
+      "        @empty ($key)",
+      "          <div>loading2</div>",
+      "        @else",
+      "          <div>{{ $key }}</div>",
+      "          <div>copy</div>",
+      "        @endempty",
+      "      </div>",
+      "    </div>",
+      "  @endif",
+      "</div>",
+      "",
+    ].join("\n");
+
+    await formatEqual(input, expected);
+  });
+
+  it("#176: standalone @empty formats as a conditional with and without @else", async () => {
+    const input = [
+      "@empty($records)",
+      "    <p>No records.</p>",
+      "@else",
+      "    <p>Has records.</p>",
+      "@endempty",
+      "",
+      "@empty($notifications)",
+      "    <p>No notifications.</p>",
+      "@endempty",
+      "",
+    ].join("\n");
+
+    const expected = [
+      "@empty ($records)",
+      "  <p>No records.</p>",
+      "@else",
+      "  <p>Has records.</p>",
+      "@endempty",
+      "",
+      "@empty ($notifications)",
+      "  <p>No notifications.</p>",
+      "@endempty",
+      "",
+    ].join("\n");
+
+    await formatEqual(input, expected);
+  });
+
+  it("#176: standalone @empty indentation follows configured tabWidth", async () => {
+    const input = [
+      "<div>",
+      "@if($show)",
+      "@empty($records)",
+      "<span>Missing</span>",
+      "@else",
+      "<span>Found</span>",
+      "@endempty",
+      "@endif",
+      "</div>",
+      "",
+    ].join("\n");
+
+    const expected = [
+      "<div>",
+      "    @if ($show)",
+      "        @empty ($records)",
+      "            <span>Missing</span>",
+      "        @else",
+      "            <span>Found</span>",
+      "        @endempty",
+      "    @endif",
+      "</div>",
+      "",
+    ].join("\n");
+
+    await formatEqual(input, expected, { tabWidth: 4 });
+  });
+
+  it("#176: @forelse @empty branch remains distinct from standalone @empty", async () => {
+    const input = [
+      "@if($show)",
+      "    @forelse($items as $item)",
+      "        <span>{{ $item }}</span>",
+      "    @empty",
+      "        <span>No items.</span>",
+      "    @endforelse",
+      "@else",
+      "    @empty($fallback)",
+      "        <span>No fallback.</span>",
+      "    @else",
+      "        <span>{{ $fallback }}</span>",
+      "    @endempty",
+      "@endif",
+      "",
+    ].join("\n");
+
+    const expected = [
+      "@if ($show)",
+      "  @forelse ($items as $item)",
+      "    <span>{{ $item }}</span>",
+      "  @empty",
+      "    <span>No items.</span>",
+      "  @endforelse",
+      "@else",
+      "  @empty ($fallback)",
+      "    <span>No fallback.</span>",
+      "  @else",
+      "    <span>{{ $fallback }}</span>",
+      "  @endempty",
+      "@endif",
+      "",
+    ].join("\n");
+
+    await formatEqual(input, expected);
+  });
+
+  it("#176: @empty with args inside @forelse body is not treated as the @forelse branch", async () => {
+    const input = [
+      "@forelse($items as $item)",
+      "    @empty($item->name)",
+      "        <span>No name.</span>",
+      "    @else",
+      "        <span>{{ $item->name }}</span>",
+      "    @endempty",
+      "@empty",
+      "    <span>No items.</span>",
+      "@endforelse",
+      "",
+    ].join("\n");
+
+    const expected = [
+      "@forelse ($items as $item)",
+      "  @empty ($item->name)",
+      "    <span>No name.</span>",
+      "  @else",
+      "    <span>{{ $item->name }}</span>",
+      "  @endempty",
+      "@empty",
+      "  <span>No items.</span>",
+      "@endforelse",
+      "",
+    ].join("\n");
+
+    await formatEqual(input, expected);
+  });
+
+  it("#176 fuzz regression: @if inside @empty keeps its own @else branch", async () => {
+    const input = [
+      "@empty($records)",
+      "    @if($ready)",
+      "        <span>Ready</span>",
+      "    @else",
+      "        <span>Waiting</span>",
+      "    @endif",
+      "@else",
+      "    <span>Fallback</span>",
+      "@endempty",
+      "",
+    ].join("\n");
+
+    const expected = [
+      "@empty ($records)",
+      "  @if ($ready)",
+      "    <span>Ready</span>",
+      "  @else",
+      "    <span>Waiting</span>",
+      "  @endif",
+      "@else",
+      "  <span>Fallback</span>",
+      "@endempty",
+      "",
+    ].join("\n");
+
+    await formatEqual(input, expected);
+  });
+
+  it("#176 fuzz regression: nested @empty openers do not steal @forelse or @unless branches", async () => {
+    const input = [
+      "@forelse($items as $item)",
+      "    @empty($first)",
+      "        @empty($second)",
+      "            <span>Second missing</span>",
+      "        @else",
+      "            <span>Second present</span>",
+      "        @endempty",
+      "    @else",
+      "        <span>First present</span>",
+      "    @endempty",
+      "    @unless($skip)",
+      "        @forelse($primary as $value)",
+      "            <span>{{ $value }}</span>",
+      "        @empty",
+      "            <span>No primary</span>",
+      "        @endforelse",
+      "    @else",
+      "        @forelse($fallback as $value)",
+      "            <span>{{ $value }}</span>",
+      "        @empty",
+      "            <span>No fallback</span>",
+      "        @endforelse",
+      "    @endunless",
+      "@empty",
+      "    <span>No items</span>",
+      "@endforelse",
+      "",
+    ].join("\n");
+
+    const expected = [
+      "@forelse ($items as $item)",
+      "  @empty ($first)",
+      "    @empty ($second)",
+      "      <span>Second missing</span>",
+      "    @else",
+      "      <span>Second present</span>",
+      "    @endempty",
+      "  @else",
+      "    <span>First present</span>",
+      "  @endempty",
+      "  @unless ($skip)",
+      "    @forelse ($primary as $value)",
+      "      <span>{{ $value }}</span>",
+      "    @empty",
+      "      <span>No primary</span>",
+      "    @endforelse",
+      "  @else",
+      "    @forelse ($fallback as $value)",
+      "      <span>{{ $value }}</span>",
+      "    @empty",
+      "      <span>No fallback</span>",
+      "    @endforelse",
+      "  @endunless",
+      "@empty",
+      "  <span>No items</span>",
+      "@endforelse",
+      "",
+    ].join("\n");
+
+    await formatEqual(input, expected);
+  });
+
+  it("#176: paired directives with @else branches keep their own branch inside outer conditions", async () => {
+    const input = [
+      "@if($show)",
+      "    @error('email')",
+      "        <span>{{ $message }}</span>",
+      "    @else",
+      "        <span>Valid</span>",
+      "    @enderror",
+      "@else",
+      "    <span>Hidden</span>",
+      "@endif",
+      "",
+    ].join("\n");
+
+    const expected = [
+      "@if ($show)",
+      "  @error ('email')",
+      "    <span>{{ $message }}</span>",
+      "  @else",
+      "    <span>Valid</span>",
+      "  @enderror",
+      "@else",
+      "  <span>Hidden</span>",
+      "@endif",
+      "",
+    ].join("\n");
+
+    await formatEqual(input, expected);
+  });
+
+  it("#176: Laravel @pushIf supports @elsePush branches", async () => {
+    const input = [
+      "@pushIf($needsPrimary, 'scripts')",
+      '    <script src="/primary.js"></script>',
+      "@elsePushIf($needsFallback, 'scripts')",
+      '    <script src="/fallback.js"></script>',
+      "@elsePush('scripts')",
+      '    <script src="/default.js"></script>',
+      "@endPushIf",
+      "",
+    ].join("\n");
+
+    const expected = [
+      "@pushIf ($needsPrimary, 'scripts')",
+      '  <script src="/primary.js"></script>',
+      "@elsePushIf ($needsFallback, 'scripts')",
+      '  <script src="/fallback.js"></script>',
+      "@elsePush ('scripts')",
+      '  <script src="/default.js"></script>',
+      "@endPushIf",
+      "",
+    ].join("\n");
+
+    await formatEqual(input, expected);
+  });
+
+  it("#176: Laravel @fonts helper is recognized as standalone", async () => {
+    const input = [
+      "@fonts(['Inter', 'Roboto'])",
+      "<main>",
+      "    <p>Content</p>",
+      "</main>",
+      "",
+    ].join("\n");
+
+    const expected = [
+      "@fonts (['Inter', 'Roboto'])",
+      "<main>",
+      "  <p>Content</p>",
+      "</main>",
+      "",
+    ].join("\n");
+
+    await formatEqual(input, expected);
+  });
+
   it("#131: does not duplicate @endfields when @endsub trains an unrelated inline @sub", async () => {
     const input = [
       "@hasfield('list')",

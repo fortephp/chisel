@@ -37,6 +37,11 @@ function findByKind(result: BuildResult, kind: number): FlatNode[] {
 function indexOf(result: BuildResult, node: FlatNode): number {
   return result.nodes.indexOf(node);
 }
+
+function directiveName(result: BuildResult, node: FlatNode): string {
+  const token = result.tokens[node.tokenStart];
+  return result.source.slice(token.start, token.end).replace(/^@/u, "").toLowerCase();
+}
 describe("text", () => {
   it("parses plain text", () => {
     const r = parse("Hello world");
@@ -380,6 +385,152 @@ describe("forelse", () => {
     const blocks = findByKind(r, NodeKind.DirectiveBlock);
     expect(blocks).toHaveLength(1);
   });
+
+  it("parses standalone @empty..@else..@endempty as its own block", () => {
+    const r = parse("@empty($records) Missing @else Found @endempty");
+    const blocks = findByKind(r, NodeKind.DirectiveBlock);
+    expect(blocks).toHaveLength(1);
+
+    const directives = childrenOf(r, indexOf(r, blocks[0])).filter(
+      (node) => node.kind === NodeKind.Directive,
+    );
+    expect(directives.map((node) => directiveName(r, node))).toEqual(["empty", "else", "endempty"]);
+  });
+
+  it("keeps @empty($value) inside @forelse body separate from the @forelse @empty branch", () => {
+    const r = parse(
+      "@forelse($items as $item) @empty($item->name) Missing @endempty @empty None @endforelse",
+    );
+    const blocks = findByKind(r, NodeKind.DirectiveBlock);
+    expect(blocks).toHaveLength(2);
+
+    const outerDirectives = childrenOf(r, indexOf(r, blocks[0])).filter(
+      (node) => node.kind === NodeKind.Directive,
+    );
+    expect(outerDirectives.map((node) => directiveName(r, node))).toEqual([
+      "forelse",
+      "empty",
+      "endforelse",
+    ]);
+
+    const nestedBlocks = childrenOf(r, indexOf(r, outerDirectives[0])).filter(
+      (node) => node.kind === NodeKind.DirectiveBlock,
+    );
+    expect(nestedBlocks).toHaveLength(1);
+    const nestedDirectives = childrenOf(r, indexOf(r, nestedBlocks[0])).filter(
+      (node) => node.kind === NodeKind.Directive,
+    );
+    expect(nestedDirectives.map((node) => directiveName(r, node))).toEqual(["empty", "endempty"]);
+  });
+
+  it("keeps nested @empty($value) openers separate from the @forelse @empty branch", () => {
+    const r = parse(
+      "@forelse($items as $item) @empty($first) @empty($second) A @else B @endempty @else C @endempty @empty None @endforelse",
+    );
+    const blocks = findByKind(r, NodeKind.DirectiveBlock);
+    expect(blocks).toHaveLength(3);
+
+    const outerDirectives = childrenOf(r, indexOf(r, blocks[0])).filter(
+      (node) => node.kind === NodeKind.Directive,
+    );
+    expect(outerDirectives.map((node) => directiveName(r, node))).toEqual([
+      "forelse",
+      "empty",
+      "endforelse",
+    ]);
+
+    const firstEmptyBlocks = childrenOf(r, indexOf(r, outerDirectives[0])).filter(
+      (node) => node.kind === NodeKind.DirectiveBlock,
+    );
+    expect(firstEmptyBlocks).toHaveLength(1);
+    const firstEmptyDirectives = childrenOf(r, indexOf(r, firstEmptyBlocks[0])).filter(
+      (node) => node.kind === NodeKind.Directive,
+    );
+    expect(firstEmptyDirectives.map((node) => directiveName(r, node))).toEqual([
+      "empty",
+      "else",
+      "endempty",
+    ]);
+
+    const secondEmptyBlocks = childrenOf(r, indexOf(r, firstEmptyDirectives[0])).filter(
+      (node) => node.kind === NodeKind.DirectiveBlock,
+    );
+    expect(secondEmptyBlocks).toHaveLength(1);
+    const secondEmptyDirectives = childrenOf(r, indexOf(r, secondEmptyBlocks[0])).filter(
+      (node) => node.kind === NodeKind.Directive,
+    );
+    expect(secondEmptyDirectives.map((node) => directiveName(r, node))).toEqual([
+      "empty",
+      "else",
+      "endempty",
+    ]);
+  });
+
+  it("keeps @if branches inside @empty separate from the @empty @else branch", () => {
+    const r = parse("@empty($records) @if($ready) A @else B @endif @else fallback @endempty");
+    const blocks = findByKind(r, NodeKind.DirectiveBlock);
+    expect(blocks).toHaveLength(2);
+
+    const outerDirectives = childrenOf(r, indexOf(r, blocks[0])).filter(
+      (node) => node.kind === NodeKind.Directive,
+    );
+    expect(outerDirectives.map((node) => directiveName(r, node))).toEqual([
+      "empty",
+      "else",
+      "endempty",
+    ]);
+
+    const nestedBlocks = childrenOf(r, indexOf(r, outerDirectives[0])).filter(
+      (node) => node.kind === NodeKind.DirectiveBlock,
+    );
+    expect(nestedBlocks).toHaveLength(1);
+    const nestedDirectives = childrenOf(r, indexOf(r, nestedBlocks[0])).filter(
+      (node) => node.kind === NodeKind.Directive,
+    );
+    expect(nestedDirectives.map((node) => directiveName(r, node))).toEqual(["if", "else", "endif"]);
+  });
+
+  it("keeps custom arg-bearing branch-name openers separate from parent branch markers", () => {
+    const directives = Directives.withDefaults([
+      {
+        name: "outer",
+        args: true,
+        structure: { role: "open", terminators: "endouter", branches: "branch" },
+      },
+      { name: "endouter", args: false, structure: { role: "close" } },
+      {
+        name: "branch",
+        args: true,
+        structure: { role: "open", terminators: "endbranch", branches: "else" },
+      },
+      { name: "endbranch", args: false, structure: { role: "close" } },
+    ]);
+    const r = parse("@outer($x) @branch($y) A @else B @endbranch @branch C @endouter", directives);
+    const blocks = findByKind(r, NodeKind.DirectiveBlock);
+    expect(blocks).toHaveLength(2);
+
+    const outerDirectives = childrenOf(r, indexOf(r, blocks[0])).filter(
+      (node) => node.kind === NodeKind.Directive,
+    );
+    expect(outerDirectives.map((node) => directiveName(r, node))).toEqual([
+      "outer",
+      "branch",
+      "endouter",
+    ]);
+
+    const nestedBlocks = childrenOf(r, indexOf(r, outerDirectives[0])).filter(
+      (node) => node.kind === NodeKind.DirectiveBlock,
+    );
+    expect(nestedBlocks).toHaveLength(1);
+    const nestedDirectives = childrenOf(r, indexOf(r, nestedBlocks[0])).filter(
+      (node) => node.kind === NodeKind.Directive,
+    );
+    expect(nestedDirectives.map((node) => directiveName(r, node))).toEqual([
+      "branch",
+      "else",
+      "endbranch",
+    ]);
+  });
 });
 describe("nested directives", () => {
   it("handles @if inside @foreach", () => {
@@ -388,6 +539,24 @@ describe("nested directives", () => {
     );
     const blocks = findByKind(r, NodeKind.DirectiveBlock);
     expect(blocks.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("handles @pushIf with @elsePush branches", () => {
+    const r = parse(
+      "@pushIf($primary, 'scripts') A @elsePushIf($fallback, 'scripts') B @elsePush('scripts') C @endPushIf",
+    );
+    const blocks = findByKind(r, NodeKind.DirectiveBlock);
+    expect(blocks).toHaveLength(1);
+
+    const directives = childrenOf(r, indexOf(r, blocks[0])).filter(
+      (node) => node.kind === NodeKind.Directive,
+    );
+    expect(directives.map((node) => directiveName(r, node))).toEqual([
+      "pushif",
+      "elsepushif",
+      "elsepush",
+      "endpushif",
+    ]);
   });
 
   it("closing tag cannot cross directive boundary", () => {

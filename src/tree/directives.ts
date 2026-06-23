@@ -534,6 +534,12 @@ const BUNDLED_DIRECTIVES: unknown[][] = [
     },
     { name: "endIsset", args: false, structure: { role: "close", condition: true } },
     {
+      name: "empty",
+      args: true,
+      structure: { role: "open", terminators: "endempty", branches: "else" },
+    },
+    { name: "endempty", args: false, structure: { role: "close" } },
+    {
       name: "once",
       args: true,
       structure: { role: "open", condition: true, terminators: "elseif,endOnce" },
@@ -542,12 +548,25 @@ const BUNDLED_DIRECTIVES: unknown[][] = [
     {
       name: "pushIf",
       args: true,
-      structure: { role: "open", condition: true, terminators: "elsePushIf,elseif,endPushIf" },
+      structure: {
+        role: "open",
+        condition: true,
+        terminators: "elsePushIf,elsePush,elseif,endPushIf",
+      },
     },
     {
       name: "elsePushIf",
       args: true,
-      structure: { role: "mixed", condition: true, terminators: "elsePushIf,elseif,endPushIf" },
+      structure: {
+        role: "mixed",
+        condition: true,
+        terminators: "elsePushIf,elsePush,elseif,endPushIf",
+      },
+    },
+    {
+      name: "elsePush",
+      args: true,
+      structure: { role: "mixed", condition: true, terminators: "endPushIf" },
     },
     { name: "endPushIf", args: false, structure: { role: "close", condition: true } },
     {
@@ -555,9 +574,6 @@ const BUNDLED_DIRECTIVES: unknown[][] = [
       args: true,
       structure: { role: "open", condition: true, terminators: "elseif,endif" },
     },
-    // Note: @empty/@endempty as standalone condition is intentionally NOT bundled here.
-    // @empty is primarily used as a branch marker inside @forelse (via forelse.branches).
-    // Standalone @empty($var)...@endempty can be discovered via training.
   ],
   // auth.json
   [
@@ -876,6 +892,7 @@ const BUNDLED_DIRECTIVES: unknown[][] = [
     { name: "json", args: true },
     { name: "vite", args: true },
     { name: "viteReactRefresh", args: false },
+    { name: "fonts", args: true },
     { name: "bool", args: true },
     { name: "class", args: true },
     { name: "style", args: true },
