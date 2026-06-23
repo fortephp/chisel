@@ -8,6 +8,7 @@ export type DirectiveBlockStyle = "preserve" | "inline-if-short" | "multiline";
 export type BladeBlankLinesMode = "preserve" | "always";
 export type EchoSpacingMode = "preserve" | "space" | "tight";
 export type SlotClosingTagMode = "canonical" | "preserve";
+export type VoidElementSlashMode = "always" | "never" | "preserve";
 
 const directiveCaseMapCache = new WeakMap<object, Map<string, string>>();
 const directiveArgSpacingOverridesCache = new WeakMap<
@@ -290,6 +291,12 @@ export function getSlotClosingTagMode(options: Options): SlotClosingTagMode {
   const value = (options as Record<string, unknown>).bladeSlotClosingTag;
   if (value === "preserve") return "preserve";
   return "canonical";
+}
+
+export function getVoidElementSlashMode(options: Options): VoidElementSlashMode {
+  const value = (options as Record<string, unknown>).bladeVoidElementSlash;
+  if (value === "never" || value === "preserve") return value;
+  return "always";
 }
 
 export function shouldInsertOptionalClosingTags(options: Options): boolean {

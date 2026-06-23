@@ -132,6 +132,19 @@ const pluginOptionScenarios: Record<string, () => Promise<void>> = {
     expect(canonical).toContain("</x-slot:[items]>");
     expect(preserve).toContain("</x-slot>");
   },
+  bladeVoidElementSlash: async () => {
+    const input = '<div><meta charset="utf-8"><input type="text" /></div>\n';
+    const always = await format(input, { bladeVoidElementSlash: "always" });
+    const never = await format(input, { bladeVoidElementSlash: "never" });
+    const preserve = await format(input, { bladeVoidElementSlash: "preserve" });
+
+    expect(always).toContain('<meta charset="utf-8" />');
+    expect(always).toContain('<input type="text" />');
+    expect(never).toContain('<meta charset="utf-8">');
+    expect(never).toContain('<input type="text">');
+    expect(preserve).toContain('<meta charset="utf-8">');
+    expect(preserve).toContain('<input type="text" />');
+  },
   bladeInlineIntentElements: async () => {
     const input =
       '<svg><path d="M0 0 L10 10 L20 20 L30 30 L40 40" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" fill="none" vector-effect="non-scaling-stroke" /></svg>\n';
@@ -400,6 +413,7 @@ describe("options/option-definitions/blade-options", () => {
     expect(declaredPluginOptions.bladeSyntaxPlugins.default).toEqual([
       { value: ["statamic"] },
     ]);
+    expect(declaredPluginOptions.bladeVoidElementSlash.default).toBe("always");
     expect(declaredPluginOptions.bladeComponentPrefixes.default).toEqual([
       { value: ["x", "s", "statamic", "flux", "livewire", "native"] },
     ]);

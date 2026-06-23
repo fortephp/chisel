@@ -205,6 +205,26 @@ const options: Record<string, SupportOption> = {
       },
     ],
   },
+  bladeVoidElementSlash: {
+    category: "Blade",
+    type: "choice",
+    default: "always",
+    description: "How to print the self-closing slash on standard HTML void elements.",
+    choices: [
+      {
+        value: "always",
+        description: "Always print standard HTML void elements with a slash, e.g. <meta />.",
+      },
+      {
+        value: "never",
+        description: "Never print a slash on standard HTML void elements, e.g. <meta>.",
+      },
+      {
+        value: "preserve",
+        description: "Preserve whether standard HTML void elements used a source slash.",
+      },
+    ],
+  },
   bladeInlineIntentElements: {
     category: "Blade",
     type: "string",
