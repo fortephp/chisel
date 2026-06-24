@@ -299,6 +299,23 @@ describe("lexer — HTML attributes", () => {
     expect(t.some((x) => x.type === "EchoStart")).toBe(true);
   });
 
+  it("does not duplicate attribute-name text before non-Blade braces in recovery", () => {
+    const input = `<section data-broken='MAL_LEXER_BRIDGE>
+const tpl_3 = \`MAL_LEXER_3 \${@json($value_3)} @verbatim @endverbatim\`;
+.MAL_LEXER_STYLE{content:"@endif MAL_LEXER_STYLE";color:{{ $color }};background:url("{{ asset('MAL_LEXER.png') }}")}
+</style>
+const tpl_6 = \`MAL_LEXER_6 \${@json($value_6)} @verbatim @endverbatim\`;
+const tpl_8 = \`MAL_LEXER_8 \${@json($value_8)} @verbatim @endverbatim\`;`;
+    const { tokens } = tokenize(input);
+    const dollarIndex = input.lastIndexOf("${");
+    const dollarTokens = tokens.filter(
+      (token) => token.start === dollarIndex && token.end === dollarIndex + 1,
+    );
+
+    expect(dollarTokens.map((token) => tokenLabel(token.type))).toEqual(["AttributeName"]);
+    expect(dollarTokens.map((token) => tokenContent(input, token))).toEqual(["$"]);
+  });
+
   it("scans blade directive as attribute", () => {
     const ty = types('<div @if($show) class="foo" @endif>');
     expect(ty).toContain("Directive");

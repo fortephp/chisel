@@ -25,6 +25,7 @@ import {
 } from "./tag.js";
 import { printChildren } from "./children.js";
 import { replaceEndOfLine } from "./doc-utils.js";
+import { hasSwallowedTagSyntaxInOpeningSource } from "../malformed-tags.js";
 
 const {
   group,
@@ -212,12 +213,11 @@ export function printElement(
 }
 
 function shouldPreserveMalformedOpeningTag(node: WrappedNode, options: Options): boolean {
-  if (
-    node.kind !== NodeKind.Element ||
-    node.openTagEndOffset > node.start ||
-    node.hasClosingTag ||
-    node.isSelfClosing
-  ) {
+  if (node.kind !== NodeKind.Element || node.hasClosingTag || node.isSelfClosing) {
+    return false;
+  }
+
+  if (node.openTagEndOffset > node.start && !hasSwallowedTagSyntaxInOpeningTag(node)) {
     return false;
   }
 
@@ -280,7 +280,25 @@ function hasComplexMalformedOpeningSyntax(node: WrappedNode): boolean {
 }
 
 function printMalformedOpeningTag(node: WrappedNode): string {
-  return node.source.slice(node.start, node.end).replace(/\s+$/u, "");
+  return node.source.slice(node.start, maxDescendantEnd(node)).replace(/\s+$/u, "");
+}
+
+function hasSwallowedTagSyntaxInOpeningTag(node: WrappedNode): boolean {
+  if (node.openTagEndOffset <= node.start) {
+    return false;
+  }
+
+  const openingSource = node.source.slice(node.start + 1, node.openTagEndOffset);
+  return hasSwallowedTagSyntaxInOpeningSource(openingSource);
+}
+
+function maxDescendantEnd(node: WrappedNode): number {
+  let end = node.end;
+  for (const child of node.children) {
+    end = Math.max(end, maxDescendantEnd(child));
+  }
+
+  return end;
 }
 
 function flattenInlineIntentChildren(childrenDoc: Doc): Doc {

@@ -541,8 +541,8 @@ const BUNDLED_DIRECTIVES: unknown[][] = [
     { name: "endempty", args: false, structure: { role: "close" } },
     {
       name: "once",
-      args: true,
-      structure: { role: "open", condition: true, terminators: "elseif,endOnce" },
+      args: { allowed: true },
+      structure: { role: "open", condition: true, terminators: "elseif,endif,endOnce" },
     },
     { name: "endOnce", args: false, structure: { role: "close", condition: true } },
     {
@@ -570,7 +570,7 @@ const BUNDLED_DIRECTIVES: unknown[][] = [
     },
     { name: "endPushIf", args: false, structure: { role: "close", condition: true } },
     {
-      name: "hasstack",
+      name: "hasStack",
       args: true,
       structure: { role: "open", condition: true, terminators: "elseif,endif" },
     },
@@ -579,12 +579,12 @@ const BUNDLED_DIRECTIVES: unknown[][] = [
   [
     {
       name: "auth",
-      args: true,
+      args: { allowed: true },
       structure: { role: "open", condition: true, terminators: "elseauth,endauth" },
     },
     {
       name: "elseauth",
-      args: true,
+      args: { allowed: true },
       structure: { role: "mixed", condition: true, terminators: "elseauth,endauth" },
     },
     { name: "endauth", args: false, structure: { role: "close", condition: true } },
@@ -593,12 +593,12 @@ const BUNDLED_DIRECTIVES: unknown[][] = [
   [
     {
       name: "guest",
-      args: true,
+      args: { allowed: true },
       structure: { role: "open", condition: true, terminators: "elseguest,endguest" },
     },
     {
       name: "elseguest",
-      args: true,
+      args: { allowed: true },
       structure: { role: "mixed", condition: true, terminators: "elseguest,endguest" },
     },
     { name: "endguest", args: false, structure: { role: "close", condition: true } },
@@ -687,7 +687,7 @@ const BUNDLED_DIRECTIVES: unknown[][] = [
     { name: "default", args: false, structure: { role: "branch", parent: "switch" } },
     {
       name: "break",
-      args: false,
+      args: { allowed: true },
       structure: { role: "branch_terminator", parent: "switch", optional: true },
     },
     { name: "endSwitch", args: false, structure: { role: "close" } },
@@ -723,7 +723,8 @@ const BUNDLED_DIRECTIVES: unknown[][] = [
   ],
   // layouts.json
   [
-    { name: "extends,extendsFirst,parent,yield", args: true },
+    { name: "extends,extendsFirst,yield", args: true },
+    { name: "parent", args: false },
     {
       name: "section",
       args: true,
@@ -890,9 +891,9 @@ const BUNDLED_DIRECTIVES: unknown[][] = [
     { name: "dump", args: true },
     { name: "js", args: true },
     { name: "json", args: true },
-    { name: "vite", args: true },
+    { name: "vite", args: { allowed: true } },
     { name: "viteReactRefresh", args: false },
-    { name: "fonts", args: true },
+    { name: "fonts", args: { allowed: true } },
     { name: "bool", args: true },
     { name: "class", args: true },
     { name: "style", args: true },
@@ -902,7 +903,7 @@ const BUNDLED_DIRECTIVES: unknown[][] = [
     { name: "required", args: true },
     { name: "readonly", args: true },
     { name: "old", args: true },
-    { name: "use" },
+    { name: "use", args: true },
     { name: "unset", args: true },
     { name: "inertia", args: true },
     { name: "inertiaHead" },
@@ -910,7 +911,7 @@ const BUNDLED_DIRECTIVES: unknown[][] = [
     { name: "svg", args: true },
     { name: "paddleJS", args: false },
     { name: "continue" },
-    { name: "php", args: false, structure: { role: "open", terminators: "endphp" } },
+    { name: "php", args: { allowed: true }, structure: { role: "open", terminators: "endphp" } },
     { name: "endphp", args: false, structure: { role: "close" } },
   ],
 ];

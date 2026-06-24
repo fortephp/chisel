@@ -1862,12 +1862,10 @@ export class Lexer {
 
       // Blade echo in attr name: class-{{ $thing }}
       if (byte === "{" && !this.verbatim && !this.phpBlock && !this.phpTag) {
-        if (this.pos > start) {
-          this.emit(tokenType, start, this.pos);
-        }
-
-        const savedPos = this.pos;
         if (this.peekAhead(1) === "{") {
+          if (this.pos > start) {
+            this.emit(tokenType, start, this.pos);
+          }
           if (this.peekAhead(2) === "-" && this.peekAhead(3) === "-") {
             const savedState = this.state;
             this.returnState = State.Data;
@@ -1885,6 +1883,9 @@ export class Lexer {
           this.scanAttrName();
           return;
         } else if (this.peekAhead(1) === "!" && this.peekAhead(2) === "!") {
+          if (this.pos > start) {
+            this.emit(tokenType, start, this.pos);
+          }
           const savedState = this.state;
           this.returnState = State.Data;
           this.scanRawEcho();
@@ -1892,8 +1893,8 @@ export class Lexer {
           this.scanAttrName();
           return;
         }
-        // Not a Blade echo. Restore and break
-        this.pos = savedPos;
+        // Not a Blade echo. Let the normal attr-name flush below emit the
+        // prefix once; emitting before this point duplicates recovery text.
         break;
       }
 

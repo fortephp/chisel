@@ -83,6 +83,18 @@ describe("html/alpine", () => {
     await formatEqual(input, expected);
   });
 
+  it("keeps structural Blade-looking Alpine event code stable", async () => {
+    const input = `<button @click="@if($ready) submit(@json($payload)); @else fallback = \`literal @if\`; @endif"></button>
+`;
+
+    const expected = `<button
+  @click="@if($ready) submit(@json($payload)); @else fallback = \`literal @if\`; @endif"
+></button>
+`;
+
+    await formatEqual(input, expected, { bladePhpFormatting: "safe" });
+  });
+
   it("skips Alpine directive formatting when value contains Blade raw echo", async () => {
     const input = `<div x-data="{!! $raw !!}"></div>\n`;
 
