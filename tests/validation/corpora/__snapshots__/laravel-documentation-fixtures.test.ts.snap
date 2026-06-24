@@ -211,6 +211,7 @@ exports[`validation/laravel-documentation-fixtures > formats docs_23.blade.php (
   <div class="pull-right">
     @yield ('navigation')
   </div>
+
   <div class="clearfix"></div>
 @endif
 "
@@ -279,7 +280,9 @@ exports[`validation/laravel-documentation-fixtures > formats docs_29.blade.php (
   @if ($user->type == 1)
     @continue
   @endif
+
   <li>{{ $user->name }}</li>
+
   @if ($user->number == 5)
     @break
   @endif
@@ -290,6 +293,7 @@ exports[`validation/laravel-documentation-fixtures > formats docs_29.blade.php (
 exports[`validation/laravel-documentation-fixtures > formats docs_30.blade.php (snapshot + idempotent + no-loss) 1`] = `
 "@foreach ($users as $user)
   @continue ($user->type == 1)
+
   <li>{{ $user->name }}</li>
   @break ($user->number == 5)
 @endforeach
@@ -301,9 +305,11 @@ exports[`validation/laravel-documentation-fixtures > formats docs_31.blade.php (
   @if ($loop->first)
     This is the first iteration.
   @endif
+
   @if ($loop->last)
     This is the last iteration.
   @endif
+
   <p>This is user {{ $user->id }}</p>
 @endforeach
 "

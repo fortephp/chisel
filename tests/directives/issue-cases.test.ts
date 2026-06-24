@@ -235,6 +235,38 @@ describe("directives/issue-cases", () => {
     });
   });
 
+  // Issue #180: preserve authored body gap after @php before another directive.
+  it("#180: @php block preserves following blank line inside control directive", async () => {
+    const input = [
+      "@foreach ($widgets as $widget)",
+      "    @php",
+      "        $widgetClass = $normalizeWidgetClass($widget);",
+      "    @endphp",
+      "",
+      "    @livewire($widgetClass, ['widget' => $widget])",
+      "@endforeach",
+      "",
+    ].join("\n");
+
+    const expected = [
+      "@foreach ($widgets as $widget)",
+      "  @php",
+      "    $widgetClass = $normalizeWidgetClass($widget);",
+      "  @endphp",
+      "",
+      "  @livewire($widgetClass, ['widget' => $widget])",
+      "@endforeach",
+      "",
+    ].join("\n");
+
+    await formatEqual(input, expected, {
+      plugins: [bladePlugin, phpPlugin],
+      bladePhpFormatting: "safe",
+      bladeDirectiveArgSpacing: "preserve",
+      singleQuote: true,
+    });
+  });
+
   // Issue #119: custom component with @class does not error
   it("#119: x-component with @class in attributes does not error", async () => {
     const input = [
@@ -330,6 +362,7 @@ describe("directives/issue-cases", () => {
       "  @if ($form->picture !== '')",
       '    <meta property="og:image" content="{{ $form->picture_url }}" />',
       "  @endif",
+      "",
       "  @if ($form->picture !== '')",
       '    <meta property="twitter:image" content="{{ $form->picture_url }}" />',
       "  @endif",
@@ -464,6 +497,7 @@ describe("directives/issue-cases", () => {
       "        @endempty",
       "      </div>",
       "    </div>",
+      "",
       '    <div class="c">',
       '      <div class="d">',
       "        @empty ($key)",

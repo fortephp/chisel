@@ -608,7 +608,9 @@ Placeholder text.
         href="coffee.htm"
       />
     </map>
+
     <area width="100" height="100" />
+
     <base href="https://www.w3schools.com/" target="_blank" />
     <area width="100" height="100" />
     Something.
@@ -878,11 +880,13 @@ exports[`validation/conformance/formatter-cases > formats directives__009 1`] = 
     <div>
       @pair
         <p>Test one.</p>
+
         <div>
           @pair
             <div>
               @pair
                 <p>Test two.</p>
+
                 <div>
                   @pair
                     <div>
@@ -2101,6 +2105,7 @@ exports[`validation/conformance/formatter-cases > formats ignore__001 1`] = `
 
 @unless ($true)
   <p>World</p>
+
   <x-icon @class([$icon, 'pe-2'])>
     <div>
       <p>test</p>
@@ -2280,6 +2285,7 @@ exports[`validation/conformance/formatter-cases > formats ignore__002 1`] = `
 
 @unless ($true)
   <p>World</p>
+
   <x-icon @class([$icon, "pe-2"])>
     <div>
       <p>test</p>
@@ -3103,6 +3109,7 @@ exports[`validation/conformance/formatter-cases > formats switch__001 1`] = `
 exports[`validation/conformance/formatter-cases > formats switch__002 1`] = `
 "@switch ($i)
   {{-- Leading node test. --}}
+
   <p>Test {{ $title }}</p>
   @case (1)
     First case...
@@ -3120,6 +3127,7 @@ exports[`validation/conformance/formatter-cases > formats switch__002 1`] = `
 exports[`validation/conformance/formatter-cases > formats switch__003 1`] = `
 "@switch ($i)
   {{-- Leading node test. --}}
+
   <p>Test {{ $title }}</p>
   @case (1)
     <p>First case...</p>
@@ -3177,6 +3185,7 @@ exports[`validation/conformance/formatter-cases > formats switch__007 1`] = `
 exports[`validation/conformance/formatter-cases > formats switch__008 1`] = `
 "@switch ($i)
   {{-- Leading node test. --}}
+
   <p>Test {{ $title }}</p>
   @case (1)
     <p>First case...</p>
@@ -3278,10 +3287,12 @@ exports[`validation/conformance/formatter-cases > formats templates__002 1`] = `
 
 @section ('content')
   <h1>About Us</h1>
+
   <p>
     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis convallis
     mauris mauris, id volutpat diam feugiat nec.
   </p>
+
   @include ('partials.team')
 @endsection
 "
@@ -3294,6 +3305,7 @@ exports[`validation/conformance/formatter-cases > formats templates__003 1`] = `
 
 @section ('content')
   <h1>User List</h1>
+
   @if ($users->isEmpty())
     <p>No users found.</p>
   @else
@@ -3314,6 +3326,7 @@ exports[`validation/conformance/formatter-cases > formats templates__004 1`] = `
 
 @section ('content')
   <h1>Contact Us</h1>
+
   <form method="POST" action="{{ route('contact.submit') }}">
     @csrf
 
@@ -3339,8 +3352,10 @@ exports[`validation/conformance/formatter-cases > formats templates__005 1`] = `
 
 @section ('content')
   <h1>Product Categories</h1>
+
   @foreach ($categories as $category)
     <h2>{{ $category->name }}</h2>
+
     @if ($category->products->isEmpty())
       <p>No products in this category.</p>
     @else
@@ -3362,8 +3377,10 @@ exports[`validation/conformance/formatter-cases > formats templates__006 1`] = `
 
 @section ('content')
   <h1>Dashboard</h1>
+
   @if (Auth::check())
     <p>Welcome back, {{ Auth::user()->name }}!</p>
+
     @if (Auth::user()->isAdmin())
       <p>You have <a href="">admin</a> privileges.</p>
     @else
@@ -3383,6 +3400,7 @@ exports[`validation/conformance/formatter-cases > formats templates__007 1`] = `
 
 @section ('content')
   <h1>Dashboard</h1>
+
   @if (Auth::check())
     @if (Auth::user()->isAdmin())
     @else
@@ -3400,6 +3418,7 @@ exports[`validation/conformance/formatter-cases > formats templates__008 1`] = `
 
 @section ('content')
   <h1>Notification</h1>
+
   @switch ($notification->type)
     @case ('message')
       <p>You have a new message from {{ $notification->from }}.</p>

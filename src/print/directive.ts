@@ -1,7 +1,7 @@
 import type { AstPath, Doc, Options } from "prettier";
 import { doc } from "prettier";
 import type { WrappedNode } from "../types.js";
-import { NodeKind } from "../tree/types.js";
+import { NodeKind, StructureRole } from "../tree/types.js";
 import { TokenType } from "../lexer/types.js";
 import {
   formatDirectiveNameToken,
@@ -42,15 +42,6 @@ type BranchNodeKind = NodeKind.Directive | NodeKind.PhpTag;
 function isBranchNode(node: WrappedNode): node is WrappedNode & { kind: BranchNodeKind } {
   return node.kind === NodeKind.Directive || node.kind === NodeKind.PhpTag;
 }
-
-const BODY_BLANK_LINE_LAYOUT_DIRECTIVES = new Set([
-  "include",
-  "includeif",
-  "includewhen",
-  "includeunless",
-  "includefirst",
-  "each",
-]);
 
 function isIgnoreRangeNode(node: WrappedNode): boolean {
   return node.kind === NodeKind.IgnoreRange;
@@ -757,24 +748,21 @@ function printBetweenLine(prev: WrappedNode, next: WrappedNode): Doc {
 }
 
 function shouldPreserveBodyBlankLine(prev: WrappedNode, next: WrappedNode): boolean {
-  // Nested branch markers such as @default/@else inside directive bodies already
-  // have dedicated separator handling. Preserving source blank lines here causes
-  // pass-2 duplication when an outer mode like `always` inserts its own branch gap.
-  if (isBranchNode(next) && next.children.length > 0) {
+  // Branch markers such as @else/@elseif/@case/@default already have dedicated
+  // separator handling. Preserving source blank lines here causes pass-2
+  // duplication when an outer mode like `always` inserts its own branch gap.
+  if (isBranchBoundaryDirective(prev) || isBranchBoundaryDirective(next)) {
     return false;
   }
 
-  // Keep preserve-mode scope narrow: retain authored gaps only for layout-like
-  // boundaries such as `@include` before a container component. This matches
-  // the expected section-body use case without changing general directive-body
-  // spacing across the validation corpus.
-  return (
-    (isBodyLayoutDirective(prev) && isContainerLikeBodySibling(next)) ||
-    (isBodyLayoutDirective(next) && isContainerLikeBodySibling(prev))
-  );
+  if (isMeaningfulBodySibling(prev) && isMeaningfulBodySibling(next)) {
+    return true;
+  }
+
+  return false;
 }
 
-function isBodyLayoutDirective(node: WrappedNode): boolean {
+function isBranchBoundaryDirective(node: WrappedNode): boolean {
   if (node.kind !== NodeKind.Directive) {
     return false;
   }
@@ -784,21 +772,24 @@ function isBodyLayoutDirective(node: WrappedNode): boolean {
     return false;
   }
 
-  return BODY_BLANK_LINE_LAYOUT_DIRECTIVES.has(name);
-}
-
-function isContainerLikeBodySibling(node: WrappedNode): boolean {
-  if (isTextLikeNode(node)) {
+  const directive = node.buildResult.directives?.getDirective(name);
+  if (!directive) {
     return false;
   }
 
-  if (node.kind === NodeKind.Element) {
-    return node.children.length > 0 && isComponentLikeElement(node);
-  }
-
-  return node.children.length > 0;
+  return (
+    directive.role === StructureRole.Mixed ||
+    directive.role === StructureRole.Closing ||
+    directive.isSwitchBranch ||
+    directive.isSwitchTerminator ||
+    directive.isConditionalClose
+  );
 }
 
-function isComponentLikeElement(node: WrappedNode): boolean {
-  return node.tagName.includes("-") || node.fullName.includes(":");
+function isMeaningfulBodySibling(node: WrappedNode): boolean {
+  if (node.kind === NodeKind.NonOutput) {
+    return false;
+  }
+
+  return !(node.kind === NodeKind.Text && fullText(node).trim().length === 0);
 }
