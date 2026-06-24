@@ -794,8 +794,8 @@ const STYLE_DIRECTIVE_BRANCHES = new Set(["else", "elseif", "empty", "case", "de
 const STYLE_RAW_BLADE_FALLBACK_RE =
   /(?:\{\{|\{!!|@(?:elseif|endif|endunless|endisset|endempty|endfor|endforeach|endforelse|endwhile|endswitch|endphp|endverbatim|foreach|forelse|case|default)\b)/u;
 
-const LARGE_STYLE_EMBED_CHAR_THRESHOLD = 20_000;
-const LARGE_STYLE_EMBED_LINE_THRESHOLD = 300;
+export const LARGE_STYLE_EMBED_CHAR_THRESHOLD = 20_000;
+export const LARGE_STYLE_EMBED_LINE_THRESHOLD = 300;
 const UNSTABLE_STYLE_ESCAPED_SLASH_LITERAL = /\/[^\r\n;{}]*\\\s*\/\s*\//u;
 
 function getDirectiveNameFromLine(trimmedLine: string): string | null {
@@ -1956,6 +1956,10 @@ export function shouldUseMixedRawContentEmbedding(node: WrappedNode, options: Op
 }
 
 export function shouldUseUnparsedRawContentEmbedding(node: WrappedNode, options: Options): boolean {
+  if (shouldBypassStyleParserEmbedding(node, options)) {
+    return true;
+  }
+
   const range = getElementContentRange(node);
   const constructs = collectLeafConstructs(node, range.start, range.end);
   const hasMultilineEcho = constructs.some(isMultilineEchoConstruct);

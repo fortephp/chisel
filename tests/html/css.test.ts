@@ -2,9 +2,104 @@
 // Snapshot-derived HTML compatibility cases.
 
 import { describe, it } from "vitest";
+import {
+  LARGE_STYLE_EMBED_CHAR_THRESHOLD,
+  LARGE_STYLE_EMBED_LINE_THRESHOLD,
+} from "../../src/print/embed/raw-content.js";
 import { formatEqual } from "../helpers.js";
 
 describe("html/css", () => {
+  it("formats short CSS property rules through CSS embedding", async () => {
+    const input = `<style>
+@property --tw-ring-color{syntax:"<color>";inherits:false;initial-value:#0000}
+@property --tw-content{syntax:"*";inherits:false;initial-value:""}
+.ring { color: var(--tw-ring-color); }
+</style>
+`;
+    const expected = `<style>
+  @property --tw-ring-color {
+    syntax: "<color>";
+    inherits: false;
+    initial-value: #0000;
+  }
+  @property --tw-content {
+    syntax: "*";
+    inherits: false;
+    initial-value: "";
+  }
+  .ring {
+    color: var(--tw-ring-color);
+  }
+</style>
+`;
+
+    await formatEqual(input, expected);
+  });
+
+  it("preserves large inline style at-rules without treating them as Blade directives", async () => {
+    const utilityRuleCount = LARGE_STYLE_EMBED_LINE_THRESHOLD + 2;
+    const utilityRules = Array.from(
+      { length: utilityRuleCount },
+      (_, index) => `.u-${index}{color:red;}`,
+    ).join("\n");
+    const indentedUtilityRules = utilityRules
+      .split("\n")
+      .map((line) => `  ${line}`)
+      .join("\n");
+
+    const input = `<style>
+@property --tw-ring-color { syntax: "*"; inherits: false; initial-value: #0000; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (min-width: 768px) { .md\\:block { display: block; } }
+${utilityRules}
+</style>
+`;
+
+    const expected = `<style>
+  @property --tw-ring-color { syntax: "*"; inherits: false; initial-value: #0000; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (min-width: 768px) { .md\\:block { display: block; } }
+${indentedUtilityRules}
+</style>
+`;
+
+    await formatEqual(input, expected);
+  });
+
+  it("preserves byte-large inline style at-rules without falling back to Blade directive printing", async () => {
+    const banner = `/* ${"x".repeat(LARGE_STYLE_EMBED_CHAR_THRESHOLD + 1)} */`;
+    const input = `<style>
+${banner}
+@property --tw-ring-color { syntax: "*"; inherits: false; initial-value: #0000; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+`;
+
+    const expected = `<style>
+  ${banner}
+  @property --tw-ring-color { syntax: "*"; inherits: false; initial-value: #0000; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+`;
+
+    await formatEqual(input, expected);
+  });
+
+  it("preserves style at-rules when CSS parser embedding is bypassed", async () => {
+    const input = `<style>
+@property --tw-ring-color { syntax: "*"; }
+.icon { content: "/foo\\ //"; }
+</style>
+`;
+    const expected = `<style>
+  @property --tw-ring-color { syntax: "*"; }
+  .icon { content: "/foo\\ //"; }
+</style>
+`;
+
+    await formatEqual(input, expected);
+  });
+
   it("empty.html", async () => {
     const input = `<style></style>
 `;

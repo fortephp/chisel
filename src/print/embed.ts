@@ -78,13 +78,9 @@ function handleElementEmbed(path: AstPath<WrappedNode>, options: Options): Embed
   // Our permissive lexer may split style content into directives/text;
   // in that case, embed from raw element content for parity.
   if (isScriptLikeTag(node, options)) {
-    if (shouldBypassStyleParserEmbedding(node, options)) {
-      return null;
-    }
-
     if (shouldUseUnparsedRawContentEmbedding(node, options)) {
       return (_textToDoc: (text: string, options: Options) => Promise<Doc>, print: EmbedPrint) => {
-        return embedUnparsedRawContentElement(path as AstPath<WrappedNode>, options, print);
+        return embedUnparsedRawContentElement(path, options, print);
       };
     }
 
