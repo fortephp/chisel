@@ -240,6 +240,36 @@ var slot = "{{ $thing }}-MAL_G"
     await formatEqual(input, expected);
   });
 
+  it("keeps fuzz-regressed script condition branches inside @empty from escaping raw content", async () => {
+    const input = `@empty($records)
+<script>
+@if($ready)
+const marker = "ready";
+@else
+const marker = "{{ $fallback }}";
+@endif
+</script>
+@else
+<span>Fallback</span>
+@endempty
+`;
+
+    const expected = `@empty ($records)
+  <script>
+    @if ($ready)
+    const marker = "ready";
+    @else
+    const marker = "{{ $fallback }}";
+    @endif
+  </script>
+@else
+  <span>Fallback</span>
+@endempty
+`;
+
+    await formatEqual(input, expected);
+  });
+
   it("stably formats script @json expressions when bladePhpFormatting is off", async () => {
     const input = `<script>const data = @json(["x","y"])</script>
 `;

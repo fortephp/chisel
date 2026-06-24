@@ -178,6 +178,10 @@ function renderDirectiveTokens(node: WrappedNode, options: Options): string {
   }
 
   if (!sawDirectiveToken) {
+    if (tc === 1 && br.tokens[start]?.type === TokenType.PhpBlockEnd) {
+      return fullText(node);
+    }
+
     return "";
   }
 

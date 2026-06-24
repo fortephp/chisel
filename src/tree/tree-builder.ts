@@ -1728,6 +1728,13 @@ export class TreeBuilder {
     let tokenCount = 1;
     const argsInfo = checkDirectiveArgsFast(this.tokens, this.pos + 1, this.tokens.length);
     tokenCount += argsInfo.consumed;
+    const argsContent =
+      argsInfo.argsTokenIndex >= 0
+        ? this.source.slice(
+            this.tokens[argsInfo.argsTokenIndex].start,
+            this.tokens[argsInfo.argsTokenIndex].end,
+          )
+        : null;
 
     if (this.isSwitchRelatedDirective(directiveName)) {
       this.processSwitchDirective(directiveName, startPos, tokenCount, null);
@@ -1735,23 +1742,16 @@ export class TreeBuilder {
     }
 
     if (this.directives.isConditionalPair(directiveName)) {
-      const argsContent =
-        argsInfo.argsTokenIndex >= 0
-          ? this.source.slice(
-              this.tokens[argsInfo.argsTokenIndex].start,
-              this.tokens[argsInfo.argsTokenIndex].end,
-            )
-          : null;
       this.processConditionalPairingDirective(directiveName, startPos, tokenCount, argsContent);
       return;
     }
 
     if (this.isConditionRelatedDirective(directiveName)) {
-      this.processConditionDirective(directiveName, startPos, tokenCount, null);
+      this.processConditionDirective(directiveName, startPos, tokenCount, argsContent);
       return;
     }
 
-    if (this.isBranchOfOpenDirective(directiveName)) {
+    if (this.shouldTreatAsBranchOfOpenDirective(directiveName, argsContent)) {
       this.openDirectiveBranch(directiveName, startPos, tokenCount, null);
       return;
     }
@@ -1826,7 +1826,7 @@ export class TreeBuilder {
       ? genericConditionTerminators
       : [endName, ...genericConditionTerminators];
     const branches = [elseName, "else", "elseif"];
-    const searchEnd = this.getDirectiveSearchEnd(openers, directiveStart, terminators);
+    const searchEnd = this.getDirectiveSearchEnd(openers, directiveStart, terminators, branches);
     if (
       !this.hasDirectiveInSearchRange(directiveIndex, endName, directiveStart, searchEnd) &&
       !this.hasDirectiveInSearchRange(directiveIndex, elseName, directiveStart, searchEnd) &&
@@ -1932,10 +1932,18 @@ export class TreeBuilder {
     startPos: number,
     tokenCount: number,
   ): boolean {
-    const terminators = this.directives.getTerminators(directiveName);
+    const directive = this.directives.getDirective(directiveName);
+    const terminators = directive?.terminators ?? [];
+    const branches = directive?.conditionLikeBranches ?? [];
     return (
       terminators.length > 0 &&
-      this.hasMatchingTerminatorInCurrentScope(directiveName, startPos + tokenCount, terminators)
+      this.hasMatchingTerminatorInCurrentScope(
+        directiveName,
+        startPos + tokenCount,
+        terminators,
+        undefined,
+        branches,
+      )
     );
   }
 
@@ -1955,16 +1963,27 @@ export class TreeBuilder {
     openerNames: string[],
     startIdx: number,
     candidateTerminators: readonly string[] = [],
+    candidateBranches: readonly string[] = [],
   ): number | null {
     let searchEnd = this.attributeRegionEnd;
     searchEnd = this.takeEarlierBoundary(searchEnd, this.findOpenElementBoundary(startIdx));
     searchEnd = this.takeEarlierBoundary(
       searchEnd,
-      this.findOpenDirectiveBoundary(openerNames, candidateTerminators, startIdx),
+      this.findOpenDirectiveBoundary(
+        openerNames,
+        candidateTerminators,
+        candidateBranches,
+        startIdx,
+      ),
     );
     searchEnd = this.takeEarlierBoundary(
       searchEnd,
-      this.findOpenConditionBoundary(openerNames, candidateTerminators, startIdx),
+      this.findOpenConditionBoundary(
+        openerNames,
+        candidateTerminators,
+        candidateBranches,
+        startIdx,
+      ),
     );
     searchEnd = this.takeEarlierBoundary(
       searchEnd,
@@ -2051,6 +2070,7 @@ export class TreeBuilder {
   private findOpenDirectiveBoundary(
     openerNames: string[],
     candidateTerminators: readonly string[],
+    candidateBranches: readonly string[],
     startIdx: number,
   ): number | null {
     if (this.openDirectives.length === 0) {
@@ -2064,12 +2084,14 @@ export class TreeBuilder {
       const reservesCandidateCloser =
         this.namesIntersect(frame.openers, openerNames) ||
         this.namesIntersect(frame.terminators, candidateTerminators);
+      const branches = this.getBoundaryBranches(frame.branches, candidateBranches);
       const boundaryIdx = this.findFrameBoundary(
         frame.openers,
         startIdx,
         frame.terminators,
-        frame.branches,
+        branches,
         reservesCandidateCloser,
+        openerNames,
       );
       if (boundaryIdx !== null) {
         boundary = this.takeEarlierBoundary(boundary, boundaryIdx);
@@ -2091,6 +2113,7 @@ export class TreeBuilder {
   private findOpenConditionBoundary(
     openerNames: string[],
     candidateTerminators: readonly string[],
+    candidateBranches: readonly string[],
     startIdx: number,
   ): number | null {
     if (this.openConditions.length === 0) {
@@ -2102,6 +2125,10 @@ export class TreeBuilder {
     let boundary: number | null = null;
 
     for (const frame of this.openConditions) {
+      const branches = this.getBoundaryBranches(
+        this.getConditionBoundaryBranches(frame.name),
+        candidateBranches,
+      );
       const reservesCandidateCloser =
         this.namesIntersect(conditionOpeners, openerNames) ||
         this.namesIntersect(terminators, candidateTerminators);
@@ -2109,8 +2136,9 @@ export class TreeBuilder {
         conditionOpeners,
         startIdx,
         terminators,
-        this.getConditionBoundaryBranches(frame.name),
+        branches,
         reservesCandidateCloser,
+        openerNames,
       );
       if (boundaryIdx !== null) {
         boundary = this.takeEarlierBoundary(boundary, boundaryIdx);
@@ -2147,6 +2175,7 @@ export class TreeBuilder {
         ["endswitch"],
         this.directives.getSwitchBranches(frame.name),
         reservesCandidateCloser,
+        openerNames,
       );
       if (boundaryIdx !== null) {
         boundary = this.takeEarlierBoundary(boundary, boundaryIdx);
@@ -2156,14 +2185,45 @@ export class TreeBuilder {
     return boundary;
   }
 
+  private getBoundaryBranches(
+    frameBranches: string[],
+    candidateBranches: readonly string[],
+  ): string[] {
+    if (candidateBranches.length === 0 || frameBranches.length === 0) {
+      return frameBranches;
+    }
+
+    const candidateBranchSet = new Set(candidateBranches);
+    return frameBranches.filter((branchName) => !candidateBranchSet.has(branchName));
+  }
+
   private findFrameBoundary(
     openerNames: string[],
     startIdx: number,
     terminators: string[],
     branches: string[],
     reservesCandidateCloser: boolean,
+    candidateOpenerNames: readonly string[] = [],
   ): number | null {
     const index = this.getDirectiveIndex();
+    const candidateOpenerSet =
+      candidateOpenerNames.length > 0 ? new Set(candidateOpenerNames) : null;
+    const shouldCountBranch =
+      candidateOpenerSet === null
+        ? undefined
+        : (tokenIdx: number, name: string): boolean => {
+            const boundaryIsShadowed = this.isBranchBoundaryShadowed(startIdx, tokenIdx, name);
+            if (!candidateOpenerSet.has(name)) {
+              return !boundaryIsShadowed;
+            }
+
+            const directive = this.directives.getDirective(name);
+            if (directive?.role !== StructureRole.Opening || directive.terminators.length === 0) {
+              return !boundaryIsShadowed;
+            }
+
+            return !index.hasArgs(tokenIdx) && !boundaryIsShadowed;
+          };
     const find = (initialNesting: number): number | null =>
       branches.length > 0
         ? index.findMatchingBoundaryForOpeners(
@@ -2173,6 +2233,7 @@ export class TreeBuilder {
             branches,
             null,
             initialNesting,
+            shouldCountBranch,
           )
         : index.findMatchingTerminatorForOpeners(
             openerNames,
@@ -2187,6 +2248,75 @@ export class TreeBuilder {
     }
 
     return find(1) ?? find(0);
+  }
+
+  private isBranchBoundaryShadowed(
+    startIdx: number,
+    boundaryIdx: number,
+    branchName: string,
+  ): boolean {
+    const stack: Array<{ terminators: string[]; branches: string[] }> = [];
+    const branch = branchName.toLowerCase();
+
+    for (let i = startIdx; i < boundaryIdx; i++) {
+      const token = this.tokens[i];
+      if (token.type !== TokenType.Directive) {
+        continue;
+      }
+
+      const directiveName = extractDirectiveName(token, this.source);
+      const top = stack[stack.length - 1];
+      if (top) {
+        if (top.terminators.includes(directiveName)) {
+          stack.pop();
+          continue;
+        }
+        if (top.branches.includes(directiveName)) {
+          continue;
+        }
+      }
+
+      const hasArgs = checkDirectiveArgsFast(this.tokens, i + 1, boundaryIdx).hasArgs;
+      const shield = this.getBranchBoundaryShield(directiveName, hasArgs, branch);
+      if (shield !== null) {
+        stack.push(shield);
+      }
+    }
+
+    return stack.length > 0;
+  }
+
+  private getBranchBoundaryShield(
+    directiveName: string,
+    hasArgs: boolean,
+    branchName: string,
+  ): { terminators: string[]; branches: string[] } | null {
+    const directive = this.directives.getDirective(directiveName);
+    if (
+      directive === null ||
+      directive.role !== StructureRole.Opening ||
+      directive.terminators.length === 0
+    ) {
+      return null;
+    }
+
+    if (directiveName === branchName && !hasArgs) {
+      return null;
+    }
+
+    const branches = directive.isCondition
+      ? this.getConditionBoundaryBranches(directiveName)
+      : directive.conditionLikeBranches;
+    if (!branches.includes(branchName)) {
+      return null;
+    }
+
+    return {
+      terminators: directive.isCondition
+        ? this.directives.getConditionTerminators()
+        : directive.terminators,
+      branches,
+    };
   }
 
   private isClosingDirective(directiveName: string): boolean {
@@ -2209,6 +2339,26 @@ export class TreeBuilder {
     }
 
     return false;
+  }
+
+  private shouldTreatAsBranchOfOpenDirective(
+    directiveName: string,
+    argsContent: string | null,
+  ): boolean {
+    if (!this.isBranchOfOpenDirective(directiveName)) {
+      return false;
+    }
+
+    const directive = this.directives.getDirective(directiveName);
+    if (
+      argsContent !== null &&
+      directive?.role === StructureRole.Opening &&
+      directive.terminators.length > 0
+    ) {
+      return false;
+    }
+
+    return true;
   }
 
   private openPairedDirective(
@@ -2428,9 +2578,16 @@ export class TreeBuilder {
     tokenCount: number,
   ): boolean {
     const terminators = this.directives.getConditionTerminators();
+    const branches = this.getConditionBoundaryBranches(directiveName);
     return (
       terminators.length > 0 &&
-      this.hasMatchingTerminatorInCurrentScope(directiveName, startPos + tokenCount, terminators)
+      this.hasMatchingTerminatorInCurrentScope(
+        directiveName,
+        startPos + tokenCount,
+        terminators,
+        undefined,
+        branches,
+      )
     );
   }
 
@@ -2442,6 +2599,16 @@ export class TreeBuilder {
   ): boolean {
     const directiveMatch = this.getMatchingOpenDirectiveFrame(directiveName);
     if (directiveMatch === null) {
+      return false;
+    }
+
+    const directive = this.directives.getDirective(directiveName);
+    if (
+      directiveMatch.kind === "branch" &&
+      argsContent !== null &&
+      directive?.role === StructureRole.Opening &&
+      this.directives.isCondition(directiveName)
+    ) {
       return false;
     }
 
@@ -2847,12 +3014,19 @@ export class TreeBuilder {
     afterPos: number,
     terminatorsOverride?: readonly string[],
     openerNames?: string[],
+    branchNames?: readonly string[],
   ): boolean {
     const terminators = terminatorsOverride ?? this.directives.getTerminators(directiveName);
     const searchTerminators = terminators.length > 0 ? terminators : [`end${directiveName}`];
+    const searchBranches = branchNames ?? [];
     const searchOpeners =
       openerNames ?? this.getDirectiveOpenersForTerminators(directiveName, searchTerminators);
-    const searchEnd = this.getDirectiveSearchEnd(searchOpeners, afterPos, searchTerminators);
+    const searchEnd = this.getDirectiveSearchEnd(
+      searchOpeners,
+      afterPos,
+      searchTerminators,
+      searchBranches,
+    );
     const directiveIndex = this.getDirectiveIndex();
 
     return (
