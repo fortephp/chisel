@@ -56,7 +56,9 @@ exports[`validation/filament-fixtures > formats actions_resources_views_action-m
 
   @if ($this->mountedActionHasSchema(mountedAction: $action))
     {{ FilamentView::renderHook(ActionsRenderHook::MODAL_SCHEMA_BEFORE, scopes: static::class, data: ['action' => $action]) }}
+
     {{ $this->getMountedActionSchema(mountedAction: $action) }}
+
     {{ FilamentView::renderHook(ActionsRenderHook::MODAL_SCHEMA_AFTER, scopes: static::class, data: ['action' => $action]) }}
   @endif
 
@@ -152,6 +154,7 @@ exports[`validation/filament-fixtures > formats actions_resources_views_componen
       @endif
     @endforeach
   </div>
+
   @php
         $this->hasActionsModalRendered = true;
     @endphp
@@ -275,6 +278,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
                         $reorderActionIsVisible = $isReorderableWithDragAndDrop && $reorderAction->isVisible();
                         $hasItemHeader = $hasBlockHeaders && ($reorderActionIsVisible || $moveUpActionIsVisible || $moveDownActionIsVisible || $hasBlockIcons || $hasBlockLabels || $editActionIsVisible || $cloneActionIsVisible || $deleteActionIsVisible || $isCollapsible || $visibleExtraItemActions);
                     @endphp
+
           <li
             wire:ignore.self
             wire:key="{{ $item->getLivewireKey() }}.item"
@@ -311,6 +315,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
 
                     @if ($moveUpActionIsVisible || $moveDownActionIsVisible)
                       <li x-on:click.stop>{{ $moveUpAction }}</li>
+
                       <li x-on:click.stop>{{ $moveDownAction }}</li>
                     @endif
                   </ul>
@@ -394,6 +399,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
                 >
                   {{ $item->getParentComponent()->renderPreview($item->getRawState()) }}
                 </div>
+
                 @if ($editActionIsVisible && (! $hasInteractiveBlockPreviews))
                   <div
                     class="fi-fo-builder-item-preview-edit-overlay"
@@ -406,6 +412,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
               @endif
             </div>
           </li>
+
           @if (! $loop->last)
             @if ($isAddable && $addBetweenAction(['afterItem' => $itemKey])->isVisible())
               <li class="fi-fo-builder-add-between-items-ctn">
@@ -524,6 +531,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
 
                     $wireClickAction = "mountAction('{$action->getName()}', {$wireClickActionArguments}, { schemaComponent: '{$key}' })";
                 @endphp
+
         <x-filament::dropdown.list.item
           :icon="$blockIcon"
           x-on:click="close"
@@ -618,6 +626,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
           />
         </x-filament::input.wrapper>
       @endif
+
       @if ($isBulkToggleable && count($options))
         <div
           x-cloak
@@ -1098,6 +1107,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
                 class="fi-fo-date-time-picker-year-input"
               />
             </div>
+
             <div class="fi-fo-date-time-picker-calendar-header">
               <template x-for="(day, index) in dayLabels" x-bind:key="index">
                 <div
@@ -1106,6 +1116,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
                 ></div>
               </template>
             </div>
+
             <div role="grid" class="fi-fo-date-time-picker-calendar">
               <template x-for="day in emptyDaysInFocusedMonth" x-bind:key="day">
                 <div></div>
@@ -1159,6 +1170,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
                 <span class="fi-fo-date-time-picker-time-input-separator">
                   :
                 </span>
+
                 <input
                   max="59"
                   min="0"
@@ -1347,6 +1359,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
 
       @if ($hasError)
         {{ $aboveErrorMessageSchema }}
+
         @if (filled($errorMessages))
           <ul data-validation-error class="fi-fo-field-wrp-error-list">
             @foreach ($errorMessages as $errorMessage)
@@ -1368,6 +1381,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
             {{ $errorMessage }}
           </p>
         @endif
+
         {{ $belowErrorMessageSchema }}
       @endif
     </div>
@@ -2155,6 +2169,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
                         $wireModelAttribute => $statePath,
                     ], escape: false);
             @endphp
+
       <label class="fi-fo-radio-label">
         <input
           type="radio"
@@ -2289,6 +2304,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
                         $reorderActionIsVisible = $isReorderableWithDragAndDrop && $reorderAction->isVisible();
                         $hasItemHeader = $hasItemHeaders && ($reorderActionIsVisible || $moveUpActionIsVisible || $moveDownActionIsVisible || filled($itemLabel) || $cloneActionIsVisible || $deleteActionIsVisible || $isCollapsible || $visibleExtraItemActions);
                     @endphp
+
           <li
             wire:ignore.self
             wire:key="{{ $item->getLivewireKey() }}.item"
@@ -2322,6 +2338,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
 
                     @if ($moveUpActionIsVisible || $moveDownActionIsVisible)
                       <li x-on:click.stop>{{ $moveUpAction }}</li>
+
                       <li x-on:click.stop>{{ $moveDownAction }}</li>
                     @endif
                   </ul>
@@ -2381,6 +2398,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
               {{ $item }}
             </div>
           </li>
+
           @if (! $loop->last)
             @if ($isAddable && $addBetweenAction(['afterItem' => $itemKey])->isVisible())
               <li class="fi-fo-repeater-add-between-items-ctn">
@@ -2489,6 +2507,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
                         $moveUpActionIsVisible = $isReorderableWithButtons && $moveUpAction->isVisible();
                         $reorderActionIsVisible = $isReorderableWithDragAndDrop && $reorderAction->isVisible();
                     @endphp
+
           <li
             wire:key="{{ $item->getLivewireKey() }}.item"
             x-sortable-item="{{ $itemKey }}"
@@ -2506,6 +2525,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
 
                 @if ($moveUpActionIsVisible || $moveDownActionIsVisible)
                   <li x-on:click.stop>{{ $moveUpAction }}</li>
+
                   <li x-on:click.stop>{{ $moveDownAction }}</li>
                 @endif
 
@@ -2652,6 +2672,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
                             $reorderActionIsVisible = $isReorderableWithDragAndDrop && $reorderAction->isVisible();
                             $itemStatePath = $item->getStatePath();
                         @endphp
+
             <tr
               wire:key="{{ $item->getLivewireKey() }}.item"
               x-sortable-item="{{ $itemKey }}"
@@ -2668,6 +2689,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
 
                       @if ($moveUpActionIsVisible || $moveDownActionIsVisible)
                         <div x-on:click.stop>{{ $moveUpAction }}</div>
+
                         <div x-on:click.stop>{{ $moveDownAction }}</div>
                       @endif
                     </div>
@@ -2686,6 +2708,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
                                         new \\Exception('Table repeaters must only contain schema components, but [' . $schemaComponent::class . '] was used.'),
                                     );
                                 @endphp
+
                 @if (count($tableColumns) > $counter)
                   @if ($schemaComponent instanceof \\Filament\\Forms\\Components\\Hidden)
                     {{ $schemaComponent }}
@@ -2693,12 +2716,14 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
                     @php
                                             $counter++
                                         @endphp
+
                     @if ($schemaComponent->isVisible())
                       @php
                                                 $schemaComponentStatePath = $schemaComponent->getStatePath();
                                                 $currentColumn = $tableColumns[$counter - 1] ?? null;
                                                 $columnVerticalAlignment = $currentColumn?->getVerticalAlignment();
                                             @endphp
+
                       <td
                         @class ([
                                                     ($columnVerticalAlignment instanceof VerticalAlignment) ? ('fi-vertical-align-' . $columnVerticalAlignment->value) : (is_string($columnVerticalAlignment) ? $columnVerticalAlignment : ''),
@@ -2914,6 +2939,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
                   @php
                                         $blockId = $block::getId();
                                     @endphp
+
                   <button
                     draggable="true"
                     type="button"
@@ -3701,6 +3727,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
                 $color = $getColor($value);
                 $icon = $getIcon($value);
             @endphp
+
       <input
         @disabled ($shouldOptionBeDisabled)
         id="{{ $inputId }}"
@@ -3713,6 +3740,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
         {{ $wireModelAttribute }}="{{ $statePath }}"
         {{ $extraInputAttributeBag }}
       />
+
       <x-filament::button
         :color="$color"
         :disabled="$shouldOptionBeDisabled"
@@ -3770,6 +3798,7 @@ exports[`validation/filament-fixtures > formats forms_resources_views_components
                 $color = $getColor($value);
                 $icon = $getIcon($value);
             @endphp
+
       <div class="fi-fo-toggle-buttons-btn-ctn">
         <input
           @disabled ($shouldOptionBeDisabled)
@@ -3901,6 +3930,7 @@ exports[`validation/filament-fixtures > formats infolists_resources_views_compon
         @php
                     $wireClickAction = $action->getLivewireClickHandler();
                 @endphp
+
         <button
           type="button"
           wire:click="{{ $wireClickAction }}"
@@ -4007,6 +4037,7 @@ exports[`validation/filament-fixtures > formats notifications_resources_views_da
           </div>
         </div>
       </x-slot>
+
       @foreach ($notifications as $notification)
         <div
           @class ([
@@ -4017,6 +4048,7 @@ exports[`validation/filament-fixtures > formats notifications_resources_views_da
           {{ $this->getNotification($notification)->inline() }}
         </div>
       @endforeach
+
       @if ($broadcastChannel = $this->getBroadcastChannel())
         @script
           <script>
@@ -4035,6 +4067,7 @@ exports[`validation/filament-fixtures > formats notifications_resources_views_da
           </script>
         @endscript
       @endif
+
       @if ($isPaginated)
         <x-slot name="footer">
           <x-filament::pagination :paginator="$notifications" />
@@ -4514,7 +4547,9 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
 >
   @if ($hasTopbar)
     {{ \\Filament\\Support\\Facades\\FilamentView::renderHook(\\Filament\\View\\PanelsRenderHook::TOPBAR_BEFORE, scopes: $renderHookScopes) }}
+
     @livewire (filament()->getTopbarLivewireComponent())
+
     {{ \\Filament\\Support\\Facades\\FilamentView::renderHook(\\Filament\\View\\PanelsRenderHook::TOPBAR_AFTER, scopes: $renderHookScopes) }}
   @elseif ($hasNavigation)
     <div
@@ -4553,6 +4588,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
         x-transition.opacity.300ms
         class="fi-sidebar-close-overlay"
       ></div>
+
       @livewire (filament()->getSidebarLivewireComponent())
     @endif
 
@@ -4752,9 +4788,11 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
       <div class="fi-page-main-sub-navigation-mobile-menu-render-hook-ctn">
         {{ \\Filament\\Support\\Facades\\FilamentView::renderHook(\\Filament\\View\\PanelsRenderHook::PAGE_SUB_NAVIGATION_MOBILE_MENU_BEFORE, scopes: $this->getRenderHookScopes()) }}
       </div>
+
       <x-filament-panels::page.sub-navigation.mobile-menu
         :navigation="$subNavigation"
       />
+
       <div class="fi-page-main-sub-navigation-mobile-menu-render-hook-ctn">
         {{ \\Filament\\Support\\Facades\\FilamentView::renderHook(\\Filament\\View\\PanelsRenderHook::PAGE_SUB_NAVIGATION_MOBILE_MENU_AFTER, scopes: $this->getRenderHookScopes()) }}
       </div>
@@ -4770,6 +4808,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
                 $breadcrumbs = filament()->hasBreadcrumbs() ? $this->getBreadcrumbs() : [];
                 $subheading = $this->getSubheading();
             @endphp
+
       @if (filled($headerActions) || $breadcrumbs || filled($heading) || filled($subheading))
         <x-filament-panels::header
           :actions="$headerActions"
@@ -4797,16 +4836,21 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
       @if ($subNavigation)
         @if ($subNavigationPosition === SubNavigationPosition::Start)
           {{ \\Filament\\Support\\Facades\\FilamentView::renderHook(\\Filament\\View\\PanelsRenderHook::PAGE_SUB_NAVIGATION_START_BEFORE, scopes: $this->getRenderHookScopes()) }}
+
           <x-filament-panels::page.sub-navigation.sidebar
             :navigation="$subNavigation"
           />
+
           {{ \\Filament\\Support\\Facades\\FilamentView::renderHook(\\Filament\\View\\PanelsRenderHook::PAGE_SUB_NAVIGATION_START_AFTER, scopes: $this->getRenderHookScopes()) }}
         @endif
+
         @if ($subNavigationPosition === SubNavigationPosition::Top)
           {{ \\Filament\\Support\\Facades\\FilamentView::renderHook(\\Filament\\View\\PanelsRenderHook::PAGE_SUB_NAVIGATION_TOP_BEFORE, scopes: $this->getRenderHookScopes()) }}
+
           <x-filament-panels::page.sub-navigation.tabs
             :navigation="$subNavigation"
           />
+
           {{ \\Filament\\Support\\Facades\\FilamentView::renderHook(\\Filament\\View\\PanelsRenderHook::PAGE_SUB_NAVIGATION_TOP_AFTER, scopes: $this->getRenderHookScopes()) }}
         @endif
       @endif
@@ -4829,9 +4873,11 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
 
       @if ($subNavigation && $subNavigationPosition === SubNavigationPosition::End)
         {{ \\Filament\\Support\\Facades\\FilamentView::renderHook(\\Filament\\View\\PanelsRenderHook::PAGE_SUB_NAVIGATION_END_BEFORE, scopes: $this->getRenderHookScopes()) }}
+
         <x-filament-panels::page.sub-navigation.sidebar
           :navigation="$subNavigation"
         />
+
         {{ \\Filament\\Support\\Facades\\FilamentView::renderHook(\\Filament\\View\\PanelsRenderHook::PAGE_SUB_NAVIGATION_END_AFTER, scopes: $this->getRenderHookScopes()) }}
       @endif
     </div>
@@ -4997,6 +5043,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
         {{ $navigationGroupLabel }}
       </x-filament::dropdown.header>
     @endif
+
     <x-filament::dropdown.list>
       @foreach ($navigationGroup->getItems() as $navigationItem)
         @foreach ([$navigationItem, ...$navigationItem->getChildItems()] as $navigationItemChild)
@@ -5007,6 +5054,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
                         $navigationItemUrl = $navigationItem->getUrl();
                         $shouldNavigationItemOpenUrlInNewTab = $navigationItem->shouldOpenUrlInNewTab();
                     @endphp
+
           <x-filament::dropdown.list.item
             :badge="$navigationItemBadge"
             :badge-color="$navigationItemBadgeColor"
@@ -5043,6 +5091,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
                 $navigationGroupLabel = $navigationGroup->getLabel();
                 $navigationGroupExtraSidebarAttributeBag = $navigationGroup->getExtraSidebarAttributeBag();
             @endphp
+
       <x-filament-panels::sidebar.group
         :active="$isNavigationGroupActive"
         :collapsible="$isNavigationGroupCollapsible"
@@ -5075,6 +5124,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
             $isNavigationGroupActive = $navigationGroup->isActive();
             $navigationGroupIcon = $navigationGroup->getIcon();
         @endphp
+
     @if ($navigationGroupLabel)
       <x-filament::dropdown placement="bottom-start">
         <x-slot name="trigger">
@@ -5095,6 +5145,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
                             $navigationItemUrl = $navigationItem->getUrl();
                             $shouldNavigationItemOpenUrlInNewTab = $navigationItem->shouldOpenUrlInNewTab();
                         @endphp
+
             <x-filament::dropdown.list.item
               :badge="$navigationItemBadge"
               :badge-color="$navigationItemBadgeColor"
@@ -5124,6 +5175,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
                     $navigationItemUrl = $navigationItem->getUrl();
                     $shouldNavigationItemOpenUrlInNewTab = $navigationItem->shouldOpenUrlInNewTab();
                 @endphp
+
         <x-filament::tabs.item
           :active="$isNavigationItemActive"
           :badge="$navigationItemBadge"
@@ -5317,6 +5369,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
                             $itemIcon = $itemIsActive ? ($item->getActiveIcon() ?? $item->getIcon()) : $item->getIcon();
                             $shouldItemOpenUrlInNewTab = $item->shouldOpenUrlInNewTab();
                         @endphp
+
             <x-filament::dropdown.list.item
               :badge="$itemBadge"
               :badge-color="$itemBadgeColor"
@@ -5373,6 +5426,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
                     }
                 }
             @endphp
+
       <x-filament-panels::sidebar.item
         :active="$isItemActive"
         :active-child-items="$isItemChildItemsActive"
@@ -5534,6 +5588,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
                     $shouldChildItemOpenUrlInNewTab = $childItem->shouldOpenUrlInNewTab();
                     $childItemUrl = $childItem->getUrl();
                 @endphp
+
         <x-filament-panels::sidebar.item
           :active="$isChildActive"
           :active-child-items="$isChildItemChildItemsActive"
@@ -5680,6 +5735,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
                         $tenantName = filament()->getTenantName($tenant);
                         $tenantUrl = filament()->getUrl($tenant);
                     @endphp
+
           <div
             x-show="
                             search === '' ||
@@ -5941,10 +5997,13 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
 
             unset($itemsBeforeThemeSwitcher['profile']);
         @endphp
+
     {{ \\Filament\\Support\\Facades\\FilamentView::renderHook(\\Filament\\View\\PanelsRenderHook::USER_MENU_PROFILE_BEFORE) }}
+
     <x-filament::dropdown.header :color="$itemColor" :icon="$itemIcon">
       {{ $item->getLabel() }}
     </x-filament::dropdown.header>
+
     {{ \\Filament\\Support\\Facades\\FilamentView::renderHook(\\Filament\\View\\PanelsRenderHook::USER_MENU_PROFILE_AFTER) }}
   @endif
 
@@ -5953,7 +6012,9 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
       @foreach ($itemsBeforeThemeSwitcher as $key => $item)
         @if ($key === 'profile')
           {{ \\Filament\\Support\\Facades\\FilamentView::renderHook(\\Filament\\View\\PanelsRenderHook::USER_MENU_PROFILE_BEFORE) }}
+
           {{ $item }}
+
           {{ \\Filament\\Support\\Facades\\FilamentView::renderHook(\\Filament\\View\\PanelsRenderHook::USER_MENU_PROFILE_AFTER) }}
         @else
           {{ $item }}
@@ -5973,7 +6034,9 @@ exports[`validation/filament-fixtures > formats panels_resources_views_component
       @foreach ($itemsAfterThemeSwitcher as $key => $item)
         @if ($key === 'profile')
           {{ \\Filament\\Support\\Facades\\FilamentView::renderHook(\\Filament\\View\\PanelsRenderHook::USER_MENU_PROFILE_BEFORE) }}
+
           {{ $item }}
+
           {{ \\Filament\\Support\\Facades\\FilamentView::renderHook(\\Filament\\View\\PanelsRenderHook::USER_MENU_PROFILE_AFTER) }}
         @else
           {{ $item }}
@@ -6074,6 +6137,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_livewire_
                     @php
                                             $resultVisibleActions = $result->getVisibleActions();
                                         @endphp
+
                     <li
                       @class ([
                                                 'fi-global-search-result',
@@ -6377,6 +6441,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_livewire_
         x-show="!$store.sidebar.isOpen"
         class="fi-topbar-open-sidebar-btn"
       />
+
       <x-filament::icon-button
         color="gray"
         :icon="\\Filament\\Support\\Icons\\Heroicon::OutlinedXMark"
@@ -6462,10 +6527,12 @@ exports[`validation/filament-fixtures > formats panels_resources_views_livewire_
       @if ($hasTenancy && filament()->hasTenantMenu())
         <x-filament-panels::tenant-menu teleport />
       @endif
+
       @if ($hasNavigation)
         @php
                     $navigation = filament()->getNavigation();
                 @endphp
+
         <ul class="fi-topbar-nav-groups">
           @foreach ($navigation as $group)
             @php
@@ -6474,6 +6541,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_livewire_
                             $isGroupActive = $group->isActive();
                             $groupIcon = $group->getIcon();
                         @endphp
+
             @if ($groupLabel)
               <x-filament::dropdown
                 placement="bottom-start"
@@ -6529,6 +6597,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_livewire_
                                                 $itemIcon = $isItemActive ? ($item->getActiveIcon() ?? $item->getIcon()) : $item->getIcon();
                                                 $shouldItemOpenUrlInNewTab = $item->shouldOpenUrlInNewTab();
                                             @endphp
+
                       <x-filament::dropdown.list.item
                         :badge="$itemBadge"
                         :badge-color="$itemBadgeColor"
@@ -6557,6 +6626,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_livewire_
                                     $shouldItemOpenUrlInNewTab = $item->shouldOpenUrlInNewTab();
                                     $itemUrl = $item->getUrl();
                                 @endphp
+
                 <x-filament-panels::topbar.item
                   :active="$isItemActive"
                   :active-icon="$itemActiveIcon"
@@ -6598,6 +6668,7 @@ exports[`validation/filament-fixtures > formats panels_resources_views_livewire_
                         'lazy' => filament()->hasLazyLoadedDatabaseNotifications(),
                     ])
         @endif
+
         @if (filament()->hasUserMenu() && filament()->getUserMenuPosition() === \\Filament\\Enums\\UserMenuPosition::Topbar)
           <x-filament-panels::user-menu />
         @endif
@@ -6906,6 +6977,7 @@ exports[`validation/filament-fixtures > formats schemas_resources_views_componen
 
                 $componentStatePath = $component->getStatePath();
             @endphp
+
       <div
         x-data="filamentSchemaComponent({
                             path: @js($componentStatePath),
@@ -7301,6 +7373,7 @@ exports[`validation/filament-fixtures > formats schemas_resources_views_componen
                     $tabLabel = $tab->getLabel();
                     $tabVisibilityJs = $getTabVisibilityJs($tab, $index, 'inline');
                 @endphp
+
         <x-filament::tabs.item
           :alpine-active="'tab === \\'' . $tabKey . '\\''"
           :attributes="$tabExtraAttributeBag"
@@ -7335,6 +7408,7 @@ exports[`validation/filament-fixtures > formats schemas_resources_views_componen
                                 $tabLabel = $tab->getLabel();
                                 $tabVisibilityJs = $getTabVisibilityJs($tab, $index, 'trigger');
                             @endphp
+
               <x-filament::tabs.item
                 :alpine-active="'tab === \\'' . $tabKey . '\\''"
                 :attributes="$tabExtraAttributeBag"
@@ -7370,6 +7444,7 @@ exports[`validation/filament-fixtures > formats schemas_resources_views_componen
                                 $tabKey = $tab->getKey(isAbsolute: false);
                                 $tabLabel = $tab->getLabel();
                             @endphp
+
               <x-filament::dropdown.list.item
                 :badge="$tabBadge"
                 :badge-color="$tabBadgeColor"
@@ -7395,6 +7470,7 @@ exports[`validation/filament-fixtures > formats schemas_resources_views_componen
       @php
                 $tabVisibilityJs = $getTabVisibilityJs($tab);
             @endphp
+
       @if ($tabVisibilityJs)
         <div x-cloak x-show="{!! $tabVisibilityJs !!}">{{ $tab }}</div>
       @else
@@ -7406,6 +7482,7 @@ exports[`validation/filament-fixtures > formats schemas_resources_views_componen
   @php
         $activeTab = strval($this->{$livewireProperty});
     @endphp
+
   <div
     {{
             $attributes
@@ -7443,6 +7520,7 @@ exports[`validation/filament-fixtures > formats schemas_resources_views_componen
                     $tabKey = strval($tabKey);
                     $tabLabel = $tab->getLabel() ?? $this->generateTabLabel($tabKey);
                 @endphp
+
         <x-filament::tabs.item
           :active="$activeTab === $tabKey"
           :attributes="$tabExtraAttributeBag"
@@ -8078,6 +8156,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
                 ])), size: $iconSize ?? \\Filament\\Support\\Enums\\IconSize::Small)
             }}
     @endif
+
     @if ($hasLoadingIndicator)
       {{
                 \\Filament\\Support\\generate_loading_indicator_html((new \\Illuminate\\View\\ComponentAttributeBag([
@@ -8102,6 +8181,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
                 $deleteButtonLoadingIndicatorTarget = html_entity_decode($deleteButtonWireTarget, ENT_QUOTES);
             }
         @endphp
+
     <button
       type="button"
       {{
@@ -8141,6 +8221,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
                 ])), size: $iconSize ?? \\Filament\\Support\\Enums\\IconSize::Small)
             }}
     @endif
+
     @if ($hasLoadingIndicator)
       {{
                 \\Filament\\Support\\generate_loading_indicator_html((new \\Illuminate\\View\\ComponentAttributeBag([
@@ -8175,6 +8256,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
                             'fi-breadcrumbs-item-separator fi-ltr',
                         ]))
                     }}
+
           {{
                         generate_icon_html(\\Filament\\Support\\Icons\\Heroicon::ChevronLeft, alias: \\Filament\\Support\\View\\SupportIconAlias::BREADCRUMBS_SEPARATOR_RTL, attributes: (new ComponentAttributeBag)->class([
                             'fi-breadcrumbs-item-separator fi-rtl',
@@ -8357,6 +8439,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
                 ])), size: $iconSize)
             }}
     @endif
+
     @if ($hasLoadingIndicator)
       {{
                 \\Filament\\Support\\generate_loading_indicator_html((new \\Illuminate\\View\\ComponentAttributeBag([
@@ -8365,6 +8448,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
                 ])), size: $iconSize)
             }}
     @endif
+
     @if ($hasFormProcessingLoadingIndicator)
       {{
                 \\Filament\\Support\\generate_loading_indicator_html((new \\Illuminate\\View\\ComponentAttributeBag([
@@ -8396,6 +8480,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
                 ])), size: $iconSize)
             }}
     @endif
+
     @if ($hasLoadingIndicator)
       {{
                 \\Filament\\Support\\generate_loading_indicator_html((new \\Illuminate\\View\\ComponentAttributeBag([
@@ -8404,6 +8489,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
                 ])), size: $iconSize)
             }}
     @endif
+
     @if ($hasFormProcessingLoadingIndicator)
       {{
                 \\Filament\\Support\\generate_loading_indicator_html((new \\Illuminate\\View\\ComponentAttributeBag([
@@ -9207,6 +9293,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
       @if ($inlinePrefix)
         wire:loading.delay.{{ config('filament.livewire_loading_delay', 'default') }}.class.remove="ps-3"
       @endif
+
       wire:target="{{ $loadingIndicatorTarget }}"
     @endif
     @class ([
@@ -9373,6 +9460,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
                 ])), size: $iconSize)
             }}
     @endif
+
     @if ($hasLoadingIndicator)
       {{
                 \\Filament\\Support\\generate_loading_indicator_html((new \\Illuminate\\View\\ComponentAttributeBag([
@@ -9396,6 +9484,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
                 ])), size: $iconSize)
             }}
     @endif
+
     @if ($hasLoadingIndicator)
       {{
                 \\Filament\\Support\\generate_loading_indicator_html((new \\Illuminate\\View\\ComponentAttributeBag([
@@ -9528,6 +9617,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
 @if ($trigger)
   {!! '<div>' !!}
   {{-- Avoid formatting issues with unclosed elements --}}
+
   <div
     @if (! $trigger->attributes->get('disabled'))
       @if ($id)
@@ -9669,6 +9759,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
                 </div>
               </div>
             @endif
+
             <div>
               <h2 class="fi-modal-heading">{{ $heading }}</h2>
 
@@ -9766,6 +9857,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
                 $wireClickAction = "previousPage('{$paginator->getPageName()}')";
             }
         @endphp
+
     <x-filament::button
       color="gray"
       rel="prev"
@@ -9839,6 +9931,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
                 $wireClickAction = "nextPage('{$paginator->getPageName()}')";
             }
         @endphp
+
     <x-filament::button
       color="gray"
       rel="next"
@@ -9867,6 +9960,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
             :wire:key="$this->getId() . '.pagination.first'"
           />
         @endif
+
         <x-filament::pagination.item
           :aria-label="__('filament::components/pagination.actions.previous.label')"
           :icon="$isRtl ? \\Filament\\Support\\Icons\\Heroicon::ChevronRight : \\Filament\\Support\\Icons\\Heroicon::ChevronLeft"
@@ -9889,6 +9983,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
         @if (is_string($element))
           <x-filament::pagination.item disabled :label="$element" />
         @endif
+
         @if (is_array($element))
           @foreach ($element as $page => $url)
             <x-filament::pagination.item
@@ -9919,6 +10014,7 @@ exports[`validation/filament-fixtures > formats support_resources_views_componen
           :wire:click="'nextPage(\\'' . $paginator->getPageName() . '\\')'"
           :wire:key="$this->getId() . '.pagination.next'"
         />
+
         @if ($extremeLinks)
           <x-filament::pagination.item
             :aria-label="__('filament::components/pagination.actions.last.label')"
@@ -10773,6 +10869,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_component
       @php
                 $columnHasSummary = ($pageTableSummaryQuery && $column->hasSummary($pageTableSummaryQuery)) || $column->hasSummary($allTableSummaryQuery);
             @endphp
+
       @if ($placeholderColumns || $columnHasSummary)
         @php
                     $alignment = $column->getAlignment() ?? Alignment::Start;
@@ -10783,6 +10880,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_component
 
                     $hasColumnHeaderLabel = (! $placeholderColumns) || $columnHasSummary;
                 @endphp
+
         <td
           {{
                         $column->getExtraHeaderAttributeBag()->class([
@@ -10809,9 +10907,11 @@ exports[`validation/filament-fixtures > formats tables_resources_views_component
       <td></td>
     @endif
   </tr>
+
   @php
         $selectedState = $this->getTableSummarySelectedState($pageTableSummaryQuery)[0] ?? [];
     @endphp
+
   <x-filament-tables::summary.row
     :actions="$actions"
     :actions-position="$actionsPosition"
@@ -10916,6 +11016,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_component
                     $alignment = filled($alignment) ? (Alignment::tryFrom($alignment) ?? $alignment) : null;
                 }
             @endphp
+
       <td
         colspan="{{ ($loop->first && (! $extraHeadingColumn) && (! $groupsOnly) && ($headingColumnSpan > 1)) ? $headingColumnSpan : null }}"
         @class ([
@@ -11412,6 +11513,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                 @php
                                     $searchPlaceholder = $getSearchPlaceholder();
                                 @endphp
+
                 <x-filament-tables::search-field
                   :debounce="$searchDebounce"
                   :on-blur="$isSearchOnBlur"
@@ -11440,6 +11542,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                                             $filtersTriggerActionIsModalFooterSticky = $filtersTriggerAction->isModalFooterSticky();
                                             $filtersTriggerActionIsModalHeaderSticky = $filtersTriggerAction->isModalHeaderSticky();
                                         @endphp
+
                     <x-filament::modal
                       :alignment="$filtersTriggerActionModalAlignment"
                       :autofocus="$filtersTriggerActionIsModalAutofocused"
@@ -11503,13 +11606,16 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                     {{ $filtersTriggerAction->badge($activeFiltersCount) }}
                   </span>
                 @endif
+
                 {{ FilamentView::renderHook(TablesRenderHook::TOOLBAR_COLUMN_MANAGER_TRIGGER_BEFORE, scopes: static::class) }}
+
                 @if ($hasColumnManagerDropdown)
                   @php
                                         $columnManagerMaxHeight = $getColumnManagerMaxHeight();
                                         $columnManagerWidth = $getColumnManagerWidth();
                                         $columnManagerColumns = $getColumnManagerColumns();
                                     @endphp
+
                   <x-filament::dropdown
                     :max-height="$columnManagerMaxHeight"
                     placement="bottom-end"
@@ -11534,6 +11640,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                     />
                   </x-filament::dropdown>
                 @endif
+
                 {{ FilamentView::renderHook(TablesRenderHook::TOOLBAR_COLUMN_MANAGER_TRIGGER_AFTER, scopes: static::class) }}
               @endif
             </div>
@@ -11632,6 +11739,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                   @php
                                         $indicatorColor = $indicator->getColor();
                                     @endphp
+
                   <x-filament::badge :color="$indicatorColor">
                     {{ $indicator->getLabel() }}
 
@@ -11639,6 +11747,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                       @php
                                                 $indicatorRemoveLivewireClickHandler = $indicator->getRemoveLivewireClickHandler();
                                             @endphp
+
                       <x-slot
                         name="deleteButton"
                         :label="__('filament-tables::table.filters.actions.remove.label')"
@@ -11686,6 +11795,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                                     fn (\\Filament\\Tables\\Columns\\Column $column): bool => $column->isSortable(),
                                 );
                             @endphp
+
               @if (($isSelectionEnabled && ($maxSelectableRecords !== 1) && (! $isReordering) && (! $selectsGroupsOnly)) || count($sortableColumns))
                 <div class="fi-ta-content-header">
                   @if ($isSelectionEnabled && ($maxSelectableRecords !== 1) && (! $isReordering) && (! $selectsGroupsOnly))
@@ -11815,6 +11925,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                 </div>
               @endif
             @endif
+
             @if ($content)
               {{ $content->with(['records' => $records]) }}
             @else
@@ -11878,6 +11989,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                                             initial: [],
                                         );
                                     @endphp
+
                   @if ((string) $recordGroupTitle !== (string) $previousRecordGroupTitle)
                     @if ($hasSummary && (! $isReordering) && filled($previousRecordGroupTitle))
                       <table
@@ -11907,6 +12019,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                         </tbody>
                       </table>
                     @endif
+
                     <div
                       @if ($isRecordGroupCollapsible = $group->isCollapsible())
                         x-on:click="toggleCollapseGroup(@js($recordGroupTitle))"
@@ -12002,6 +12115,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                       @endif
                     </div>
                   @endif
+
                   <div
                     @if ($hasCollapsibleColumnsLayout)
                       x-data="{ isCollapsed: @js($collapsibleColumnsLayout->isCollapsed()) }"
@@ -12081,6 +12195,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                                                             ? "mountTableAction('{$recordAction}', '{$recordKey}')"
                                                             : $recordWireClickAction = "{$recordAction}('{$recordKey}')";
                                                     @endphp
+
                           <button
                             type="button"
                             wire:click="{{ $recordWireClickAction }}"
@@ -12153,6 +12268,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                       </button>
                     @endif
                   </div>
+
                   @php
                                         $previousRecordGroupKey = $recordGroupKey;
                                         $previousRecordGroupTitle = $recordGroupTitle;
@@ -12180,6 +12296,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                 @endif
               </div>
             @endif
+
             @if (($content || $hasColumnsLayout) && $contentFooter)
               {{
                                 $contentFooter->with([
@@ -12188,6 +12305,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                                 ])
                             }}
             @endif
+
             @if ($hasSummary && (! $isReordering))
               <table class="fi-ta-table">
                 <tbody>
@@ -12213,6 +12331,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                         @if (count($defaultRecordActions) && in_array($recordActionsPosition, [RecordActionsPosition::BeforeCells, RecordActionsPosition::BeforeColumns]))
                           <th></th>
                         @endif
+
                         @if ($isSelectionEnabled && $recordCheckboxPosition === RecordCheckboxPosition::BeforeCells)
                           <th></th>
                         @endif
@@ -12228,6 +12347,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                         @php
                                                     $columnGroupColumnsCount = count($columnGroup->getVisibleColumns());
                                                 @endphp
+
                         @if ($columnGroupColumnsCount)
                           <th
                             colspan="{{ $columnGroupColumnsCount }}"
@@ -12251,6 +12371,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                       @if (count($defaultRecordActions) && in_array($recordActionsPosition, [RecordActionsPosition::AfterColumns, RecordActionsPosition::AfterCells]))
                         <th></th>
                       @endif
+
                       @if ($isSelectionEnabled && $recordCheckboxPosition === RecordCheckboxPosition::AfterCells)
                         <th></th>
                       @endif
@@ -12275,6 +12396,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                           ></th>
                         @endif
                       @endif
+
                       @if ($isSelectionEnabled && $recordCheckboxPosition === RecordCheckboxPosition::BeforeCells)
                         <th class="fi-ta-cell fi-ta-selection-cell">
                           @if (($maxSelectableRecords !== 1) && (! $selectsGroupsOnly))
@@ -12319,6 +12441,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                           @endif
                         </th>
                       @endif
+
                       @if (count($defaultRecordActions) && $recordActionsPosition === RecordActionsPosition::BeforeColumns)
                         @if ($recordActionsColumnLabel)
                           <th class="fi-ta-header-cell">
@@ -12354,6 +12477,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                                                 $isColumnSortable = $column->isSortable() && (! $isReordering);
                                                 $columnHeaderTooltip = $column->getHeaderTooltip();
                                             @endphp
+
                       <th
                         @if ($isColumnActivelySorted)
                           aria-sort="{{ $sortDirection === 'asc' ? 'ascending' : 'descending' }}"
@@ -12441,6 +12565,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                         ></th>
                       @endif
                     @endif
+
                     @if ($isSelectionEnabled && $recordCheckboxPosition === RecordCheckboxPosition::AfterCells)
                       <th class="fi-ta-cell fi-ta-selection-cell">
                         @if (($maxSelectableRecords !== 1) && (! $selectsGroupsOnly))
@@ -12485,6 +12610,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                         @endif
                       </th>
                     @endif
+
                     @if (count($defaultRecordActions) && $recordActionsPosition === RecordActionsPosition::AfterCells)
                       @if ($recordActionsColumnLabel)
                         <th class="fi-ta-header-cell fi-align-end">
@@ -12523,6 +12649,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                           @if (count($defaultRecordActions) && in_array($recordActionsPosition, [RecordActionsPosition::BeforeCells, RecordActionsPosition::BeforeColumns]))
                             <td></td>
                           @endif
+
                           @if ($isSelectionEnabled && $recordCheckboxPosition === RecordCheckboxPosition::BeforeCells)
                             <td></td>
                           @endif
@@ -12533,6 +12660,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                         @php
                                                     $columnName = $column->getName();
                                                 @endphp
+
                         <td
                           @class ([
                                                         'fi-ta-cell',
@@ -12554,6 +12682,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                         @if (count($defaultRecordActions) && in_array($recordActionsPosition, [RecordActionsPosition::AfterColumns, RecordActionsPosition::AfterCells]))
                           <td></td>
                         @endif
+
                         @if ($isSelectionEnabled && $recordCheckboxPosition === RecordCheckboxPosition::AfterCells)
                           <td></td>
                         @endif
@@ -12568,6 +12697,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                                             $previousRecordGroupKey = null;
                                             $previousRecordGroupTitle = null;
                                         @endphp
+
                     @foreach ($records as $record)
                       @php
                                                 $recordAction = $getRecordAction($record);
@@ -12597,12 +12727,14 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                                                     initial: [],
                                                 );
                                             @endphp
+
                       @if ((string) $recordGroupTitle !== (string) $previousRecordGroupTitle)
                         @if ($hasSummary && (! $isReordering) && filled($previousRecordGroupTitle))
                           @php
                                                         $groupColumn = $group->getColumn();
                                                         $groupScopedAllTableSummaryQuery = $group->scopeQuery($this->getAllTableSummaryQuery(), $previousRecord);
                                                     @endphp
+
                           <x-filament-tables::summary.row
                             :actions="count($defaultRecordActions)"
                             :actions-position="$recordActionsPosition"
@@ -12616,6 +12748,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                             :selection-enabled="$isSelectionEnabled"
                           />
                         @endif
+
                         @if (! $isGroupsOnly)
                           <tr class="fi-ta-row fi-ta-group-header-row">
                             @php
@@ -12639,6 +12772,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                               @if (count($defaultRecordActions) && $recordActionsPosition === RecordActionsPosition::BeforeCells)
                                 <td></td>
                               @endif
+
                               <td class="fi-ta-cell fi-ta-group-selection-cell">
                                 @if ($maxSelectableRecords !== 1)
                                   <input
@@ -12806,10 +12940,12 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                             @endif
                           </tr>
                         @endif
+
                         @php
                                                     $isRecordRowStriped = false;
                                                 @endphp
                       @endif
+
                       @if (! $isGroupsOnly)
                         <tr
                           wire:key="{{ $this->getId() }}.table.records.{{ $recordKey }}"
@@ -12933,6 +13069,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                                                                 }
                                                             }
                                                         @endphp
+
                             <td
                               wire:key="{{ $this->getId() }}.table.record.{{ $recordKey }}.column.{{ $column->getName() }}"
                               {{
@@ -13034,6 +13171,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                           @endif
                         </tr>
                       @endif
+
                       @php
                                                 $isRecordRowStriped = ! $isRecordRowStriped;
                                                 $previousRecord = $record;
@@ -13041,11 +13179,13 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                                                 $previousRecordGroupTitle = $recordGroupTitle;
                                             @endphp
                     @endforeach
+
                     @if ($hasSummary && (! $isReordering) && filled($previousRecordGroupTitle) && ((! $records instanceof \\Illuminate\\Contracts\\Pagination\\Paginator) || (! $records->hasMorePages())))
                       @php
                                                 $groupColumn = $group->getColumn();
                                                 $groupScopedAllTableSummaryQuery = $group->scopeQuery($this->getAllTableSummaryQuery(), $previousRecord);
                                             @endphp
+
                       <x-filament-tables::summary.row
                         :actions="count($defaultRecordActions)"
                         :actions-position="$recordActionsPosition"
@@ -13059,10 +13199,12 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                         :selection-enabled="$isSelectionEnabled"
                       />
                     @endif
+
                     @if ($hasSummary && (! $isReordering))
                       @php
                                                 $groupColumn = $group?->getColumn();
                                             @endphp
+
                       <x-filament-tables::summary
                         :actions="count($defaultRecordActions)"
                         :actions-position="$recordActionsPosition"
@@ -13140,6 +13282,7 @@ exports[`validation/filament-fixtures > formats tables_resources_views_index.bla
                     $hasExtremePaginationLinks = $hasExtremePaginationLinks();
                     $paginationPageOptions = $getPaginationPageOptions();
                 @endphp
+
         <x-filament::pagination
           :extreme-links="$hasExtremePaginationLinks"
           :page-options="$paginationPageOptions"
@@ -13330,6 +13473,7 @@ exports[`validation/filament-fixtures > formats widgets_resources_views_componen
     @php
             $widgetClass = $normalizeWidgetClass($widget);
         @endphp
+
     @livewire (
             $widgetClass,
             [...(($widget instanceof \\Filament\\Widgets\\WidgetConfiguration) ? [...$widget->widget::getDefaultProperties(), ...$widget->getProperties()] : $widget::getDefaultProperties()), ...$data],
