@@ -13,6 +13,8 @@ type RecoveryCase = {
   name: string;
   input: string;
   markers: string[];
+  expected?: string;
+  expectedProfiles?: readonly string[];
   requiredLiterals?: readonly string[];
   preserveBladePhpTokenCounts?: boolean;
   snapshotProfiles?: readonly string[];
@@ -394,6 +396,31 @@ const regex = /@else|@endif|MAL_GA_13_SCRIPT/g;
     preserveBladePhpTokenCounts: false,
     snapshotProfiles: ["strict"],
   },
+  {
+    name: "malformed-attribute-template-expression-recovery-does-not-duplicate-dollar",
+    input: `<section data-broken='MAL_GA_15_BRIDGE>
+const tpl_3 = \`MAL_GA_15_3 \${@json($value_15_3)} @verbatim @endverbatim\`;
+.MAL_GA_15_STYLE{content:"@endif MAL_GA_15_STYLE";color:{{ $color_15 }};background:url("{{ asset('MAL_GA_15.png') }}")}
+</style>
+const tpl_6 = \`MAL_GA_15_6 \${@json($value_15_6)} @verbatim @endverbatim\`;
+const tpl_8 = \`MAL_GA_15_8 \${@json($value_15_8)} @verbatim @endverbatim\`;
+`,
+    expected: `<section data-broken='MAL_GA_15_BRIDGE>
+const tpl_3 = \`MAL_GA_15_3 \${@json($value_15_3)} @verbatim @endverbatim\`;
+.MAL_GA_15_STYLE{content:"@endif MAL_GA_15_STYLE";color:{{ $color_15 }};background:url("{{ asset('MAL_GA_15.png') }}")}
+</style>
+const tpl_6 = \`MAL_GA_15_6 \${@json($value_15_6)} @verbatim
+@endverbatim\`; const tpl_8 =
+\`MAL_GA_15_8
+\${
+@json ($value_15_8)
+} @verbatim @endverbatim\`;
+`,
+    expectedProfiles: ["default"],
+    markers: ["MAL_GA_15_BRIDGE", "MAL_GA_15_3", "MAL_GA_15_STYLE", "MAL_GA_15_6", "MAL_GA_15_8"],
+    requiredLiterals: ["${", "@json", "@verbatim", "@endverbatim", "</style>"],
+    preserveBladePhpTokenCounts: false,
+  },
 ] as const;
 
 const PROFILES: Array<{ name: string; options: Options }> = [
@@ -450,6 +477,10 @@ describe("validation/malformed-recovery-cases", () => {
 
           if (depth === 0 && caseEntry.snapshotProfiles?.includes(profile.name)) {
             expect(first).toMatchSnapshot();
+          }
+
+          if (depth === 0 && caseEntry.expectedProfiles?.includes(profile.name)) {
+            expect(first).toBe(caseEntry.expected);
           }
 
           expect(fourth, `${context}: did not converge by pass 4`).toBe(third);
