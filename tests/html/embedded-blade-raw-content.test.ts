@@ -615,6 +615,28 @@ const b = @foo($x)
     }
   });
 
+  it("keeps structural blade inside script while ignoring directive-like regex literals", async () => {
+    const input = `@if($broken)
+<script>
+@foreach($scripts as $script)
+const pattern = /@else|@endif/g;
+const value = "{{ $script }}";
+@endforeach
+</script>
+`;
+
+    const expected = `@if ($broken)
+<script>
+  @foreach ($scripts as $script)
+  const pattern = /@else|@endif/g;
+  const value = "{{ $script }}";
+  @endforeach
+</script>
+`;
+
+    await formatEqual(input, expected, phpSafe, 4);
+  });
+
   it("keeps return-prefixed script regex literals with directive-like tokens idempotent across nesting depths", async () => {
     const snippet = `<script>
 const ok = () => {
@@ -817,6 +839,40 @@ var slot = "{{ $thing }}-MAL_G"
     expect(output).toContain('const marker = "__blade_expr_slot_0__";');
     expect(output).toContain("const v = {{ $value }};");
     expect(output).not.toContain('const marker = "{{ $value }}";');
+  });
+
+  it("keeps directive-like attribute strings from closing malformed outer directives", async () => {
+    const input = `@if($broken)
+<template x-if="'T'">
+@if($template)
+<div x-data="{ marker: 'T', directive: '@endif' }">T</div>
+@else
+<div>T-fallback</div>
+@endif
+</template>
+<textarea>
+@if($textarea)
+G {{ $unformatted }}
+@endif
+</textarea>
+`;
+
+    const expected = `@if ($broken)
+<template x-if="'T'">
+  @if ($template)
+    <div x-data="{ marker: 'T', directive: '@endif' }">T</div>
+  @else
+    <div>T-fallback</div>
+  @endif
+</template>
+<textarea>
+@if($textarea)
+G {{ $unformatted }}
+@endif
+</textarea>
+`;
+
+    await formatEqual(input, expected, {}, 4);
   });
 
   it("does not duplicate directives when style content contains marker-like comments", async () => {

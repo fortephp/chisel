@@ -2,59 +2,9 @@ import type { WrappedNode } from "../types.js";
 import { NodeKind } from "../tree/types.js";
 import { isFrontendEventStyleAtName } from "../frontend-attribute-names.js";
 import { isAsciiAlnum, isAsciiAlpha } from "../lexer/scan-primitives.js";
+import { extractStyleAtRuleNameAt, isKnownStyleAtRuleName } from "./style-at-rules.js";
 
 type RawContentContext = "style" | "script" | "generic";
-
-// CSS at-rules that should never be treated as Blade directives in style blocks.
-const CSS_AT_RULES = new Set([
-  "charset",
-  "import",
-  "namespace",
-  "media",
-  "supports",
-  "layer",
-  "container",
-  "scope",
-  "font-face",
-  "font-feature-values",
-  "font-palette-values",
-  "property",
-  "counter-style",
-  "keyframes",
-  "-webkit-keyframes",
-  "-moz-keyframes",
-  "-o-keyframes",
-  "page",
-  "starting-style",
-  "view-transition",
-  "document",
-  "custom-media",
-  "tailwind",
-  "apply",
-  "screen",
-  "responsive",
-  "variants",
-  "utility",
-  "theme",
-  "plugin",
-  "config",
-  "use",
-  "forward",
-  "mixin",
-  "include",
-  "function",
-  "return",
-  "if",
-  "else",
-  "for",
-  "each",
-  "while",
-  "at-root",
-  "extend",
-  "debug",
-  "warn",
-  "error",
-]);
 
 function extractDirectiveName(text: string): string | null {
   const trimmed = text.trimStart();
@@ -73,21 +23,6 @@ function extractDirectiveName(text: string): string | null {
   }
 
   return trimmed.slice(1, i).toLowerCase();
-}
-
-function extractStyleAtRuleNameAt(source: string, pos: number): string | null {
-  if (pos < 0 || pos >= source.length || source[pos] !== "@") return null;
-
-  let i = pos + 1;
-  const start = i;
-  while (i < source.length) {
-    const code = source.charCodeAt(i);
-    if (!isAsciiAlnum(code) && code !== 45 && code !== 95) break;
-    i++;
-  }
-
-  if (i === start) return null;
-  return source.slice(start, i).toLowerCase();
 }
 
 function hasPhpLikeMarkers(text: string): boolean {
@@ -120,7 +55,7 @@ function isDirectiveNodeBladeLike(node: WrappedNode, context: RawContentContext)
 
   if (context === "style") {
     const styleAtRuleName = extractStyleAtRuleNameAt(node.source, node.start);
-    if (styleAtRuleName && CSS_AT_RULES.has(styleAtRuleName)) {
+    if (styleAtRuleName && isKnownStyleAtRuleName(styleAtRuleName)) {
       const trainedDirectives = node.buildResult.directives;
       if (!trainedDirectives?.isDirective(name)) {
         return false;

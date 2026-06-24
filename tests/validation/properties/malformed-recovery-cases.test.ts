@@ -112,6 +112,28 @@ const x = @foo($x)
     markers: ["format-ignore-start", "format-ignore-end"],
     requiredLiterals: ["tail", '<div class="x"></div>'],
   },
+  {
+    name: "unterminated-attribute-before-repeated-verbatim-and-orphan-branch",
+    input: `<div data-bridge='MAL_GA_8>
+
+@verbatim
+<div>A {{ raw }}</div>
+@endverbatim
+
+@case('orphan')
+
+@verbatim
+<div>MAL_GA_8 {{ raw }}</div>
+@endverbatim
+
+@disk('MAL_GA_8')
+<span>MAL_GA_8</span>
+@enddisk
+<footer>MAL_GA_8_TAIL</footer>
+`,
+    markers: ["MAL_GA_8", "MAL_GA_8_TAIL"],
+    requiredLiterals: ["@endverbatim", "@disk", "@enddisk", "MAL_GA_8_TAIL"],
+  },
 ] as const;
 
 const PROFILES: Array<{ name: string; options: Options }> = [

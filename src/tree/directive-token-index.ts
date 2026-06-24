@@ -2,6 +2,7 @@ import { TokenType, type Token } from "../lexer/types.js";
 import { checkDirectiveArgsFast } from "./directive-helper.js";
 
 type BranchBoundaryPredicate = (tokenIdx: number, name: string) => boolean;
+type DirectiveIncludePredicate = (tokenIdx: number) => boolean;
 
 export class DirectiveTokenIndex {
   private byName = new Map<string, number[]>();
@@ -10,9 +11,14 @@ export class DirectiveTokenIndex {
   private nameSetCache = new Map<string, Set<string>>();
   private hasArgsByPosition = new Map<number, boolean>();
 
-  constructor(tokens: readonly Token[], source: string) {
+  constructor(
+    tokens: readonly Token[],
+    source: string,
+    shouldInclude: DirectiveIncludePredicate = () => true,
+  ) {
     for (let i = 0; i < tokens.length; i++) {
       if (tokens[i].type !== TokenType.Directive) continue;
+      if (!shouldInclude(i)) continue;
       const name = this.extractName(tokens[i], source);
       this.allPositions.push(i);
       this.allNames.push(name);
