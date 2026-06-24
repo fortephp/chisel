@@ -45,7 +45,7 @@ describe("validation/malformed-tail", () => {
     const marker = "FX_M";
     const input = `<section data-tail-case="${marker}">${marker}</section>\n<button>\n  <?php if ($slot->isNotEmpty()): ?>\n    {{ $slot }}\n  <?php else: ?>\n    <x:selected />\n  <?php endif; ?>\n\n  <?php if ($clearable): ?>\n        <x:btn as="div"\n</div>\n    <x:btn as="div"\n  <?php endif; ?>\n</button>\n<footer>${marker}</footer>\n`;
     const output = await formatWithPasses(input, {}, { passes: 5, assertIdempotent: true });
-    const expected = `<section data-tail-case="${marker}">${marker}</section>\n<button>\n  <?php if ($slot->isNotEmpty()): ?>\n    {{ $slot }}\n  <?php else: ?>\n    <x:selected />\n  <?php endif; ?>\n\n  <?php if ($clearable): ?>\n        <x:btn as="div"\n</div>\n    <x:btn as="div"\n  <?php endif; ?>\n</button>\n<footer>${marker}</footer>\n`;
+    const expected = `<section data-tail-case="${marker}">${marker}</section>\n<button>\n  <?php if ($slot->isNotEmpty()): ?>\n    {{ $slot }}\n  <?php else: ?>\n    <x:selected />\n  <?php endif; ?>\n\n  <?php if ($clearable): ?>\n    <x:btn as="div"\n    </div>\n    <x:btn as="div"\n  <?php endif; ?>\n</button>\n<footer>${marker}</footer>\n`;
     expect(output).toBe(expected);
     expect(countOccurrences(output, marker)).toBe(countOccurrences(input, marker));
   });

@@ -22,6 +22,20 @@ const INTERNAL_KINDS = new Set([
   NodeKind.AttributeWhitespace,
 ]);
 
+const OPENING_TAG_INTERNAL_KINDS = new Set([
+  NodeKind.ElementName,
+  NodeKind.Attribute,
+  NodeKind.JsxAttribute,
+  NodeKind.AttributeWhitespace,
+  NodeKind.Directive,
+  NodeKind.DirectiveBlock,
+  NodeKind.Echo,
+  NodeKind.RawEcho,
+  NodeKind.TripleEcho,
+  NodeKind.PhpTag,
+  NodeKind.PhpBlock,
+]);
+
 const IGNORE_RANGES_OPTION = "__bladeIgnoreRanges";
 
 type ParserOptionsWithIgnoreRanges = Record<string, unknown> & {
@@ -173,8 +187,19 @@ function wrapTree(result: BuildResult): WrappedNode {
     // closingTagStartOffset equivalent to Prettier's endSourceSpan.start.offset (position of "</")
     if (flat.kind === NodeKind.Element && flat.tokenCount > 0) {
       const tokenEnd = flat.tokenStart + flat.tokenCount;
+      let openingTokenEnd = tokenEnd;
+      let childIdx = flat.firstChild;
+      while (childIdx !== NONE) {
+        const child = wrapped[childIdx];
+        if (child.kind === "frontMatter" || !OPENING_TAG_INTERNAL_KINDS.has(child.kind)) {
+          openingTokenEnd = Math.min(openingTokenEnd, child.flat.tokenStart);
+          break;
+        }
+        childIdx = nodes[childIdx].nextSibling;
+      }
+
       // Opening tag: find first GreaterThan token (lexer ensures > never appears inside attr values)
-      for (let j = flat.tokenStart; j < tokenEnd; j++) {
+      for (let j = flat.tokenStart; j < openingTokenEnd; j++) {
         if (tokens[j].type === TokenType.GreaterThan) {
           wrapped[i].openTagEndOffset = tokens[j].end;
           break;

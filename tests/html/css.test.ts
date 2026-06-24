@@ -36,6 +36,37 @@ describe("html/css", () => {
     await formatEqual(input, expected);
   });
 
+  it("keeps framework and preprocessor at-rules in CSS formatting", async () => {
+    const input = `<style>
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+.btn{@apply font-bold text-white}
+@theme{--color-brand:#123456}
+@custom-media --narrow (width <= 30em);
+@mixin card { border-radius: .5rem; }
+</style>
+`;
+    const expected = `<style>
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+  .btn {
+    @apply font-bold text-white;
+  }
+  @theme {
+    --color-brand: #123456;
+  }
+  @custom-media --narrow (width <= 30em);
+  @mixin card {
+    border-radius: 0.5rem;
+  }
+</style>
+`;
+
+    await formatEqual(input, expected);
+  });
+
   it("preserves large inline style at-rules without treating them as Blade directives", async () => {
     const utilityRuleCount = LARGE_STYLE_EMBED_LINE_THRESHOLD + 2;
     const utilityRules = Array.from(

@@ -120,6 +120,73 @@ describe("elements", () => {
     expect(children[0].kind).toBe(NodeKind.UnpairedClosingTag);
   });
 
+  it("does not match malformed nameless closing tags to directive frames", () => {
+    const source = `@enddisk
+@endif
+</broken-1>
+@foreach($items_2 as $item)
+<li>{{ $item }}</li>
+@forelse($items_3 as $item)
+@empty($item->title)
+<span>TB_682_3</span>
+@endempty
+@endwrapper
+@section('content_5')
+<x-layout>TB_682_5
+@forelse($items_6 as $item)
+@empty($item->title)
+<span>TB_682_6</span>
+@endempty
+<div data-broken='TB_682_7>
+@if($tail_7)
+@verbatim
+<div>{{ untouched_TB_682_8 }}</div>
+@endverbatim
+
+<script>
+@if($ready_9)
+const token = \`@endif TB_682_9\`;
+@endif
+</script>
+
+</div>
+</x-card>
+@pushIf($enabled_12, 'scripts')
+<script>window.__tb = "TB_682_12"</script>
+@pushIf($enabled_13, 'scripts')
+<script>window.__tb = "TB_682_13"</script>
+@verbatim
+<div>{{ untouched_TB_682_14 }}</div>
+@endverbatim
+@verbatim
+<div>{{ untouched_TB_682_15 }}</div>
+@endverbatim
+@endif
+</broken-16>
+
+@endif
+</broken-17>
+<p>TB_682_18
+@section('content_19')
+<x-layout>TB_682_19
+@endforeach
+`;
+
+    const { tokens } = tokenize(source);
+    const directives = Directives.withDefaults([
+      { name: "wrapper", args: true, structure: { role: "open", terminators: "endwrapper" } },
+      { name: "endwrapper", args: false, structure: { role: "close" } },
+    ]);
+    directives.train(tokens, source);
+    const r = buildTree(tokens, source, directives);
+
+    const badClosingNames = findByKind(r, NodeKind.ClosingElementName).filter(
+      (node) => node.tokenCount === 0 || r.nodes[node.parent]?.kind !== NodeKind.Element,
+    );
+    expect(badClosingNames).toHaveLength(0);
+    expect(findByKind(r, NodeKind.UnpairedClosingTag).length).toBeGreaterThan(0);
+  });
+
   it("handles component tag names", () => {
     const r = parse("<x-alert></x-alert>");
     const children = rootChildren(r);
