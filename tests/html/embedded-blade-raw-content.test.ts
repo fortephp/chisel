@@ -270,6 +270,28 @@ const marker = "{{ $fallback }}";
     await formatEqual(input, expected);
   });
 
+  it("keeps structural Blade branches valid inside script content", async () => {
+    const input = `<script>
+@if($ready)
+submit(@json($payload))
+@else
+fallback = "literal @if"
+@endif
+</script>
+`;
+
+    const expected = `<script>
+  @if ($ready)
+  submit(@json ($payload));
+  @else
+  fallback = "literal @if";
+  @endif
+</script>
+`;
+
+    await formatEqual(input, expected, phpSafe);
+  });
+
   it("stably formats script @json expressions when bladePhpFormatting is off", async () => {
     const input = `<script>const data = @json(["x","y"])</script>
 `;

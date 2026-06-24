@@ -33,13 +33,30 @@ import {
 } from "./utils.js";
 import { getDoctypeStartMarker } from "./doctype-utils.js";
 import { replaceEndOfLine } from "./doc-utils.js";
+import { hasSwallowedTagSyntaxInOpeningSource } from "../malformed-tags.js";
 
 const { indent, line, softline, hardline, join } = doc.builders;
 
 const unpairedClosingTagIndexCache = new WeakMap<WrappedNode, Map<string, number[]>>();
 
 function canBorrowParentTagMarkers(node: WrappedNode): boolean {
-  return node.kind === NodeKind.Element || node.kind === NodeKind.ConditionalComment;
+  return (
+    (node.kind === NodeKind.Element && !isMalformedOpeningRecoveryElement(node)) ||
+    node.kind === NodeKind.ConditionalComment
+  );
+}
+
+function isMalformedOpeningRecoveryElement(node: WrappedNode): boolean {
+  if (node.kind !== NodeKind.Element || node.hasClosingTag || node.isSelfClosing) {
+    return false;
+  }
+
+  if (node.openTagEndOffset <= node.start) {
+    return true;
+  }
+
+  const openingSource = node.source.slice(node.start + 1, node.openTagEndOffset);
+  return hasSwallowedTagSyntaxInOpeningSource(openingSource);
 }
 
 /**
@@ -163,6 +180,10 @@ function getDisplayClosingTagName(node: WrappedNode, options?: Options): string 
 }
 
 function isBorrowableMarkerNode(node: WrappedNode): boolean {
+  if (isMalformedOpeningRecoveryElement(node)) {
+    return false;
+  }
+
   return (
     node.kind === NodeKind.Element ||
     node.kind === NodeKind.ConditionalComment ||
@@ -315,6 +336,7 @@ export function needsToBorrowLastChildClosingTagEndMarker(node: WrappedNode): bo
  */
 export function needsToBorrowParentClosingTagStartMarker(node: WrappedNode): boolean {
   return (
+    !isMalformedOpeningRecoveryElement(node) &&
     !node.next &&
     !node.hasTrailingSpaces &&
     node.isTrailingSpaceSensitive &&

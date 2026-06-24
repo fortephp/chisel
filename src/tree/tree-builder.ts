@@ -18,6 +18,7 @@ import { extractDirectiveName, checkDirectiveArgsFast } from "./directive-helper
 import { DirectiveTokenIndex } from "./directive-token-index.js";
 import { countArguments, startsWithArray, unwrapParentheses } from "./argument-scanner.js";
 import { isLikelyInsideScriptLiteralOrComment } from "../rawtext-script-scanner.js";
+import { hasSwallowedTagSyntaxInOpeningSource } from "../malformed-tags.js";
 
 type PhpTagShorthandRole = "open" | "branch" | "close";
 type PhpTagShorthandContext = "if" | "switch" | "for" | "foreach" | "while" | "declare";
@@ -108,6 +109,8 @@ export class TreeBuilder {
   private rawTagNames = new Map<number, string>();
   private dynamicTagNames = new Set<number>();
   private tagNameStacks = new Map<string, number[]>();
+  private malformedRawElementIndexes = new Set<number>();
+  private malformedRawElementSources: Array<{ name: string; start: number }> = [];
 
   private directiveIndex: DirectiveTokenIndex | null = null;
   private scriptLiteralDirectiveTokenIndexes: Set<number> | null = null;
@@ -1058,6 +1061,13 @@ export class TreeBuilder {
 
     // Attributes
     this.buildAttributes(elementIdx, elementNameIdx);
+    if (this.hasSwallowedTagSyntaxInOpeningSource(startPos, this.pos)) {
+      this.malformedRawElementIndexes.add(elementIdx);
+      this.malformedRawElementSources.push({
+        name: lowerNewTag,
+        start: this.tokens[startPos].start,
+      });
+    }
 
     // Self-closing detection
     let selfClosing = false;
@@ -1065,7 +1075,7 @@ export class TreeBuilder {
 
     if (this.pos < total && tokens[this.pos].type === TokenType.Slash) {
       this.pos++;
-      selfClosing = true;
+      selfClosing = this.pos < total && tokens[this.pos].type === TokenType.GreaterThan;
     }
 
     if (this.pos < total) {
@@ -1154,6 +1164,8 @@ export class TreeBuilder {
       this.addChild(createFlatNode(NodeKind.UnpairedClosingTag, 0, startPos, this.pos - startPos));
       return;
     }
+
+    this.closeMalformedRawSource(closingTagName);
 
     // Directive scope boundary
     let searchLimit = 1;
@@ -1443,6 +1455,11 @@ export class TreeBuilder {
         }
 
         if (type === TokenType.Directive) {
+          if (this.isNonStructuralDirectiveToken(this.pos)) {
+            this.buildUnifiedAttribute(attrEnd);
+            continue;
+          }
+
           this.processDirective();
           continue;
         }
@@ -1741,7 +1758,7 @@ export class TreeBuilder {
 
   private processDirective(): void {
     const startPos = this.pos;
-    if (this.isNonStructuralDirectiveToken(startPos)) {
+    if (this.isInsideMalformedRawElement() || this.isNonStructuralDirectiveToken(startPos)) {
       this.processNonStructuralDirective(startPos);
       return;
     }
@@ -2087,8 +2104,11 @@ export class TreeBuilder {
   private isSelfClosingElementAt(startIdx: number, limitIdx: number): boolean {
     for (let i = startIdx + 1; i < limitIdx; i++) {
       const type = this.tokens[i].type;
-      if (type === TokenType.GreaterThan || type === TokenType.SyntheticClose) {
+      if (type === TokenType.GreaterThan) {
         return this.tokens[i - 1]?.type === TokenType.Slash;
+      }
+      if (type === TokenType.SyntheticClose) {
+        return false;
       }
       if (type === TokenType.LessThan) {
         return false;
@@ -3113,6 +3133,45 @@ export class TreeBuilder {
     );
   }
 
+  private isInsideMalformedRawElement(): boolean {
+    for (let i = this.openElements.length - 1; i >= 0; i--) {
+      if (this.malformedRawElementIndexes.has(this.openElements[i])) {
+        return true;
+      }
+    }
+
+    const tokenStart = this.tokens[this.pos]?.start ?? -1;
+    for (const source of this.malformedRawElementSources) {
+      if (tokenStart > source.start) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private closeMalformedRawSource(closingTagName: string): void {
+    const lowerClosingTagName = closingTagName.toLowerCase();
+    for (let i = this.malformedRawElementSources.length - 1; i >= 0; i--) {
+      if (this.malformedRawElementSources[i].name !== lowerClosingTagName) {
+        continue;
+      }
+
+      this.malformedRawElementSources.splice(i, 1);
+      return;
+    }
+  }
+
+  private hasSwallowedTagSyntaxInOpeningSource(startIdx: number, endIdx: number): boolean {
+    if (endIdx <= startIdx || endIdx >= this.tokens.length) {
+      return false;
+    }
+
+    const start = this.tokens[startIdx].start + 1;
+    const end = this.tokens[endIdx].end;
+    return hasSwallowedTagSyntaxInOpeningSource(this.source.slice(start, end));
+  }
+
   private isScriptLiteralDirectiveToken(tokenIdx: number): boolean {
     if (this.tokens[tokenIdx]?.type !== TokenType.Directive) {
       return false;
@@ -3242,7 +3301,171 @@ export class TreeBuilder {
       i = tagEnd;
     }
 
+    this.addRecoverableAttributeLiteralDirectiveTokenIndexes(tokenIndexes);
+
     return tokenIndexes;
+  }
+
+  private addRecoverableAttributeLiteralDirectiveTokenIndexes(tokenIndexes: Set<number>): void {
+    for (let i = 0; i < this.tokens.length; i++) {
+      if (this.tokens[i].type !== TokenType.Directive || tokenIndexes.has(i)) {
+        continue;
+      }
+
+      const contentStart = this.findRecoverableAttributeValueContentStart(i);
+      if (contentStart === null) {
+        continue;
+      }
+
+      if (isLikelyInsideScriptLiteralOrComment(this.source, contentStart, this.tokens[i].start)) {
+        tokenIndexes.add(i);
+      }
+    }
+  }
+
+  private findRecoverableAttributeValueContentStart(tokenIdx: number): number | null {
+    const tagStartTokenIdx = this.findPreviousOpeningTagStartTokenIndex(tokenIdx);
+    if (tagStartTokenIdx === null) {
+      return null;
+    }
+
+    if (
+      !this.isBeforeSourceTagClose(this.tokens[tagStartTokenIdx].start, this.tokens[tokenIdx].start)
+    ) {
+      return null;
+    }
+
+    return this.findRecoverableAttributeValueContentStartBefore(tagStartTokenIdx, tokenIdx);
+  }
+
+  private findPreviousOpeningTagStartTokenIndex(tokenIdx: number): number | null {
+    for (let i = tokenIdx - 1; i >= 0; i--) {
+      if (this.tokens[i].type === TokenType.GreaterThan) {
+        return null;
+      }
+
+      if (this.tokens[i].type !== TokenType.LessThan) {
+        continue;
+      }
+
+      if (this.tokens[i + 1]?.type === TokenType.Slash) {
+        return null;
+      }
+
+      if (this.tokens[i + 1]?.type !== TokenType.TagName) {
+        return null;
+      }
+
+      return i;
+    }
+
+    return null;
+  }
+
+  private isBeforeSourceTagClose(tagStart: number, offset: number): boolean {
+    let quote: '"' | "'" | null = null;
+
+    for (let i = tagStart + 1; i < offset; i++) {
+      const ch = this.source[i];
+
+      if (quote !== null) {
+        if (ch === quote) {
+          quote = null;
+        }
+        continue;
+      }
+
+      if (ch === '"' || ch === "'") {
+        quote = ch;
+        continue;
+      }
+
+      if (ch === ">") {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private findRecoverableAttributeValueContentStartBefore(
+    tagStartTokenIdx: number,
+    tokenIdx: number,
+  ): number | null {
+    for (let i = tokenIdx - 1; i > tagStartTokenIdx; i--) {
+      if (this.tokens[i].type !== TokenType.Quote) {
+        continue;
+      }
+
+      const beforeQuoteTokenIdx = this.previousNonWhitespaceTokenIndex(tagStartTokenIdx + 1, i);
+      if (
+        beforeQuoteTokenIdx >= 0 &&
+        this.tokens[beforeQuoteTokenIdx].type === TokenType.Equals &&
+        this.isUnclosedAttributeQuoteBefore(this.tokens[i].start, this.tokens[tokenIdx].start)
+      ) {
+        return this.tokens[i].end;
+      }
+    }
+
+    const tagStart = this.tokens[tagStartTokenIdx].start;
+    const offset = this.tokens[tokenIdx].start;
+    for (let i = offset - 1; i > tagStart; i--) {
+      const ch = this.source[i];
+      if (ch !== '"' && ch !== "'") {
+        continue;
+      }
+
+      const beforeQuote = this.previousNonWhitespaceSourceIndex(tagStart + 1, i);
+      if (
+        beforeQuote >= 0 &&
+        this.source[beforeQuote] === "=" &&
+        this.isUnclosedAttributeQuoteBefore(i, offset)
+      ) {
+        return i + 1;
+      }
+    }
+
+    return null;
+  }
+
+  private previousNonWhitespaceTokenIndex(startIdx: number, endExclusive: number): number {
+    for (let i = endExclusive - 1; i >= startIdx; i--) {
+      if (this.tokens[i].type === TokenType.Whitespace) {
+        continue;
+      }
+
+      return i;
+    }
+
+    return -1;
+  }
+
+  private previousNonWhitespaceSourceIndex(startIdx: number, endExclusive: number): number {
+    for (let i = endExclusive - 1; i >= startIdx; i--) {
+      const ch = this.source[i];
+      if (ch === " " || ch === "\t" || ch === "\n" || ch === "\r") {
+        continue;
+      }
+
+      return i;
+    }
+
+    return -1;
+  }
+
+  private isUnclosedAttributeQuoteBefore(quoteOffset: number, offset: number): boolean {
+    const quote = this.source[quoteOffset];
+    if (quote !== '"' && quote !== "'") {
+      return false;
+    }
+
+    for (let i = quoteOffset + 1; i < offset; i++) {
+      if (this.source[i] === quote) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   private isStaticOpeningTagAt(tokenIdx: number, tagName: string): boolean {
