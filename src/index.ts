@@ -261,3 +261,4 @@ const plugin: Plugin = { languages, parsers, printers, options };
 
 export default plugin;
 export { languages, parsers, printers, options };
+export { getBladeIgnoreRanges, type BladeIgnoreRange } from "./ignore-ranges.js";
