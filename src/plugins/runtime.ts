@@ -3,6 +3,8 @@ import { SAGE_PLUGIN_NAME, sagePlugin } from "./sage/index.js";
 import type { BladeSyntaxPlugin } from "./types.js";
 import { statamicPlugin } from "./statamic.js";
 
+export const DEFAULT_BLADE_SYNTAX_PLUGIN_TOKENS = [statamicPlugin.name] as const;
+
 export interface BladeSyntaxProfile {
   lexerDirectives: string[];
   treeDirectives: TreeDirectiveDefinition[];
@@ -12,7 +14,7 @@ export interface BladeSyntaxProfile {
 
 const BUILTIN_BLADE_SYNTAX_PLUGINS = new Map<string, BladeSyntaxPlugin>([
   [SAGE_PLUGIN_NAME, sagePlugin],
-  ["statamic", statamicPlugin],
+  [statamicPlugin.name, statamicPlugin],
 ]);
 const resolvedBladeSyntaxPluginsCache = new WeakMap<object, BladeSyntaxPlugin[]>();
 
@@ -109,7 +111,11 @@ export function resolveBladeSyntaxPlugins(options?: unknown): BladeSyntaxPlugin[
     return cached;
   }
 
-  const rawPlugins = parseBladeSyntaxPluginTokens(optionRecord.bladeSyntaxPlugins);
+  const rawPluginTokens =
+    optionRecord.bladeSyntaxPlugins === undefined
+      ? DEFAULT_BLADE_SYNTAX_PLUGIN_TOKENS
+      : optionRecord.bladeSyntaxPlugins;
+  const rawPlugins = parseBladeSyntaxPluginTokens(rawPluginTokens);
 
   const seenPluginNames = new Set<string>();
   const resolvedPlugins: BladeSyntaxPlugin[] = [];

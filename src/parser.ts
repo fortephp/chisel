@@ -1,7 +1,5 @@
 import type { Parser } from "prettier";
 import { tokenize } from "./lexer/lexer.js";
-import { Directives as LexerDirectives } from "./lexer/directives.js";
-import { collectIgnoreRanges } from "./lexer/ignore-ranges.js";
 import { buildTree } from "./tree/tree-builder.js";
 import { Directives as TreeDirectives } from "./tree/directives.js";
 import type { WrappedNode } from "./types.js";
@@ -11,6 +9,7 @@ import { hasPragma } from "./pragma.js";
 import { resolveBladeSyntaxProfile } from "./plugins/runtime.js";
 import { markFrontMatter, parseFrontMatter, type FrontMatter } from "./front-matter.js";
 import { buildLineOffsets, getLine } from "./line-offsets.js";
+import { collectIgnoreRangeRegions } from "./ignore-ranges.js";
 
 const INTERNAL_KINDS = new Set([
   NodeKind.ElementName,
@@ -369,16 +368,11 @@ function parse(text: string, options?: unknown): WrappedNode {
   const { frontMatter, content } = parseFrontMatter(text);
 
   const syntaxProfile = resolveBladeSyntaxProfile(options);
-  const lexerDirectives = LexerDirectives.acceptAll();
   const parserOptions = (options ?? {}) as ParserOptionsWithIgnoreRanges;
   const ignoreRanges =
-    parserOptions[IGNORE_RANGES_OPTION] ??
-    collectIgnoreRanges(content, lexerDirectives, {
-      verbatimStartDirectives: syntaxProfile.verbatimStartDirectives,
-      verbatimEndDirectives: syntaxProfile.verbatimEndDirectives,
-    });
+    parserOptions[IGNORE_RANGES_OPTION] ?? collectIgnoreRangeRegions(text, options);
 
-  const { tokens } = tokenize(content, lexerDirectives, {
+  const { tokens } = tokenize(content, undefined, {
     verbatimStartDirectives: syntaxProfile.verbatimStartDirectives,
     verbatimEndDirectives: syntaxProfile.verbatimEndDirectives,
     ignoreRanges,
@@ -398,15 +392,9 @@ function parse(text: string, options?: unknown): WrappedNode {
 }
 
 function preprocess(text: string, options?: unknown): string {
-  const { content } = parseFrontMatter(text);
-  const syntaxProfile = resolveBladeSyntaxProfile(options);
-  const lexerDirectives = LexerDirectives.acceptAll();
   const parserOptions = (options ?? {}) as ParserOptionsWithIgnoreRanges;
 
-  parserOptions[IGNORE_RANGES_OPTION] = collectIgnoreRanges(content, lexerDirectives, {
-    verbatimStartDirectives: syntaxProfile.verbatimStartDirectives,
-    verbatimEndDirectives: syntaxProfile.verbatimEndDirectives,
-  });
+  parserOptions[IGNORE_RANGES_OPTION] = collectIgnoreRangeRegions(text, options);
 
   return text;
 }

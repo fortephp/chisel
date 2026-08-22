@@ -2,6 +2,7 @@ import type { Plugin, SupportOption } from "prettier";
 import { bladeParser } from "./parser.js";
 import { bladePrinter } from "./printer.js";
 import { DEFAULT_DIRECTIVE_ARG_SPACING_OVERRIDE_TOKENS } from "./print/blade-options.js";
+import { DEFAULT_BLADE_SYNTAX_PLUGIN_TOKENS } from "./plugins/runtime.js";
 
 const languages: Plugin["languages"] = [
   {
@@ -76,7 +77,7 @@ const options: Record<string, SupportOption> = {
     category: "Blade",
     type: "string",
     array: true,
-    default: [{ value: ["statamic"] }],
+    default: [{ value: [...DEFAULT_BLADE_SYNTAX_PLUGIN_TOKENS] }],
     description: "List of Blade syntax plugins, e.g. statamic or log1x/sage-directives.",
   },
   bladeDirectiveCase: {
@@ -261,3 +262,4 @@ const plugin: Plugin = { languages, parsers, printers, options };
 
 export default plugin;
 export { languages, parsers, printers, options };
+export { getBladeIgnoreRanges, type BladeIgnoreRange } from "./ignore-ranges.js";
