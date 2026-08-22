@@ -42,6 +42,28 @@ title: Example
     expect(ranges).toHaveLength(0);
   });
 
+  it("uses default syntax plugins unless they are explicitly disabled", () => {
+    const source = `@antlers
+{{-- format-ignore-start --}}
+<span   class="x"></span>
+{{-- format-ignore-end --}}
+@endantlers
+`;
+
+    expect(getBladeIgnoreRanges(source)).toHaveLength(0);
+
+    const ranges = getBladeIgnoreRanges(source, {
+      bladeSyntaxPlugins: [],
+    });
+
+    expect(ranges).toHaveLength(1);
+    expect(source.slice(ranges[0].start, ranges[0].end)).toBe(
+      `{{-- format-ignore-start --}}
+<span   class="x"></span>
+{{-- format-ignore-end --}}`,
+    );
+  });
+
   it("ignores markers in BOM-prefixed front matter without shifting body ranges", () => {
     for (const frontMatter of [
       "title: {{-- format-ignore-start --}}\n{{-- format-ignore-end --}}",
