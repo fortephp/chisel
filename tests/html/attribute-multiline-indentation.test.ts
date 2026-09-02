@@ -13,9 +13,9 @@ const FIXTURE = `@section('content')
 const EXPECTED = `@section ('content')
   <x-tw::page-header
     :breadcrumbs="[
-            [
-                'title' => 'Shortener',
-            ],
+      [
+          'title' => 'Shortener',
+      ],
     ]"
   />
 @endsection
@@ -68,7 +68,9 @@ describe("html/attribute-multiline-indentation", () => {
       expect(keyLine.length, `key indentation mismatch at depth ${depth}`).toBe(
         innerOpen.length + 4,
       );
-      expect(outerClose.length, `outer close indentation mismatch at depth ${depth}`).toBe(4);
+      expect(outerClose.length, `outer close indentation mismatch at depth ${depth}`).toBe(
+        innerOpen.length - 2,
+      );
 
       if (depth > 0) {
         const unwrapped = unwrapOneLevel(normalized);
@@ -79,5 +81,28 @@ describe("html/attribute-multiline-indentation", () => {
         ).toBe(true);
       }
     }
+  });
+
+  it.each([
+    [
+      "multiline strings",
+      `[
+  'template' => 'first line
+      intentionally indented second line',
+]`,
+    ],
+    [
+      "heredocs",
+      `[
+  'template' => <<<'HTML'
+      <span>literal indentation</span>
+  HTML,
+]`,
+    ],
+  ])("preserves indentation inside %s", async (_name, value) => {
+    await formatEqual(
+      `<x-picker :options="${value}" />\n`,
+      `<x-picker\n  :options="${value}"\n/>\n`,
+    );
   });
 });

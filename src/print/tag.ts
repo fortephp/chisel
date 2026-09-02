@@ -16,7 +16,9 @@ import {
 } from "./blade-options.js";
 import { formatAttributeNameForPrint } from "./attribute-name.js";
 import { isTextLikeNode, isVueSfcBlock } from "../node-predicates.js";
+import { normalizeLineEndingsToLf } from "../string-utils.js";
 import {
+  dedentString,
   isPreLikeNode,
   getLastDescendant,
   hasPrettierIgnore,
@@ -985,8 +987,56 @@ export function printAttribute(node: WrappedNode, options: Options): Doc {
   // Normalize quotes: unescape entities, choose preferred quote, re-escape.
   const unescaped = unescapeQuoteEntities(value);
   const quote = getPreferredQuote(unescaped, '"');
+  // PHP delegation may be disabled or unavailable. Keep its static fallback
+  // readable without changing any expression content.
+  const shouldIndentBoundArray = isBound && isMultilineBracketArrayValue(unescaped);
   const escaped =
     quote === '"' ? unescaped.replaceAll('"', "&quot;") : unescaped.replaceAll("'", "&apos;");
 
-  return [name, "=", quote, replaceEndOfLine(escaped), quote];
+  const renderedValue = shouldIndentBoundArray
+    ? printMultilineBoundArrayValue(escaped)
+    : replaceEndOfLine(escaped);
+  return [name, "=", quote, renderedValue, quote];
+}
+
+function printMultilineBoundArrayValue(value: string): Doc {
+  const lines = normalizeLineEndingsToLf(value).split("\n");
+  const body = dedentString(lines.slice(1, -1).join("\n"));
+  return ["[", indent([hardline, replaceEndOfLine(body, hardline)]), hardline, "]"];
+}
+
+function isMultilineBracketArrayValue(value: string): boolean {
+  const lines = normalizeLineEndingsToLf(value).split("\n");
+  return (
+    lines.length > 2 &&
+    lines[0].trim() === "[" &&
+    lines.at(-1)?.trim() === "]" &&
+    !value.includes("<<<") &&
+    !hasMultilineQuotedValue(value)
+  );
+}
+
+function hasMultilineQuotedValue(value: string): boolean {
+  let quote: "'" | '"' | "`" | null = null;
+  let escaped = false;
+
+  for (const char of value) {
+    if (char === "\n" || char === "\r") {
+      if (quote !== null) return true;
+      continue;
+    }
+    if (quote === null) {
+      if (char === "'" || char === '"' || char === "`") quote = char;
+      continue;
+    }
+    if (escaped) {
+      escaped = false;
+    } else if (char === "\\") {
+      escaped = true;
+    } else if (char === quote) {
+      quote = null;
+    }
+  }
+
+  return false;
 }

@@ -450,6 +450,7 @@ function normalizeStyleValueReplacementText(value: string): string {
 function applyMarkerReplacements(
   value: string,
   slots: readonly PlaceholderSlot[],
+  indentMultilineEchoes = false,
 ): { text: string; allFound: boolean } {
   let out = value;
   let allFound = true;
@@ -467,7 +468,14 @@ function applyMarkerReplacements(
       continue;
     }
 
-    out = `${out.slice(0, start)}${slot.replacementText}${out.slice(start + slot.marker.length)}`;
+    let replacementText = slot.replacementText;
+    if (indentMultilineEchoes && isMultilineEchoConstruct(slot.node)) {
+      const lineStart = out.lastIndexOf("\n", start - 1) + 1;
+      const lineIndent = out.slice(lineStart, start).match(/^[\t ]*/u)?.[0] ?? "";
+      replacementText = replacementText.replace(/\n(?=.)/gu, `\n${lineIndent}`);
+    }
+
+    out = `${out.slice(0, start)}${replacementText}${out.slice(start + slot.marker.length)}`;
   }
 
   return { text: out, allFound };
@@ -2604,7 +2612,7 @@ export async function embedMixedRawContentElement(
     );
   }
 
-  const unmasked = applyMarkerReplacements(formattedMasked, slots);
+  const unmasked = applyMarkerReplacements(formattedMasked, slots, node.tagName === "script");
   if (!unmasked.allFound) {
     const fallback = normalizeEmbeddedRawContentFallback(rawValue);
     return buildScriptLikeElementDoc(
