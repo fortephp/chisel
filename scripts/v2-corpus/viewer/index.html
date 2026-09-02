@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chisel v2 / v3 corpus review</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="loading" class="loading">Loading corpus report…</div>
+    <main id="app" class="app" hidden>
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Chisel corpus review</p>
+          <h1>v2 / v3 formatter comparison</h1>
+        </div>
+        <div id="run-meta" class="run-meta"></div>
+      </header>
+
+      <div class="notice" role="note">
+        <strong>The v2 side includes Pint.</strong>
+        Treat it as a visual reference, not an expected-output oracle. Hard failures refer to v3
+        convergence and preservation checks.
+      </div>
+
+      <section class="workspace">
+        <aside class="sidebar">
+          <div id="summary-cards" class="summary-cards"></div>
+          <label class="field search-field">
+            <span>Find a case</span>
+            <input id="search" type="search" placeholder="File or source path" autocomplete="off" />
+          </label>
+          <div class="filters">
+            <label class="field">
+              <span>Show</span>
+              <select id="filter">
+                <option value="all">All cases</option>
+                <option value="unreviewed">Unreviewed</option>
+                <option value="possible-bug">Possible bugs</option>
+                <option value="hard-failure">Hard failures</option>
+                <option value="warning">Warnings</option>
+                <option value="duplicate">Existing fixture duplicates</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Sort</span>
+              <select id="sort">
+                <option value="priority">Review priority</option>
+                <option value="path">Source path</option>
+                <option value="change">Largest v2/v3 change</option>
+              </select>
+            </label>
+          </div>
+          <div id="case-count" class="case-count" aria-live="polite"></div>
+          <ol id="case-list" class="case-list"></ol>
+        </aside>
+
+        <section class="review-panel">
+          <header class="case-header">
+            <div class="case-title-wrap">
+              <div class="case-navigation">
+                <button id="previous" class="quiet-button" type="button">← Previous</button>
+                <button id="next" class="quiet-button" type="button">Next →</button>
+              </div>
+              <h2 id="case-title"></h2>
+              <p id="case-path" class="case-path"></p>
+            </div>
+            <div id="case-badges" class="badges"></div>
+          </header>
+
+          <div class="review-toolbar">
+            <label class="field compact">
+              <span>Profile</span>
+              <select id="profile"></select>
+            </label>
+            <label class="field compact">
+              <span>Compare</span>
+              <select id="comparison">
+                <option value="v2-v3">v2 reference ↔ v3</option>
+                <option value="input-v3">Original input ↔ v3</option>
+                <option value="input-v2">Original input ↔ v2 reference</option>
+              </select>
+            </label>
+            <label class="toggle">
+              <input id="changes-only" type="checkbox" />
+              Changes only
+            </label>
+          </div>
+
+          <div id="diagnostics" class="diagnostics"></div>
+          <div id="metrics" class="metrics"></div>
+
+          <div class="diff-shell">
+            <div class="diff-headings">
+              <div id="left-heading"></div>
+              <div id="right-heading"></div>
+            </div>
+            <div
+              id="diff"
+              class="diff"
+              tabindex="0"
+              aria-label="Side-by-side line comparison"
+            ></div>
+          </div>
+
+          <section class="review-decision" aria-labelledby="review-heading">
+            <div>
+              <p class="eyebrow">Manual classification</p>
+              <h3 id="review-heading">What does this case tell us?</h3>
+            </div>
+            <div
+              id="decision-buttons"
+              class="decision-buttons"
+              role="group"
+              aria-label="Classification"
+            >
+              <button type="button" data-decision="looks-good">Looks reasonable</button>
+              <button type="button" data-decision="possible-bug">Possible bug</button>
+              <button type="button" data-decision="expected-deviation">Expected deviation</button>
+              <button type="button" data-decision="duplicate">Duplicate</button>
+            </div>
+            <label class="field notes-field">
+              <span>Notes</span>
+              <textarea
+                id="notes"
+                rows="3"
+                placeholder="Why this looks suspicious or acceptable…"
+              ></textarea>
+            </label>
+            <div class="review-actions">
+              <span id="save-state" role="status"></span>
+              <button id="export-review" class="quiet-button" type="button">
+                Export review JSON
+              </button>
+              <label class="quiet-button import-button">
+                Import review JSON
+                <input id="import-review" type="file" accept="application/json" />
+              </label>
+            </div>
+          </section>
+        </section>
+      </section>
+    </main>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
