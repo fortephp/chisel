@@ -39,6 +39,7 @@ const DIRECTIVE_END_MARKER_COMMENT = "/*__BDE__*/";
 const phpFormatCache = new Map<string, string | null>();
 const BROWSER_DEFAULT_PHP_VERSION = "8.4";
 const PHP_INLINE_WRAPPER_PRINT_WIDTH_MARGIN = 8;
+const OPENING_TAG_RAW_ECHO_PRINT_WIDTH_MARGIN = 16;
 const FORCED_DIRECTIVE_ARG_TRAILING_COMMA = false;
 const DIRECTIVE_ARG_FINAL_ARRAY_TRAILING_COMMA_ALLOWED_DIRECTIVES = new Set(["aware", "props"]);
 
@@ -823,6 +824,30 @@ function isEchoInAttributeLikeTextRun(node: WrappedNode): boolean {
   return /=\s*["']$/.test(prevTrimmed) && /^["']/.test(nextTrimmed);
 }
 
+function isSourceInlineRawEchoInElementOpenTag(node: WrappedNode): boolean {
+  if (node.kind !== NodeKind.RawEcho || node.startLine !== node.endLine) {
+    return false;
+  }
+
+  let current = node;
+  while (current.parent && current.parent.kind !== NodeKind.Element) {
+    if (
+      current.parent.kind !== NodeKind.Directive &&
+      current.parent.kind !== NodeKind.DirectiveBlock
+    ) {
+      return false;
+    }
+    current = current.parent;
+  }
+
+  const element = current.parent;
+  return (
+    element?.kind === NodeKind.Element &&
+    element.openTagEndOffset > element.start &&
+    current.end <= element.openTagEndOffset
+  );
+}
+
 function shouldCompensateInlineEchoPrintWidth(node: WrappedNode): boolean {
   const parent = node.parent;
   if (!parent || parent.kind !== NodeKind.Element) {
@@ -951,9 +976,20 @@ export async function formatEchoNode(node: WrappedNode, options: Options): Promi
   const trimmedContent = content.trim();
 
   const wrapped = wrapEchoExpression(trimmedContent);
-  const delegatedOptions = shouldCompensateInlineEchoPrintWidth(node)
-    ? withCompensatedInlineEchoPrintWidth(wrapped, options)
-    : options;
+  const sourceInlineOpeningTagRawEcho = isSourceInlineRawEchoInElementOpenTag(node);
+  const delegatedOptions = sourceInlineOpeningTagRawEcho
+    ? ({
+        ...(options as Record<string, unknown>),
+        // The delegated formatter measures sentinel comments that are absent from Blade output.
+        printWidth:
+          getCompensatedDelegatedPhpPrintWidth(wrapped, options) +
+          START_MARKER_COMMENT.length +
+          END_MARKER_COMMENT.length +
+          OPENING_TAG_RAW_ECHO_PRINT_WIDTH_MARGIN,
+      } as Options)
+    : shouldCompensateInlineEchoPrintWidth(node)
+      ? withCompensatedInlineEchoPrintWidth(wrapped, options)
+      : options;
   const singleQuoteOverride = isInBladeComponentOpenTag(node, options) ? true : undefined;
   const formatted = await formatPhpSnippet(
     wrapped,
