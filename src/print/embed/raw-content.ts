@@ -412,7 +412,7 @@ function buildMaskedSource(
   return out;
 }
 
-function normalizeStyleValueReplacementText(value: string): string {
+function normalizeMultilineReplacementText(value: string): string {
   const lines = normalizeLineEndingsToLf(value).split("\n");
   if (lines.length <= 1) {
     return value;
@@ -447,10 +447,30 @@ function normalizeStyleValueReplacementText(value: string): string {
   return lines.join("\n");
 }
 
+function normalizeMultilineDirectiveReplacementText(value: string, indentUnit: string): string {
+  const normalized = normalizeMultilineReplacementText(value);
+  const lines = normalized.split("\n");
+  const lastIndex = lines.length - 1;
+
+  if (
+    !/\(\s*\[\s*$/u.test(lines[0]) ||
+    lines[lastIndex].trim() !== "])" ||
+    !lines.slice(1, lastIndex).some((line) => /^\S/u.test(line))
+  ) {
+    return normalized;
+  }
+
+  return lines
+    .map((line, index) =>
+      index > 0 && index < lastIndex && line.trim().length > 0 ? `${indentUnit}${line}` : line,
+    )
+    .join("\n");
+}
+
 function applyMarkerReplacements(
   value: string,
   slots: readonly PlaceholderSlot[],
-  indentMultilineEchoes = false,
+  multilineIndentUnit: string | null = null,
 ): { text: string; allFound: boolean } {
   let out = value;
   let allFound = true;
@@ -469,7 +489,18 @@ function applyMarkerReplacements(
     }
 
     let replacementText = slot.replacementText;
-    if (indentMultilineEchoes && isMultilineEchoConstruct(slot.node)) {
+    const isMultilineDirective =
+      slot.node.kind === NodeKind.Directive && /[\r\n]/u.test(replacementText);
+    if (multilineIndentUnit !== null && isMultilineDirective) {
+      replacementText = normalizeMultilineDirectiveReplacementText(
+        replacementText,
+        multilineIndentUnit,
+      );
+    }
+    if (
+      multilineIndentUnit !== null &&
+      (isMultilineEchoConstruct(slot.node) || isMultilineDirective)
+    ) {
       const lineStart = out.lastIndexOf("\n", start - 1) + 1;
       const lineIndent = out.slice(lineStart, start).match(/^[\t ]*/u)?.[0] ?? "";
       replacementText = replacementText.replace(/\n(?=.)/gu, `\n${lineIndent}`);
@@ -2511,7 +2542,7 @@ export async function embedMixedRawContentElement(
     const baseReplacementText = insideStyleLiteralOrComment ? fullText(child) : replacements[index];
     const replacementText =
       isStyleParser(parser) && inStyleValueContext
-        ? normalizeStyleValueReplacementText(baseReplacementText)
+        ? normalizeMultilineReplacementText(baseReplacementText)
         : baseReplacementText;
 
     return {
@@ -2612,7 +2643,11 @@ export async function embedMixedRawContentElement(
     );
   }
 
-  const unmasked = applyMarkerReplacements(formattedMasked, slots, node.tagName === "script");
+  const unmasked = applyMarkerReplacements(
+    formattedMasked,
+    slots,
+    node.tagName === "script" ? getIndentUnit(options) : null,
+  );
   if (!unmasked.allFound) {
     const fallback = normalizeEmbeddedRawContentFallback(rawValue);
     return buildScriptLikeElementDoc(
