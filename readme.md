@@ -374,9 +374,6 @@ This plugin also respects standard Prettier options, including:
 
 ## Troubleshooting
 
-Maintainers investigating formatter regressions can generate and review the v2 acceptance corpus
-with the [v2/v3 corpus review workflow](docs/v2-corpus-review.md).
-
 ### Tailwind CSS classes are not sorting
 
 - Confirm `prettier-plugin-tailwindcss` is installed.
