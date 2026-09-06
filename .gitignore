@@ -2,4 +2,3 @@ node_modules/
 dist/
 *.tsbuildinfo
 .DS_Store
-.tmp/v2-corpus-review/
