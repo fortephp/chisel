@@ -3546,9 +3546,9 @@ exports[`validation/conformance/formatter-cases > formats templates__018 1`] = `
 "@section ('content')
   <x-tw::page-header
     :breadcrumbs="[
-        [
-          'title' => 'Shortener',
-        ],
+      [
+        'title' => 'Shortener',
+      ],
     ]"
   />
 @endsection

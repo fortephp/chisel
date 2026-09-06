@@ -23,6 +23,7 @@ import { resolveEmbeddedParserPlugins } from "./embedded-parser-plugins.js";
 import { resolvePhpPlugins } from "./php-plugin.js";
 import { isPhpFormattingEnabled } from "./php.js";
 import { isBladeComponentTagName, shouldPreserveInlineIntentAttributes } from "../blade-options.js";
+import { isMultilineBracketArrayValue, printMultilineBoundArrayValue } from "../bound-attribute.js";
 
 const { group, join, line, ifBreak } = doc.builders;
 
@@ -488,6 +489,12 @@ const printColonBoundAttribute: AttrPrint = async (textToDoc, _print, path, opti
 
     const formattedValue = await formatAsPhpBoundAttributeValue(value, options);
     if (!formattedValue) return undefined;
+
+    // Use the same structural line breaks as the non-PHP fallback so the
+    // opening tag expands and indentation follows the surrounding element.
+    if (isMultilineBracketArrayValue(formattedValue)) {
+      return printMultilineBoundArrayValue(formattedValue);
+    }
 
     const normalizedName = normalizeAttributeName(name, node.parent);
     const indentedValue = indentMultilineRelativeToAttributeName(formattedValue, normalizedName);

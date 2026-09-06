@@ -333,7 +333,9 @@ function printDirectiveBody(
 ): Doc[] {
   const docs: Doc[] = [];
   const branch = branchPath.node;
-  const segments = getChildPrintSegments(branch.children);
+  const segments = getChildPrintSegments(branch.children).filter(
+    (segment) => segment.first.kind !== NodeKind.AttributeWhitespace,
+  );
   const renderedChildren = branchPath.map((childPath) => {
     const child = childPath.node;
     if (isBranchNode(child) && child.children.length > 0) {
@@ -718,6 +720,9 @@ function printBetweenLine(prev: WrappedNode, next: WrappedNode): Doc {
 
   // Case 1: Both text-like - respect trailing space sensitivity.
   if (isTextLikeNode(prev) && isTextLikeNode(next)) {
+    if (hasLineBreakBetweenNodes && (isEchoLike(prev) || isEchoLike(next))) {
+      return hardline;
+    }
     if (prev.isTrailingSpaceSensitive) {
       if (prev.hasTrailingSpaces) {
         if (isEchoLike(prev) || isEchoLike(next)) {
