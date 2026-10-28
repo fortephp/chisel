@@ -381,13 +381,6 @@ export function needsToBorrowParentOpeningTagEndMarker(node: WrappedNode): boole
     node.kind === NodeKind.Element ||
     node.kind === NodeKind.ConditionalComment;
 
-  // Dotted component names (e.g. <x:editor.button>) are prone to
-  // one-pass marker drift when their first child borrows the opening `>`.
-  // Keep the parent's `>` attached to the opening tag for stable output.
-  if (node.parent?.kind === NodeKind.Element && node.parent.rawTagName.includes(".")) {
-    return false;
-  }
-
   return canBorrow && !node.prev && node.isLeadingSpaceSensitive && !node.hasLeadingSpaces;
 }
 
